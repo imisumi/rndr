@@ -26,3 +26,4 @@ set(IMGUI_SOURCES
 add_library(imgui STATIC ${IMGUI_SOURCES})
 
 target_include_directories(imgui PRIVATE ${IMGUI_COURCE_DIR})
+target_include_directories(imgui PRIVATE ${RNDR_COURCE_DIR}/../dep/gl3w/include)
