@@ -15,14 +15,14 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: true  # Initialize and update submodules
 
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake build-essential libglfw3-dev
+        sudo apt-get install -y cmake build-essential libxkbcommon-dev
 
     - name: Create build directory
       run: mkdir build
