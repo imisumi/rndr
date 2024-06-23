@@ -46,6 +46,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+      with:
+        submodules: true  # Initialize and update submodules
 
     - name: Set up MSVC
       uses: ilammy/msvc-dev-cmd@v1
