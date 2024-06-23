@@ -37,11 +37,18 @@ set(IMGUI_COURCE_DIR ${RNDR_COURCE_DIR}/../dep/imgui)
 # Enable position-independent code for all targets
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+if(UNIX AND NOT APPLE)
+	# In your CMakeLists.txt or via command-line
+	set(USE_X11 ON)  # This is an example variable name, adjust as per your project
+	set(USE_WAYLAND OFF)
+endif()
+
 # Add GLFW as a subdirectory
 add_subdirectory(dep/glfw)
 add_subdirectory(dep/spdlog)
 add_subdirectory(dep/glm)
 add_subdirectory(dep/imgui-cmake)
+add_subdirectory(dep/glad)
 
 # For now, we don't want GLFW to include any OpenGL headers
 add_compile_definitions(GLFW_INCLUDE_NONE)
@@ -52,9 +59,14 @@ target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog)
 target_link_libraries(${PROJECT_NAME} PRIVATE glm)
 target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
+target_link_libraries(${PROJECT_NAME} PRIVATE glad)
 
 # Optionally specify include directories
 target_include_directories(${PROJECT_NAME} PRIVATE glfw/include)
 target_include_directories(${PROJECT_NAME} PRIVATE spdlog/include)
 target_include_directories(${PROJECT_NAME} PRIVATE glm)
 target_include_directories(${PROJECT_NAME} PRIVATE imgui)
+target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_COURCE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE glad/include)
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${RNDR_COURCE_DIR})

@@ -35,6 +35,8 @@ target_include_directories(Sandbox PRIVATE
 	${RNDR_COURCE_DIR}
 	
 	${RNDR_COURCE_DIR}/../dep/spdlog/include
+	${RNDR_COURCE_DIR}/../dep/glm
+	${RNDR_COURCE_DIR}/../dep/imgui
 )
 
 target_link_libraries(Sandbox Rndr)
