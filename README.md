@@ -1,4 +1,4 @@
-![Windows Build](https://github.com/imisumi/rndr-engine/actions/workflows/win_build.yml/badge.svg)
+![Windows Build](https://github.com/imisumi/rndr-engine/actions/workflows/win_build.yml/badge.svg) ![Windows Build](https://github.com/imisumi/rndr-engine/actions/workflows/ubuntu_build.yml/badge.svg)
 # Rndr - PBR rendering engine
 
 ## Description
