@@ -56,13 +56,15 @@ add_compile_definitions(GLFW_INCLUDE_NONE)
 add_library(${PROJECT_NAME} STATIC ${RNDR_SOURCES})
 # Link against GLFW
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
+target_include_directories(${PROJECT_NAME} PUBLIC glfw/include)
+
+
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog)
 target_link_libraries(${PROJECT_NAME} PUBLIC glm)
 target_link_libraries(${PROJECT_NAME} PUBLIC imgui)
 target_link_libraries(${PROJECT_NAME} PUBLIC glad)
 
 # Optionally specify include directories
-target_include_directories(${PROJECT_NAME} PUBLIC glfw/include)
 target_include_directories(${PROJECT_NAME} PUBLIC spdlog/include)
 target_include_directories(${PROJECT_NAME} PUBLIC glm)
 target_include_directories(${PROJECT_NAME} PUBLIC imgui)
