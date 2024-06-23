@@ -7,7 +7,7 @@
 
 namespace Rndr {
 
-	class RNDR_API LayerStack
+	class  LayerStack
 	{
 	public:
 		LayerStack();

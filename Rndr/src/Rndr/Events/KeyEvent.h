@@ -6,7 +6,7 @@
 
 namespace Rndr {
 
-	class RNDR_API KeyEvent : public Event
+	class  KeyEvent : public Event
 	{
 	public:
 		inline int GetKeyCode() const { return m_KeyCode; }
@@ -19,7 +19,7 @@ namespace Rndr {
 		int m_KeyCode;
 	};
 
-	class RNDR_API KeyPressedEvent : public KeyEvent
+	class  KeyPressedEvent : public KeyEvent
 	{
 	public:
 		KeyPressedEvent(int keycode, int repeatCount)
@@ -34,12 +34,12 @@ namespace Rndr {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(KeyPressed)
+		EVENT_CLASS_TYPE(KeyPressed);
 	private:
 		int m_RepeatCount;
 	};
 
-	class RNDR_API KeyReleasedEvent : public KeyEvent
+	class  KeyReleasedEvent : public KeyEvent
 	{
 	public:
 		KeyReleasedEvent(int keycode)
@@ -55,7 +55,7 @@ namespace Rndr {
 		EVENT_CLASS_TYPE(KeyReleased)
 	};
 
-	class RNDR_API KeyTypedEvent : public KeyEvent
+	class  KeyTypedEvent : public KeyEvent
 	{
 	public:
 		KeyTypedEvent(int keycode)

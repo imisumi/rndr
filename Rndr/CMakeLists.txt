@@ -8,14 +8,18 @@ endif()
 message(STATUS "Building: ${PROJECT_NAME}")
 message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
 
+if (MSVC)
+	# Use /MD (dynamic runtime) for Release configurations
+	# set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+	# set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MD")
 
-if(UNIX AND NOT APPLE)
-	add_compile_definitions(RNDR_PLATFORM_LINUX)
-elseif(WIN32)
-	add_compile_definitions(RNDR_PLATFORM_WINDOWS)
+	# Use /MDd (dynamic runtime for debugging) for Debug configurations
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
+	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /MDd")
 endif()
-add_compile_definitions(RNDR_BUILD_DLL)
-# add_compile_definitions(GLFW_INCLUDE_NONE)
+
+
+
 
 message(STATUS "RNDR_COURCE_DIR: ${RNDR_COURCE_DIR}")
 
@@ -23,9 +27,9 @@ message(STATUS "RNDR_COURCE_DIR: ${RNDR_COURCE_DIR}")
 
 # Create a list of all C++ source files recursively under src/
 file(GLOB_RECURSE RNDR_SOURCES 
-    "${RNDR_COURCE_DIR}/*.cpp"
-    "${RNDR_COURCE_DIR}/**/*.cpp"
-    "${RNDR_COURCE_DIR}/**/**/*.cpp"
+"${RNDR_COURCE_DIR}/*.cpp"
+"${RNDR_COURCE_DIR}/**/*.cpp"
+"${RNDR_COURCE_DIR}/**/**/*.cpp"
 )
 
 
@@ -37,11 +41,6 @@ set(IMGUI_COURCE_DIR ${RNDR_COURCE_DIR}/../dep/imgui)
 # Enable position-independent code for all targets
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-if(UNIX AND NOT APPLE)
-	# In your CMakeLists.txt or via command-line
-	set(USE_X11 ON)  # This is an example variable name, adjust as per your project
-	set(USE_WAYLAND OFF)
-endif()
 
 # Add GLFW as a subdirectory
 add_subdirectory(dep/glfw)
@@ -53,20 +52,21 @@ add_subdirectory(dep/glad)
 # For now, we don't want GLFW to include any OpenGL headers
 add_compile_definitions(GLFW_INCLUDE_NONE)
 
-add_library(${PROJECT_NAME} SHARED ${RNDR_SOURCES})
+# add_library(${PROJECT_NAME} SHARED ${RNDR_SOURCES})
+add_library(${PROJECT_NAME} STATIC ${RNDR_SOURCES})
 # Link against GLFW
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
-target_link_libraries(${PROJECT_NAME} PRIVATE spdlog)
-target_link_libraries(${PROJECT_NAME} PRIVATE glm)
-target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
-target_link_libraries(${PROJECT_NAME} PRIVATE glad)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
+target_link_libraries(${PROJECT_NAME} PUBLIC spdlog)
+target_link_libraries(${PROJECT_NAME} PUBLIC glm)
+target_link_libraries(${PROJECT_NAME} PUBLIC imgui)
+target_link_libraries(${PROJECT_NAME} PUBLIC glad)
 
 # Optionally specify include directories
-target_include_directories(${PROJECT_NAME} PRIVATE glfw/include)
-target_include_directories(${PROJECT_NAME} PRIVATE spdlog/include)
-target_include_directories(${PROJECT_NAME} PRIVATE glm)
-target_include_directories(${PROJECT_NAME} PRIVATE imgui)
-target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_COURCE_DIR})
-target_include_directories(${PROJECT_NAME} PRIVATE glad/include)
+target_include_directories(${PROJECT_NAME} PUBLIC glfw/include)
+target_include_directories(${PROJECT_NAME} PUBLIC spdlog/include)
+target_include_directories(${PROJECT_NAME} PUBLIC glm)
+target_include_directories(${PROJECT_NAME} PUBLIC imgui)
+target_include_directories(${PROJECT_NAME} PUBLIC ${IMGUI_COURCE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC glad/include)
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${RNDR_COURCE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC ${RNDR_COURCE_DIR})

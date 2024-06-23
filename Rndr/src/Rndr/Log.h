@@ -7,7 +7,7 @@
 
 namespace Rndr {
 
-	class RNDR_API Log
+	class  Log
 	{
 	public:
 		static void Init();

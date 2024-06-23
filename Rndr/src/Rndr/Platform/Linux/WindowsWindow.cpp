@@ -44,10 +44,10 @@ namespace Rndr {
 
 		RNDR_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		// glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+		// glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		// glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+		// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 		if (!s_GLFWInitialized)
 		{

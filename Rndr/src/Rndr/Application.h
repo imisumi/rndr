@@ -14,7 +14,7 @@
 
 namespace Rndr
 {
-	class RNDR_API Application
+	class Application
 	{
 	public:
 		Application();
