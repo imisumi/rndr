@@ -12,6 +12,8 @@
 
 #include <memory>
 
+#include "Rndr/Renderer/Shader.h"
+
 namespace Rndr
 {
 	class Application
@@ -41,6 +43,10 @@ namespace Rndr
 		LayerStack m_LayerStack;
 
 		static Application* s_Instance;
+
+
+		uint32_t m_VertexArray, m_VertexBuffer, m_IndexBuffer;
+		std::unique_ptr<Shader> m_Shader;
 	};
 
 	// To be defined in CLIENT

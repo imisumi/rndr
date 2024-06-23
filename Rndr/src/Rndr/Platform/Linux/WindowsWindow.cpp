@@ -5,9 +5,9 @@
 #include "Rndr/Events/MouseEvent.h"
 #include "Rndr/Events/KeyEvent.h"
 
-#include <glad/glad.h>
-// #include <GLFW/glfw3.h>
+#include <GLFW/glfw3.h>
 
+#include "Rndr/Platform/OpenGL/OpenGLContext.h"
 
 namespace Rndr {
 	
@@ -42,6 +42,7 @@ namespace Rndr {
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
 
+
 		RNDR_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
 		// glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
@@ -60,10 +61,10 @@ namespace Rndr {
 		}
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
-		glfwMakeContextCurrent(m_Window);
-		//? init glad
-		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		RNDR_CORE_ASSERT(status, "Failed to initialize Glad!");
+
+		m_Context = new OpenGLContext(m_Window);
+		m_Context->Init();
+
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
@@ -167,7 +168,8 @@ namespace Rndr {
 	void WindowsWindow::OnUpdate()
 	{
 		glfwPollEvents();
-		glfwSwapBuffers(m_Window);
+		m_Context->SwapBuffers();
+		// glfwSwapBuffers(m_Window);
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)

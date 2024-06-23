@@ -8,6 +8,8 @@
 
 // struct GLFWwindow;
 
+#include "Rndr/Renderer/GraphicsContext.h"
+
 namespace Rndr {
 
 	class WindowsWindow : public Window
@@ -32,6 +34,7 @@ namespace Rndr {
 		virtual void Shutdown();
 	private:
 		GLFWwindow* m_Window;
+		GraphicsContext* m_Context;
 
 		struct WindowData
 		{
