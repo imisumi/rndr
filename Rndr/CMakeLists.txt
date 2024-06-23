@@ -43,6 +43,9 @@ add_subdirectory(dep/spdlog)
 add_subdirectory(dep/glm)
 add_subdirectory(dep/imgui-cmake)
 
+# For now, we don't want GLFW to include any OpenGL headers
+add_compile_definitions(GLFW_INCLUDE_NONE)
+
 add_library(${PROJECT_NAME} SHARED ${RNDR_SOURCES})
 # Link against GLFW
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
