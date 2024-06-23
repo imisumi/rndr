@@ -34,6 +34,9 @@ file(GLOB_RECURSE RNDR_SOURCES
 
 set(IMGUI_COURCE_DIR ${RNDR_COURCE_DIR}/../dep/imgui)
 
+# Enable position-independent code for all targets
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 # Add GLFW as a subdirectory
 add_subdirectory(dep/glfw)
 add_subdirectory(dep/spdlog)

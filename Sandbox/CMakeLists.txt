@@ -33,6 +33,8 @@ add_executable(Sandbox ${SANDBOX_SOURCES})
 # Include directories for Sandbox target
 target_include_directories(Sandbox PRIVATE
 	${RNDR_COURCE_DIR}
+	
+	${RNDR_COURCE_DIR}/../dep/spdlog/include
 )
 
 target_link_libraries(Sandbox Rndr)
