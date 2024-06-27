@@ -4,7 +4,7 @@
 #include "Rndr/Log.h"
 
 #include "Renderer.h"
-#include "Rndr/Platform/OpenGL/OpenGLBuffer.h"
+#include "Platform/OpenGL/OpenGLBuffer.h"
 
 namespace Rndr
 {
@@ -13,9 +13,9 @@ namespace Rndr
 		// return new OpenGLVertexBuffer(vertices, size);
 		switch (Renderer::GetAPI())
 		{
-			case RendererAPI::None:      RNDR_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-			case RendererAPI::OpenGL:    return new OpenGLVertexBuffer(vertices, size);
-			case RendererAPI::Vulkan:    RNDR_CORE_ASSERT(false, "RendererAPI::Vulkan is currently not supported!"); return nullptr;
+			case RendererAPI::API::None:      RNDR_CORE_ASSERT(false, "RendererAPI::API::None is currently not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL:    return new OpenGLVertexBuffer(vertices, size);
+			// case RendererAPI::API::Vulkan:    RNDR_CORE_ASSERT(false, "RendererAPI::API::Vulkan is currently not supported!"); return nullptr;
 		}
 
 		RNDR_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -27,9 +27,9 @@ namespace Rndr
 		
 		switch (Renderer::GetAPI())
 		{
-			case RendererAPI::None:      RNDR_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-			case RendererAPI::OpenGL:    return new OpenGLIndexBuffer(indices, count);
-			case RendererAPI::Vulkan:    RNDR_CORE_ASSERT(false, "RendererAPI::Vulkan is currently not supported!"); return nullptr;
+			case RendererAPI::API::None:      RNDR_CORE_ASSERT(false, "RendererAPI::API::None is currently not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL:    return new OpenGLIndexBuffer(indices, count);
+			// case RendererAPI::API::Vulkan:    RNDR_CORE_ASSERT(false, "RendererAPI::API::Vulkan is currently not supported!"); return nullptr;
 		}
 
 		RNDR_CORE_ASSERT(false, "Unknown RendererAPI!");

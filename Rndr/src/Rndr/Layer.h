@@ -4,6 +4,8 @@
 #include "Rndr/Core.h"
 #include "Rndr/Events/Event.h"
 
+#include "Rndr/Core/Timestep.h"
+
 #include <string>
 
 namespace Rndr {
@@ -16,7 +18,7 @@ namespace Rndr {
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnUpdate() {}
+		virtual void OnUpdate(Timestep ts) {}
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event& event) {}
 

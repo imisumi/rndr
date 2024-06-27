@@ -73,3 +73,14 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${IMGUI_COURCE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC glad/include)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${RNDR_COURCE_DIR})
+
+
+
+if(UNIX AND NOT APPLE)
+	add_compile_definitions(RNDR_PLATFORM_LINUX)
+elseif(WIN32)
+	# add_compile_definitions(RNDR_PLATFORM_WINDOWS)
+	# add_definitions(-DRNDR_PLATFORM_WINDOWS)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE RNDR_PLATFORM_WINDOWS)
+	message(STATUS "Windows platform detected")
+endif()

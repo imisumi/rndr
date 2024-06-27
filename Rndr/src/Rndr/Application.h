@@ -16,6 +16,12 @@
 
 #include "Rndr/Renderer/Buffer.h"
 
+#include "Rndr/Renderer/VertexArray.h"
+
+#include "Rndr/Renderer/Camera.h"
+
+#include "Rndr/Core/Timestep.h"
+
 namespace Rndr
 {
 	class Application
@@ -39,19 +45,14 @@ namespace Rndr
 
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
-		std::unique_ptr<Window> m_Window;
+	private:
+		Scope<Window> m_Window;
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
-
+		float m_LastFrameTime = 0.0f;
+	private:
 		static Application* s_Instance;
-
-
-		uint32_t m_VertexArray;
-
-		std::unique_ptr<Shader> m_Shader;
-		std::unique_ptr<VertexBuffer> m_VertexBuffer;
-		std::unique_ptr<IndexBuffer> m_IndexBuffer;
 	};
 
 	// To be defined in CLIENT

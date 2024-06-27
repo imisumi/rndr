@@ -1,17 +1,33 @@
 #pragma once
 
+#include "RenderCommand.h"
+
+#include "Rndr/Renderer/Camera.h"
+#include "Shader.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace Rndr
 {
-	enum class RendererAPI
-	{
-		None = 0, OpenGL = 1, Vulkan = 2
-	};
-
 	class Renderer
 	{
 	public:
-		inline static RendererAPI GetAPI() { return s_RendererAPI; }
+		static void BeginScene();
+		static void BeginScene(OrthographicCamera& camera);
+		static void EndScene();
+
+		static void Renderer::Submit(const Ref<Shader>& shader, 
+			const Ref<VertexArray>& vertexArray, 
+			const glm::mat4& transform = glm::mat4(1.0f));
+		inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
+
 	private:
-		static RendererAPI s_RendererAPI;
+		struct SceneData
+		{
+			glm::mat4 ViewProjectionMatrix;
+		};
+
+		static SceneData* s_SceneData;
 	};
 }

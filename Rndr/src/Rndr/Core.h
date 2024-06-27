@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #ifdef RNDR_DEBUG
 	#define RNDR_ENABLE_ASSERTS
 #endif
@@ -15,3 +17,15 @@
 #define BIT(x) (1 << x)
 
 #define RNDR_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+
+
+
+namespace Rndr {
+
+	template<typename T>
+	using Scope = std::unique_ptr<T>;
+
+	template<typename T>
+	using Ref = std::shared_ptr<T>;
+
+}
