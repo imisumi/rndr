@@ -1,13 +1,4 @@
-[submodule "Rndr/dep/glfw"]
-	path = Rndr/dep/glfw
-	url = https://github.com/glfw/glfw.git
-[submodule "Rndr/dep/glm"]
-	path = Rndr/dep/glm
-	url = https://github.com/g-truc/glm.git
-[submodule "Rndr/dep/spdlog"]
-	path = Rndr/dep/spdlog
-	url = https://github.com/gabime/spdlog.git
 [submodule "Rndr/dep/imgui"]
-	path = Rndr/dep/imgui
+	path = Rndr/dep/imgui/imgui
 	url = https://github.com/ocornut/imgui.git
 	branch = docking

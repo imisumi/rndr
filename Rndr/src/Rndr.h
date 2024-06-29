@@ -22,6 +22,7 @@
 
 #include "Rndr/Renderer/Buffer.h"
 #include "Rndr/Renderer/Shader.h"
+#include "Rndr/Renderer/Texture.h"
 #include "Rndr/Renderer/VertexArray.h"
 
 #include "Rndr/Renderer/Camera.h"

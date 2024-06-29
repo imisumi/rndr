@@ -167,7 +167,7 @@ public:
 
 		m_TextureShader.reset(Rndr::Shader::Create(textureShaderVertexSrc, textureShaderFragmentSrc));
 
-		m_Texture = Rndr::Texture2D::Create("assets/textures/Checkerboard.png");
+		m_Texture = Rndr::Texture2D::Create("Sandbox/assets/textures/uv.png");
 
 		std::dynamic_pointer_cast<Rndr::OpenGLShader>(m_TextureShader)->Bind();
 		std::dynamic_pointer_cast<Rndr::OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", 0);
