@@ -8,6 +8,7 @@
 
 #include "imgui.h"
 
+
 class ExampleLayer : public Rndr::Layer
 {
 public:
@@ -23,7 +24,8 @@ public:
 		};
 
 		std::shared_ptr<Rndr::VertexBuffer> vertexBuffer;
-		vertexBuffer.reset(Rndr::VertexBuffer::Create(vertices, sizeof(vertices)));
+		// vertexBuffer.reset(Rndr::VertexBuffer::Create(vertices, sizeof(vertices)));
+		vertexBuffer = Rndr::VertexBuffer::Create(vertices, sizeof(vertices));
 		Rndr::BufferLayout layout = {
 			{ Rndr::ShaderDataType::Float3, "a_Position" },
 			{ Rndr::ShaderDataType::Float4, "a_Color" }
@@ -33,7 +35,8 @@ public:
 
 		uint32_t indices[3] = { 0, 1, 2 };
 		std::shared_ptr<Rndr::IndexBuffer> indexBuffer;
-		indexBuffer.reset(Rndr::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+		// indexBuffer.reset(Rndr::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+		indexBuffer = Rndr::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 		m_VertexArray->SetIndexBuffer(indexBuffer);
 
 		m_SquareVA.reset(Rndr::VertexArray::Create());
@@ -46,7 +49,8 @@ public:
 		};
 
 		std::shared_ptr<Rndr::VertexBuffer> squareVB;
-		squareVB.reset(Rndr::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+		// squareVB.reset(Rndr::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+		squareVB = Rndr::VertexBuffer::Create(squareVertices, sizeof(squareVertices));
 		squareVB->SetLayout({
 			{ Rndr::ShaderDataType::Float3, "a_Position" },
 			{ Rndr::ShaderDataType::Float2, "a_TexCoord" }
@@ -55,7 +59,8 @@ public:
 
 		uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
 		std::shared_ptr<Rndr::IndexBuffer> squareIB;
-		squareIB.reset(Rndr::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+		// squareIB.reset(Rndr::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+		squareIB = Rndr::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
 		m_SquareVA->SetIndexBuffer(squareIB);
 
 		std::string vertexSrc = R"(
@@ -93,7 +98,8 @@ public:
 			}
 		)";
 
-		m_Shader.reset(Rndr::Shader::Create(vertexSrc, fragmentSrc));
+		// m_Shader.reset(Rndr::Shader::Create("m_Shader", vertexSrc, fragmentSrc));
+		m_Shader = Rndr::Shader::Create("VertexColorTriangle", vertexSrc, fragmentSrc);
 
 		std::string flatColorShaderVertexSrc = R"(
 			#version 330 core
@@ -127,7 +133,8 @@ public:
 			}
 		)";
 
-		m_FlatColorShader.reset(Rndr::Shader::Create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
+		// m_FlatColorShader.reset(Rndr::Shader::Create("FlatColor", flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
+		m_FlatColorShader = Rndr::Shader::Create("FlatColor", flatColorShaderVertexSrc, flatColorShaderFragmentSrc);
 
 
 
@@ -165,12 +172,16 @@ public:
 			}
 		)";
 
-		m_TextureShader.reset(Rndr::Shader::Create(textureShaderVertexSrc, textureShaderFragmentSrc));
+		// m_TextureShader.reset(Rndr::Shader::Create("m_TextureShader", textureShaderVertexSrc, textureShaderFragmentSrc));
+		// m_TextureShader = Rndr::Shader::Create("m_TextureShader", textureShaderVertexSrc, textureShaderFragmentSrc);
+		auto textureShader = m_ShaderLibrary.Load("Sandbox/assets/shaders/Texture.glsl");
+		// m_TextureShader = Rndr::Shader::Create("Sandbox/assets/shaders/Texture.glsl");
 
-		m_Texture = Rndr::Texture2D::Create("assets/textures/Checkerboard.png");
+		m_Texture = Rndr::Texture2D::Create("Sandbox/assets/textures/uv.png");
+		m_TextureAlpha = Rndr::Texture2D::Create("Sandbox/assets/textures/penguin.png");
 
-		std::dynamic_pointer_cast<Rndr::OpenGLShader>(m_TextureShader)->Bind();
-		std::dynamic_pointer_cast<Rndr::OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", 0);
+		std::dynamic_pointer_cast<Rndr::OpenGLShader>(textureShader)->Bind();
+		std::dynamic_pointer_cast<Rndr::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
 	}
 
 	void OnMovement(Rndr::Timestep ts)
@@ -231,8 +242,13 @@ public:
 		}
 
 
+		auto textureShader = m_ShaderLibrary.Get("Texture");
+
 		m_Texture->Bind();
-		Rndr::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		Rndr::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		m_TextureAlpha->Bind();
+		Rndr::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+
 
 
 		// Rndr::Renderer::Submit(m_FlatColorShader, m_SquareVA, scale);
@@ -258,13 +274,15 @@ public:
 
 
 private:
-	Rndr::Ref<Rndr::Shader> m_Shader, m_TextureShader;
+	Rndr::ShaderLibrary m_ShaderLibrary;
+	// Rndr::Ref<Rndr::Shader> m_TextureShader;
+	Rndr::Ref<Rndr::Shader> m_Shader;
 	Rndr::Ref<Rndr::VertexArray> m_VertexArray;
 		
 	Rndr::Ref<Rndr::Shader> m_FlatColorShader;
 	Rndr::Ref<Rndr::VertexArray> m_SquareVA;
 
-	Rndr::Ref<Rndr::Texture2D> m_Texture;
+	Rndr::Ref<Rndr::Texture2D> m_Texture, m_TextureAlpha;
 
 
 	Rndr::OrthographicCamera m_Camera;

@@ -19,26 +19,6 @@ namespace Rndr
 
 	Application* Application::s_Instance = nullptr;
 
-	// static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
-	// {
-	// 	switch (type)
-	// 	{
-	// 		case ShaderDataType::Float:    return GL_FLOAT;
-	// 		case ShaderDataType::Float2:   return GL_FLOAT;
-	// 		case ShaderDataType::Float3:   return GL_FLOAT;
-	// 		case ShaderDataType::Float4:   return GL_FLOAT;
-	// 		case ShaderDataType::Mat3:     return GL_FLOAT;
-	// 		case ShaderDataType::Mat4:     return GL_FLOAT;
-	// 		case ShaderDataType::Int:      return GL_INT;
-	// 		case ShaderDataType::Int2:     return GL_INT;
-	// 		case ShaderDataType::Int3:     return GL_INT;
-	// 		case ShaderDataType::Int4:     return GL_INT;
-	// 		case ShaderDataType::Bool:     return GL_BOOL;
-	// 	}
-	// 	RNDR_CORE_ASSERT(false, "Unknown ShaderDataType!");
-	// 	return 0;
-	// }
-
 	Application::Application()
 	{
 		RNDR_CORE_ASSERT(!s_Instance, "Application already exists!");
@@ -47,12 +27,10 @@ namespace Rndr
 		m_Window = Scope<Window>(Window::Create());
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 
+		Renderer::Init();
+
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
-
-
-
-		
 	}
 
 	Application::~Application()

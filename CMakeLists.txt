@@ -47,6 +47,9 @@ file(GLOB_RECURSE ALL_SOURCES
 "${RNDR_SOURCE_DIR}/*.cpp"
 "${RNDR_SOURCE_DIR}/**/*.cpp"
 "${RNDR_SOURCE_DIR}/**/**/*.cpp"
+"${SANDBOX_COURCE_DIR}/*.cpp"
+"${SANDBOX_COURCE_DIR}/**/*.cpp"
+"${SANDBOX_COURCE_DIR}/**/**/*.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${ALL_SOURCES})
