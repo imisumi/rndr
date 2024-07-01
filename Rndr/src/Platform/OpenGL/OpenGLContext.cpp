@@ -1,6 +1,6 @@
 #include "OpenGLContext.h"
 
-#include "Rndr/Log.h"
+#include "Rndr/Core/Log.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

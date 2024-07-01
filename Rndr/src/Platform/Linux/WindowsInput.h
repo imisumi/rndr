@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rndr/Input.h"
+#include "Rndr/Core/Input.h"
 
 namespace Rndr
 {

@@ -18,7 +18,7 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "backends/imgui_impl_glfw.h"
 
-#include "Rndr/Application.h"
+#include "Rndr/Core/Application.h"
 
 namespace Rndr
 {
@@ -98,10 +98,10 @@ namespace Rndr
 		}
 	}
 
-	void ImGuiLayer::OnImGuiRender()
-	{
-		static bool show = true;
-		ImGui::ShowDemoWindow(&show);
-	}
+	// void ImGuiLayer::OnImGuiRender()
+	// {
+	// 	static bool show = true;
+	// 	ImGui::ShowDemoWindow(&show);
+	// }
 
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rndr/Layer.h"
+#include "Rndr/Core/Layer.h"
 
 #include "Rndr/Events/ApplicationEvent.h"
 #include "Rndr/Events/KeyEvent.h"
@@ -17,7 +17,7 @@ namespace Rndr
 		void OnAttach() override;
 		void OnDetach() override;
 		// void OnUpdate() override;
-		void OnImGuiRender() override;
+		// void OnImGuiRender() override;
 
 		void Begin();
 		void End();

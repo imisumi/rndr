@@ -1,6 +1,6 @@
 #include "Application.h"
 
-#include "Rndr/Log.h"
+#include "Rndr/Core/Log.h"
 
 #include <iostream>
 
@@ -37,12 +37,6 @@ namespace Rndr
 	{
 	}
 
-	bool Application::OnWindowClose(WindowCloseEvent& e)
-	{
-		m_Running = false;
-		return true;
-	}
-
 	void Application::PushLayer(Layer* layer)
 	{
 		m_LayerStack.PushLayer(layer);
@@ -59,6 +53,7 @@ namespace Rndr
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
+		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));
 
 		// RNDR_TRACE("{0}", e);
 		// RNDR_CORE_TRACE("{0}", e);
@@ -69,6 +64,11 @@ namespace Rndr
 			if (e.Handled)
 				break;
 		}
+	}
+
+	void Application::Close()
+	{
+		m_Running = false;
 	}
 
 	void Application::Run()
@@ -93,9 +93,13 @@ namespace Rndr
 			m_LastFrameTime = time;
 			
 
+			if (!m_Minimized)
+			{
+				for (Layer* layer : m_LayerStack)
+					layer->OnUpdate(timestep);
+			}
 
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate(timestep);
+
 
 			m_ImGuiLayer->Begin();
 			for (Layer* layer : m_LayerStack)
@@ -104,6 +108,27 @@ namespace Rndr
 
 			m_Window->OnUpdate();
 		}
+	}
+
+
+	bool Application::OnWindowClose(WindowCloseEvent& e)
+	{
+		m_Running = false;
+		return true;
+	}
+
+	bool Application::OnWindowResize(WindowResizeEvent& e)
+	{
+		if (e.GetWidth() == 0 || e.GetHeight() == 0)
+		{
+			m_Minimized = true;
+			return false;
+		}
+		m_Minimized = false;
+
+		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+
+		return false;
 	}
 
 }

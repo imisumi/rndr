@@ -2,15 +2,15 @@
 
 //? For use by Rndr applications
 
-#include "Rndr/Application.h"
-#include "Rndr/Layer.h"
-#include "Rndr/Log.h"
+#include "Rndr/Core/Application.h"
+#include "Rndr/Core/Layer.h"
+#include "Rndr/Core/Log.h"
 
 #include "Rndr/Core/Timestep.h"
 
-#include "Rndr/Input.h"
-#include "Rndr/KeyCodes.h"
-#include "Rndr/MouseButtonCodes.h"
+#include "Rndr/Core/Input.h"
+#include "Rndr/Core/KeyCodes.h"
+#include "Rndr/Core/MouseButtonCodes.h"
 
 
 #include "Rndr/ImGui/ImGuiLayer.h"
@@ -28,7 +28,13 @@
 #include "Rndr/Renderer/Camera.h"
 
 //? Entry Point
-#include "Rndr/EntryPoint.h"
+#include "Rndr/Core/EntryPoint.h"
 
 
-#include "Rndr/Core.h"
+#include "Rndr/Core/Core.h"
+
+
+
+
+//? profiling
+#include "Rndr/Debug/Instrumentor.h"

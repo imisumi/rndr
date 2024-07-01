@@ -2,7 +2,7 @@
 
 #include "Renderer.h"
 
-#include "Rndr/Log.h"
+#include "Rndr/Core/Log.h"
 
 #include "Platform/OpenGL/OpenGLVertexArray.h"
 

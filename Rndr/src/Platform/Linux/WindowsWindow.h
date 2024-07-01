@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Rndr/Window.h"
+#include "Rndr/Core/Window.h"
 
 #include <GLFW/glfw3.h>
 
-#include "Rndr/Log.h"
+#include "Rndr/Core/Log.h"
 
 // struct GLFWwindow;
 

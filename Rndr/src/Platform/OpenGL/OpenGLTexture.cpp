@@ -1,6 +1,6 @@
 #include "OpenGLTexture.h"
 
-#include "Rndr/Log.h"
+#include "Rndr/Core/Log.h"
 
 #include <glad/glad.h>
 

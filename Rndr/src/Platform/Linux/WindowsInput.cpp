@@ -2,7 +2,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "Rndr/Application.h"
+#include "Rndr/Core/Application.h"
 
 namespace Rndr
 {

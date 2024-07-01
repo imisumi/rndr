@@ -1,6 +1,6 @@
 #include "OpenGLShader.h"
 
-#include "Rndr/Log.h"
+#include "Rndr/Core/Log.h"
 
 #include <glm/gtc/type_ptr.hpp>
 

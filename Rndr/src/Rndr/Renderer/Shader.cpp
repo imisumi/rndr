@@ -1,6 +1,6 @@
 #include "Shader.h"
 
-#include "Rndr/Log.h"
+#include "Rndr/Core/Log.h"
 
 #include <vector>
 

@@ -1,7 +1,6 @@
 #include "Buffer.h"
 
 #include "Renderer.h"
-#include "Rndr/Log.h"
 
 #include "Renderer.h"
 #include "Platform/OpenGL/OpenGLBuffer.h"
@@ -29,6 +28,19 @@ namespace Rndr
 		{
 			case RendererAPI::API::None:      RNDR_CORE_ASSERT(false, "RendererAPI::API::None is currently not supported!"); return nullptr;
 			case RendererAPI::API::OpenGL:    return std::make_shared<OpenGLIndexBuffer>(indices, count);
+			// case RendererAPI::API::Vulkan:    RNDR_CORE_ASSERT(false, "RendererAPI::API::Vulkan is currently not supported!"); return nullptr;
+		}
+
+		RNDR_CORE_ASSERT(false, "Unknown RendererAPI!");
+		return nullptr;
+	}
+
+	Ref<FrameBuffer> FrameBuffer::Create(const FrameBufferSpecification& spec)
+	{
+		switch (Renderer::GetAPI())
+		{
+			case RendererAPI::API::None:      RNDR_CORE_ASSERT(false, "RendererAPI::API::None is currently not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL:    return std::make_shared<OpenGLFrameBuffer>(spec);
 			// case RendererAPI::API::Vulkan:    RNDR_CORE_ASSERT(false, "RendererAPI::API::Vulkan is currently not supported!"); return nullptr;
 		}
 
