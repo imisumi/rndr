@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rndr/Core/Core.h"
+#include "Rndr/Core/Base.h"
 
 #include <iostream>
 #include <string>

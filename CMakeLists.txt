@@ -16,6 +16,7 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 set(RNDR_SOURCE_DIR ${CMAKE_SOURCE_DIR}/Rndr/src)
 set(SANDBOX_COURCE_DIR ${CMAKE_SOURCE_DIR}/sandbox/src)
+set(EDITOR_COURCE_DIR ${CMAKE_SOURCE_DIR}/Editor/src)
 
 set(FullOutputDir ${CMAKE_SOURCE_DIR}/bin/${CMAKE_SYSTEM_NAME})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${FullOutputDir})
@@ -40,6 +41,8 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(OpenImageIO CONFIG REQUIRED)
+find_package(assimp CONFIG REQUIRED)
+
 
 add_subdirectory(Rndr/dep/imgui)
 
@@ -47,9 +50,12 @@ file(GLOB_RECURSE ALL_SOURCES
 "${RNDR_SOURCE_DIR}/*.cpp"
 "${RNDR_SOURCE_DIR}/**/*.cpp"
 "${RNDR_SOURCE_DIR}/**/**/*.cpp"
-"${SANDBOX_COURCE_DIR}/*.cpp"
-"${SANDBOX_COURCE_DIR}/**/*.cpp"
-"${SANDBOX_COURCE_DIR}/**/**/*.cpp"
+# "${SANDBOX_COURCE_DIR}/*.cpp"
+# "${SANDBOX_COURCE_DIR}/**/*.cpp"
+# "${SANDBOX_COURCE_DIR}/**/**/*.cpp"
+"${EDITOR_COURCE_DIR}/*.cpp"
+"${EDITOR_COURCE_DIR}/**/*.cpp"
+"${EDITOR_COURCE_DIR}/**/**/*.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${ALL_SOURCES})
@@ -61,11 +67,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	glad::glad
 	glm::glm
 	OpenImageIO::OpenImageIO
+	assimp::assimp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${RNDR_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE 
 	${CMAKE_CURRENT_SOURCE_DIR}/Rndr/dep/imgui
 	${CMAKE_CURRENT_SOURCE_DIR}/Rndr/dep/imgui/imgui
+	${CMAKE_CURRENT_SOURCE_DIR}/Rndr/dep
 )
 

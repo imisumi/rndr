@@ -3,6 +3,7 @@
 #include "RenderCommand.h"
 
 #include "Rndr/Renderer/Camera.h"
+#include "Rndr/Renderer/Camera3D.h"
 #include "Shader.h"
 
 #include <glm/glm.hpp>
@@ -18,6 +19,7 @@ namespace Rndr
 		
 		static void BeginScene();
 		static void BeginScene(OrthographicCamera& camera);
+		static void Renderer::BeginScene(Camera3D& camera);
 		static void EndScene();
 
 		static void Renderer::Submit(const Ref<Shader>& shader, 

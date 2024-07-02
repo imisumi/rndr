@@ -28,10 +28,10 @@
 #include "Rndr/Renderer/Camera.h"
 
 //? Entry Point
-#include "Rndr/Core/EntryPoint.h"
+// #include "Rndr/Core/EntryPoint.h"
 
 
-#include "Rndr/Core/Core.h"
+#include "Rndr/Core/Base.h"
 
 
 

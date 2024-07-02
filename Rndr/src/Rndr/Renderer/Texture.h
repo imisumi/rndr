@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <string>
-#include "Rndr/Core/Core.h"
+#include "Rndr/Core/Base.h"
 
 namespace Rndr
 {

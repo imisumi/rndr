@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core.h"
+#include "Base.h"
 #include "Rndr/Events/Event.h"
 #include "Rndr/Events/ApplicationEvent.h"
 
@@ -27,11 +27,13 @@ namespace Rndr
 	class Application
 	{
 	public:
-		Application();
+		Application(const std::string& name = "Rndr App");
 		virtual ~Application();
 
 		void Run();
 		void Close();
+
+		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
 
 		void OnEvent(Event& e);
 

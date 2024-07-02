@@ -30,6 +30,11 @@ namespace Rndr
 	{
 		s_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 	}
+	void Renderer::BeginScene(Camera3D& camera)
+	{
+		auto viewProjection = camera.GetProjectionMatrix() * camera.GetViewMatrix();
+		s_SceneData->ViewProjectionMatrix = viewProjection;
+	}
 
 	void Renderer::EndScene()
 	{

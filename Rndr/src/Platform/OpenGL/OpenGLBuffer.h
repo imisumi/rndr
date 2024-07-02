@@ -49,10 +49,7 @@ namespace Rndr
 
 		virtual uint32_t GetColorAttachmentRendererID() const override { return m_ColorAttachment; }
 
-		void Invalidate();
-
 		virtual void Resize(uint32_t width, uint32_t height) override;
-		// void Resize(uint32_t width, uint32_t height);
 
 		virtual uint32_t GetWidth() const override { return m_Specification.Width; }
 		virtual uint32_t GetHeight() const override { return m_Specification.Height; }

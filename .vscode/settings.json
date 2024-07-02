@@ -101,6 +101,8 @@
 		"xtree": "cpp",
 		"xutility": "cpp",
 		"coroutine": "cpp",
-		"resumable": "cpp"
+		"resumable": "cpp",
+		"deque": "cpp",
+		"set": "cpp"
 	}
 }
