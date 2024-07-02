@@ -145,7 +145,11 @@ namespace Rndr
 	#define RNDR_PROFILE_BEGIN_SESSION(name, filepath) ::Rndr::Instrumentor::Get().BeginSession(name, filepath)
 	#define RNDR_PROFILE_END_SESSION() ::Rndr::Instrumentor::Get().EndSession()
 	#define RNDR_PROFILE_SCOPE(name) ::Rndr::InstrumentationTimer timer##__LINE__(name);
-	#define RNDR_PROFILE_FUNCTION() RNDR_PROFILE_SCOPE(__FUNCSIG__)
+	#if RNDR_PLATFORM_WINDOWS
+		#define RNDR_PROFILE_FUNCTION() RNDR_PROFILE_SCOPE(__FUNCSIG__)
+	#else
+		#define RNDR_PROFILE_FUNCTION() RNDR_PROFILE_SCOPE(__PRETTY_FUNCTION__)
+	#endif
 #else
 	#define RNDR_PROFILE_BEGIN_SESSION(name, filepath)
 	#define RNDR_PROFILE_END_SESSION()

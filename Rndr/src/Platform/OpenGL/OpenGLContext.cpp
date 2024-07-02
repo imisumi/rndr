@@ -5,7 +5,14 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <GL/GL.h>
+// #include <GL/GL.h>
+
+
+#if RNDR_PLATFORM_WINDOWS
+	#include <gl/GL.h>
+#else
+	#include "GL/gl.h"
+#endif
 
 namespace Rndr
 {

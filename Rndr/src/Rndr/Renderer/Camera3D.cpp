@@ -2,7 +2,12 @@
 
 #include "Rndr/Core/Input.h"
 
-#include <glfw/glfw3.h>
+#if RNDR_PLATFORM_LINUX
+	#include "GLFW/glfw3.h"
+#else
+	#include <glfw/glfw3.h>
+#endif
+
 #include <glm/gtc/quaternion.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL

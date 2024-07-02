@@ -113,12 +113,12 @@ namespace Rndr
 		// if (m_DepthAttachment)
 		// 	glDeleteTextures(1, &m_DepthAttachment);
 
-		// if (m_RendererID)
-		// {
-		// 	glDeleteFramebuffers(1, &m_RendererID);
-		// 	glDeleteTextures(1, &m_ColorAttachment);
-		// 	glDeleteTextures(1, &m_DepthAttachment);
-		// }
+		if (m_RendererID)
+		{
+			// glDeleteFramebuffers(1, &m_RendererID);
+			// glDeleteTextures(1, &m_ColorAttachment);
+			// glDeleteTextures(1, &m_DepthAttachment);
+		}
 
 		// glCreateFramebuffers(1, &m_RendererID);
 

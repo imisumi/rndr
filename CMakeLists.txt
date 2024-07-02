@@ -35,6 +35,7 @@ elseif(WIN32)
 	message(STATUS "Windows platform detected")
 endif()
 
+set(OpenGL_GL_PREFERENCE "GLVND")
 find_package(OpenGL REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
@@ -62,6 +63,7 @@ add_executable(${PROJECT_NAME} ${ALL_SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
 target_link_libraries(${PROJECT_NAME} PRIVATE
+	OpenGL::GL
 	spdlog::spdlog
 	glfw
 	glad::glad
