@@ -2,8 +2,10 @@
 
 #include "RenderCommand.h"
 
+#include "Rndr/Renderer/OrthographicCamera.h"
 #include "Rndr/Renderer/Camera.h"
 #include "Rndr/Renderer/Camera3D.h"
+#include "Rndr/Renderer/PerspectiveCamera.h"
 #include "Shader.h"
 
 #include <glm/glm.hpp>

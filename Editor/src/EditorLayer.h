@@ -4,6 +4,7 @@
 
 #include "Rndr/Renderer/Mesh.h"
 #include "Rndr/Renderer/Camera3D.h"
+#include "Rndr/Renderer/OrthographicCamera.h"
 
 namespace Rndr
 {
@@ -49,6 +50,9 @@ namespace Rndr
 		glm::vec2 m_ViewPortSize;
 		bool m_Resize = false;
 
+
+		Ref<Scene> m_ActiveScene;
+		Entity m_CameraEntity;
 
 		OrthographicCamera m_Camera;
 		Camera3D m_Camera3D;

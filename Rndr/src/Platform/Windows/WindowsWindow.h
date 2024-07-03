@@ -28,6 +28,11 @@ namespace Rndr {
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
 
+		// inline void SetTitle(const std::string& title) override { m_Data.Title = title; }
+		// inline void SetCursorMode(int mode) override { glfwSetInputMode(m_Window, GLFW_CURSOR, mode); }
+		// inline void SetCursorPos(double xpos, double ypos) override { glfwSetCursorPos(m_Window, xpos, ypos); }
+		// inline void GetCursorPos(double& xpos, double& ypos) override { glfwGetCursorPos(m_Window, &xpos, &ypos); }
+
 		inline virtual void* GetNativeWindow() const override { return m_Window; }
 	private:
 		virtual void Init(const WindowProps& props);

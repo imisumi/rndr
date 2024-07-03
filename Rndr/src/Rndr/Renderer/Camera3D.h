@@ -48,4 +48,21 @@ namespace Rndr {
 		float m_Pitch, m_Yaw;
 	};
 
+
+
+
+
+
+	class Camera
+	{
+	public:
+		Camera(const glm::mat4& projection)
+			: m_Projection(projection) {}
+
+		const glm::mat4& GetProjection() const { return m_Projection; }
+		void SetProjection(const glm::mat4& projection) { m_Projection = projection; }
+	private:
+		glm::mat4 m_Projection;
+	};
+
 }

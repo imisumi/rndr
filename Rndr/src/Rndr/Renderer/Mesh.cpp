@@ -60,7 +60,7 @@ namespace Rndr {
 		RNDR_CORE_ASSERT(mesh->HasPositions(), "Meshes require positions.");
 		RNDR_CORE_ASSERT(mesh->HasNormals(), "Meshes require normals.");
 
-		m_VertexArray.reset(VertexArray::Create());
+		m_VertexArray = VertexArray::Create();
 
 		m_Vertices.reserve(mesh->mNumVertices);
 

@@ -1,7 +1,7 @@
 #pragma once
 
 
-/* Printable keys from glfw.h */
+/* Printable keys from RNDR.h */
 #define RNDR_KEY_SPACE              32
 #define RNDR_KEY_APOSTROPHE         39  /* ' */
 #define RNDR_KEY_COMMA              44  /* , */
@@ -124,3 +124,5 @@
 #define RNDR_KEY_RIGHT_ALT          346
 #define RNDR_KEY_RIGHT_SUPER        347
 #define RNDR_KEY_MENU               348
+
+

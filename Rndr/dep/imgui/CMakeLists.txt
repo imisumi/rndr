@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(imgui)
 
+find_package(glfw3 3.3 REQUIRED)
+
 set(IMGUI_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui.h
 	${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui.cpp
@@ -22,6 +24,8 @@ set(IMGUI_SOURCES
 )
 
 add_library(imgui STATIC ${IMGUI_SOURCES})
+
+target_link_libraries(imgui PRIVATE glfw)
 
 target_include_directories(imgui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
 target_include_directories(imgui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends)

@@ -36,6 +36,13 @@ namespace Rndr
 
 		virtual void* GetNativeWindow() const = 0;
 
+		// virtual void SetTitle(const std::string& title) = 0;
+		// virtual void SetCursorMode(int mode) = 0;
+		// virtual void SetCursorPos(double xpos, double ypos) = 0;
+		// virtual void GetCursorPos(double& xpos, double& ypos) = 0;
+		// virtual void SetIcon(const std::string& filepath) = 0;
+
+
 		static Window* Create(const WindowProps& props = WindowProps());
 	};
 }

@@ -1,6 +1,7 @@
 #include "Rndr.h"
 #include "Rndr/Core/EntryPoint.h"
-#include "EditorLayer.h"
+// #include "EditorLayer.h"
+#include "SandBox3D.h"
 
 namespace Rndr
 {
@@ -11,7 +12,8 @@ namespace Rndr
 		Editor()
 			: Application("Editor")
 		{
-			PushLayer(new EditorLayer());
+			// PushLayer(new EditorLayer());
+			PushLayer(new Sandbox3D());
 		}
 
 		~Editor()

@@ -29,7 +29,7 @@ namespace Rndr
 		m_Camera3D.SetPosition({ 0.0f, 0.0f, 5.0f });
 
 
-		m_VertexArray.reset(VertexArray::Create());
+		m_VertexArray = VertexArray::Create();
 
 		float vertices[3 * 7] = {
 			-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
@@ -63,7 +63,7 @@ namespace Rndr
 
 
 
-		m_SquareVA.reset(VertexArray::Create());
+		m_SquareVA = VertexArray::Create();
 
 		float squareVertices[4 * 5] = {
 			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -229,6 +229,18 @@ namespace Rndr
 
 	void EditorLayer::OnAttach()
 	{
+		m_ActiveScene = CreateRef<Scene>();
+
+		//? Entity
+		auto cube = m_ActiveScene->CreateEntity("Cube");
+
+		// cube.AddComponent
+
+		m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
+		m_CameraEntity.AddComponent<CameraComponent>(glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 1000.0f));
+		
+
+		// m_ActiveScene->Reg().emplace<TransformComponent>(cube);
 	}
 
 	void EditorLayer::OnDetach()
@@ -272,9 +284,14 @@ namespace Rndr
 			m_Resize = false;
 		}
 
+
+		// m_Regest
+
+
 		// if (m_ViewportFocused)
 			OnMovement(ts);
 
+		m_ActiveScene->OnUpdate(ts);
 
 		m_Camera3D.Update(ts);
 

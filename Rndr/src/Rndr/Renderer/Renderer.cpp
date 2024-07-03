@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "Renderer2D.h"
 
 #include <iostream>
 
@@ -14,6 +15,7 @@ namespace Rndr
 	void Renderer::Init()
 	{
 		RenderCommand::Init();
+		Renderer2D::Init();
 	}
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
@@ -26,6 +28,8 @@ namespace Rndr
 		
 	}
 
+
+
 	void Renderer::BeginScene(OrthographicCamera& camera)
 	{
 		s_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
@@ -35,6 +39,11 @@ namespace Rndr
 		auto viewProjection = camera.GetProjectionMatrix() * camera.GetViewMatrix();
 		s_SceneData->ViewProjectionMatrix = viewProjection;
 	}
+
+	// void Renderer::BeginScene(PerspectiveCamera& camera)
+	// {
+	// 	s_SceneData->ViewProjectionMatrix = camera.GetProjection();
+	// }
 
 	void Renderer::EndScene()
 	{
