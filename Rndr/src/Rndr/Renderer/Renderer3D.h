@@ -16,24 +16,25 @@ namespace Rndr
 
 		static void BeginScene(const Camera& camera, const glm::mat4& transform);
 		static void EndScene();
-		// static void Init();
-		// static void OnWindowResize(uint32_t width, uint32_t height);
-		
-		// static void BeginScene();
-		// static void BeginScene(Camera3D& camera);
-		// static void EndScene();
+		static void Flush();
 
-		// static void Submit(const Ref<Shader>& shader, 
-		// 	const Ref<VertexArray>& vertexArray, 
-		// 	const glm::mat4& transform = glm::mat4(1.0f));
-		// inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
+		static void DrawCube(const glm::mat4& transform, const glm::vec4& color);
+
+
+		// Stats
+		struct Statistics
+		{
+			uint32_t DrawCalls = 0;
+			uint32_t QuadCount = 0;
+
+			uint32_t GetTotalVertexCount() const { return QuadCount * 4; }
+			uint32_t GetTotalIndexCount() const { return QuadCount * 6; }
+		};
+		static void ResetStats();
+		static Statistics GetStats();
 
 	private:
-		// struct SceneData
-		// {
-		// 	glm::mat4 ViewProjectionMatrix;
-		// };
-
-		// static SceneData* s_SceneData;
+		static void StartBatch();
+		static void NextBatch();
 	};
 }

@@ -2,3 +2,6 @@
     path = Rndr/dep/imgui/imgui
     url = https://github.com/ocornut/imgui.git
     branch = docking
+[submodule "Rndr/dep/yaml-cpp"]
+	path = Rndr/dep/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git

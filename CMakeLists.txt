@@ -46,6 +46,7 @@ find_package(assimp CONFIG REQUIRED)
 
 
 add_subdirectory(Rndr/dep/imgui)
+add_subdirectory(Rndr/dep/yaml-cpp)
 
 file(GLOB_RECURSE ALL_SOURCES 
 "${RNDR_SOURCE_DIR}/*.cpp"
@@ -62,6 +63,7 @@ file(GLOB_RECURSE ALL_SOURCES
 add_executable(${PROJECT_NAME} ${ALL_SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
+target_link_libraries(${PROJECT_NAME} PRIVATE yaml-cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	OpenGL::GL
 	spdlog::spdlog
@@ -71,7 +73,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	OpenImageIO::OpenImageIO
 	assimp::assimp
 )
-
+target_include_directories(${PROJECT_NAME} PRIVATE yaml-cpp/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${RNDR_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE 
 	${CMAKE_CURRENT_SOURCE_DIR}/Rndr/dep/imgui

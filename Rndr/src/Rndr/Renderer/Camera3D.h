@@ -9,6 +9,7 @@ namespace Rndr {
 	{
 	public:
 		Camera3D(const glm::mat4& projectionMatrix);
+	
 
 		void Focus();
 		void Update(Timestep ts);
@@ -56,13 +57,16 @@ namespace Rndr {
 	class Camera
 	{
 	public:
+		Camera() = default;
 		Camera(const glm::mat4& projection)
 			: m_Projection(projection) {}
 
+		virtual ~Camera() = default;
+
 		const glm::mat4& GetProjection() const { return m_Projection; }
 		void SetProjection(const glm::mat4& projection) { m_Projection = projection; }
-	private:
-		glm::mat4 m_Projection;
+	protected:
+		glm::mat4 m_Projection = glm::mat4(1.0f);
 	};
 
 }

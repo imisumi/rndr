@@ -11,7 +11,7 @@ namespace Rndr
 		unsigned int Width;
 		unsigned int Height;
 
-		WindowProps(const std::string& title = "OpenGL", uint32_t width = 1280, uint32_t height = 720)
+		WindowProps(const std::string& title = "OpenGL", uint32_t width = 1920, uint32_t height = 1080)
 			: Title(title), Width(width), Height(height)
 		{
 		}

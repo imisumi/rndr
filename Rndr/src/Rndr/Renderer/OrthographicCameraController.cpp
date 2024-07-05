@@ -4,6 +4,10 @@
 #include "Rndr/Core/Input.h"
 #include "Rndr/Core/KeyCodes.h"
 
+#include "Rndr/Core/Log.h"
+
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace Rndr {
 
 	OrthographicCameraController::OrthographicCameraController(float aspectRatio, bool rotation)
@@ -51,6 +55,7 @@ namespace Rndr {
 		}
 
 		m_Camera.SetPosition(m_CameraPosition);
+		m_Transform = glm::translate(glm::mat4(1.0f), m_CameraPosition) * glm::rotate(glm::mat4(1.0f), glm::radians(m_CameraRotation), glm::vec3(0, 0, 1));
 
 		m_CameraTranslationSpeed = m_ZoomLevel;
 	}
@@ -72,9 +77,16 @@ namespace Rndr {
 
 	bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
 	{
+		RNDR_CORE_WARN("WindowResizeEvent: {0}, {1}", e.GetWidth(), e.GetHeight());
 		m_AspectRatio = (float)e.GetWidth() / (float)e.GetHeight();
 		m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
 		return false;
+	}
+
+	void OrthographicCameraController::OnResize(uint32_t width, uint32_t height)
+	{
+		m_AspectRatio = (float)width / (float)height;
+		m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
 	}
 
 }

@@ -6,40 +6,38 @@
 
 #include "Entity.h"
 
+#include "Rndr/Renderer/Renderer2D.h"
 #include "Rndr/Renderer/Renderer3D.h"
+
+#include "Rndr/Core/Log.h"
 
 namespace Rndr
 {
 	Scene::Scene()
 	{
 
-		// struct TransformComponent
-		// {
-		// 	glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
-		// 	glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
-		// 	glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
-		// };
-
-		// entt::entity entity = m_Registry.create();
-		// auto& conmp = m_Registry.emplace<TransformComponent>(entity);
-
-
-		// auto view = m_Registry.view<TransformComponent>();
-		// for (auto entity : view)
-		// {
-		// 	auto& tc = view.get<TransformComponent>(entity);
-		// }
-
-		// auto group = m_Registry.group<TransformComponent>(entt::get<TransformComponent>);
-		// for (auto entity : group)
-		// {
-		// 	auto& [transform, sprite] = group.get<TransformComponent>(entity);
-		// }
+		// m_Registry.on_construct<CameraComponent>().connect<&function>;
 	}
 
 	Scene::~Scene()
 	{
 	}
+
+	Entity Scene::CreateEntity(const std::string& name)
+	{
+		Entity entity = { m_Registry.create(), this };
+		entity.AddComponent<TransformComponent>();
+		auto& tag = entity.AddComponent<TagComponent>();
+		tag.Tag = name.empty() ? "Entity" : name;
+		return entity;
+	}
+
+	
+	void Scene::DestroyEntity(Entity entity)
+	{
+		m_Registry.destroy(entity);
+	}
+
 
 
 	void Scene::OnUpdate(Timestep ts)
@@ -53,19 +51,19 @@ namespace Rndr
 		// 		// camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
 		// 	}
 		// });
-
+		// RNDR_CORE_INFO("Scene::OnUpdate");
 		Camera* mainCamera = nullptr;
-		glm::mat4* cameraTransform = nullptr;
+		glm::mat4 cameraTransform;
 		{
-			auto group = m_Registry.view<TransformComponent,CameraComponent>();
-			for (auto entity : group)
+			auto view = m_Registry.view<TransformComponent,CameraComponent>();
+			for (auto entity : view)
 			{
-				auto& [transform, camera] = group.get<TransformComponent,CameraComponent>(entity);
+				auto [transform, camera] = view.get<TransformComponent,CameraComponent>(entity);
 				if (camera.Primary)
 				{
 					// camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
 					mainCamera = &camera.Camera;
-					cameraTransform = &transform.Transform;
+					cameraTransform = transform.GetTransform();
 					break;
 				}
 			}
@@ -73,40 +71,59 @@ namespace Rndr
 
 		if (mainCamera)
 		{
+			// RNDR_CORE_INFO("Camera Entity found");
 			//? render the scene
-			// Renderer3D::BeginScene(*mainCamera, *cameraTransform);
+			Renderer2D::BeginScene(*mainCamera, cameraTransform);
 
+			auto view = m_Registry.view<TransformComponent,QuadComponent>();
+			for (auto entity : view)
+			{
+				auto& [transform, quad] = view.get<TransformComponent, QuadComponent>(entity);
+
+				Renderer2D::DrawQuad(transform.GetTransform(), quad.Color);
+			}
+
+
+			Renderer2D::EndScene();
+
+
+			// Renderer3D::BeginScene(*mainCamera, cameraTransform);
+
+			// auto view3D = m_Registry.view<TransformComponent, CubeComponent>();
+			// for (auto entity : view3D)
+			// {
+			// 	auto& [transform, cube] = view3D.get<TransformComponent, CubeComponent>(entity);
+
+			// 	Renderer3D::DrawCube(transform.GetTransform(), cube.Color);
+			// }
 
 			// Renderer3D::EndScene();
+
+		}
+		else
+		{
+			// RNDR_CORE_INFO("Camera Entity not found");
+			// RNDR_CORE_INFO("Camera Entity not found");
 		}
 
-		// struct TransformComponent
-		// {
-		// 	glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
-		// 	glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
-		// 	glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
-		// };
 
-		// entt::entity entity = m_Registry.create();
-		// auto& conmp = m_Registry.emplace<TransformComponent>(entity);
 	}
 
-
-	Entity Scene::CreateEntity()
+	void Scene::OnViewportResize(uint32_t width, uint32_t height)
 	{
-		Entity entity = Entity(m_Registry.create(), this);
-		// entity.AddComponent<TransformComponent>();
-		// entity.AddComponent<TagComponent>("Entity");
-		return entity;
+		m_ViewportWidth = width;
+		m_ViewportHeight = height;
+
+		//? Resize the primary camera
+		auto view = m_Registry.view<CameraComponent>();
+		for (auto entity : view)
+		{
+			auto& cameraComponent = view.get<CameraComponent>(entity);
+			if (!cameraComponent.FixedAspectRatio)
+			{
+				cameraComponent.Camera.SetViewportSize(width, height);
+			}
+		}
 	}
 
-	Entity Scene::CreateEntity(const std::string& name)
-	{
-		Entity entity = Entity(m_Registry.create(), this);
-		//TODO
-		// entity.AddComponent<TransformComponent>();
-		// auto& tag = entity.AddComponent<TagComponent>();
-		// tag.Tag = name.empty() ? "Entity" : name;
-		return entity;
-	}
 }

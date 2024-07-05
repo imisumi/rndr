@@ -26,6 +26,10 @@ namespace Rndr
 
 
 		void BlockEvents(bool block) { m_BlockEvents = block; }
+
+		static void ImGuiBeginDockspace();
+		static void ImGuiEndDockspace();
+		void SetDarkThemeColors();
 	
 	private:
 		bool m_BlockEvents = true;

@@ -62,6 +62,8 @@ namespace Rndr {
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 
+		glfwSetWindowSizeLimits(m_Window, 1280, 720, GLFW_DONT_CARE, GLFW_DONT_CARE);
+
 		m_Context = new OpenGLContext(m_Window);
 		m_Context->Init();
 
