@@ -25,7 +25,7 @@ namespace Rndr
 		s_Instance = this;
 
 		m_Window = Scope<Window>(Window::Create(name));
-		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
+		m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
 		Renderer::Init();
 
@@ -57,12 +57,11 @@ namespace Rndr
 
 		// RNDR_TRACE("{0}", e);
 		// RNDR_CORE_TRACE("{0}", e);
-
-		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin(); )
+		for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
 		{
-			(*--it)->OnEvent(e);
-			if (e.Handled)
+			if (e.Handled) 
 				break;
+			(*it)->OnEvent(e);
 		}
 	}
 
@@ -95,16 +94,22 @@ namespace Rndr
 
 			if (!m_Minimized)
 			{
-				for (Layer* layer : m_LayerStack)
-					layer->OnUpdate(timestep);
+				{
+					for (Layer* layer : m_LayerStack)
+						layer->OnUpdate(timestep);
+				}
+
+
+				m_ImGuiLayer->Begin();
+				{
+					for (Layer* layer : m_LayerStack)
+						layer->OnImGuiRender();
+				}
+				m_ImGuiLayer->End();
 			}
 
 
 
-			m_ImGuiLayer->Begin();
-			for (Layer* layer : m_LayerStack)
-				layer->OnImGuiRender();
-			m_ImGuiLayer->End();
 
 			m_Window->OnUpdate();
 		}

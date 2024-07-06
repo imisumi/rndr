@@ -14,11 +14,15 @@
 
 #include "Rndr/Scene/SceneSerializer.h"
 
+#include "Rndr/Utils/PlatformUtils.h"
+
+
+#include "ImGuizmo.h"
 
 namespace Rndr
 {
 	Sandbox3D::Sandbox3D()
-		: Layer("Sandbox3D"), m_CameraController(1920.0f / 1080.0f)
+		: Layer("Sandbox3D") //m_CameraController(1920.0f / 1080.0f)
 	{
 		// m_Camera3D(glm::perspective(glm::radians(45.0f), 991.0f / 617.0f, 0.1f, 1000.0f)),
 		// m_Camera(-1.6f, 1.6f, -0.9f, 0.9f)
@@ -60,8 +64,6 @@ namespace Rndr
 		// // square2.AddComponent<QuadComponent>();
 
 
-		// auto greenSquare = m_ActiveScene->CreateEntity("Green Square");
-		// greenSquare.AddComponent<QuadComponent>(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
 
 		// // auto square = m_ActiveScene->CreateEntity("Square");
 
@@ -71,6 +73,8 @@ namespace Rndr
 		// auto camera2 = m_ActiveScene->CreateEntity("Camera Entity 2");
 		// camera2.AddComponent<CameraComponent>();
 
+		// auto greenSquare = m_ActiveScene->CreateEntity("Green Square");
+		// greenSquare.AddComponent<QuadComponent>(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
 
 		// auto camera = m_ActiveScene->CreateEntity("Camera Entity");
 		// auto cam = camera.AddComponent<CameraComponent>().Primary = true;
@@ -102,7 +106,7 @@ namespace Rndr
 		{
 			m_FrameBuffer->Resize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
 			// m_Camera = OrthographicCamera(-m_ViewPortSize.x / m_ViewPortSize.y, m_ViewPortSize.x / m_ViewPortSize.y, -1.0f, 1.0f);
-			m_CameraController.OnResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+			// m_CameraController.OnResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
 			m_Resize = false;
 			m_ActiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
 		}
@@ -162,6 +166,34 @@ namespace Rndr
 	void Sandbox3D::OnImGuiRender()
 	{
 		ImGuiLayer::ImGuiBeginDockspace();
+
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("File"))
+			{
+
+				if (ImGui::MenuItem("New Scene", "Ctrl+N"))
+				{
+					NewScene();
+				}
+
+				if (ImGui::MenuItem("Open Scene...", "Ctrl+O"))
+				{
+					OpenScene();
+				}
+
+				if (ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S"))
+				{
+					SaveSceneAs();
+				}
+			
+
+
+				if (ImGui::MenuItem("Exit")) Application::Get().Close();
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
 
 
 		m_SceneHierarchyPanel.OnImGuiRender();
@@ -242,6 +274,44 @@ namespace Rndr
 		ImGui::Image((void*)m_FrameBuffer->GetColorAttachmentRendererID(), 
 			ImVec2{ (float)m_FrameBuffer->GetWidth(), (float)m_FrameBuffer->GetHeight() }, 
 			ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+		// Gizmos
+		// Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+		// if (selectedEntity)
+		// {
+		// 	auto tag = selectedEntity.GetComponent<TagComponent>().Tag;
+		// 	RNDR_CORE_INFO("Selected Entity: {0}", tag);
+
+		// 	ImGuizmo::SetOrthographic(false);
+		// 	ImGuizmo::SetDrawlist();
+
+		// 	float windowWidth = (float)ImGui::GetWindowWidth();
+		// 	float windowHeight = (float)ImGui::GetWindowHeight();
+		// 	ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+
+		// 	// Camera
+		// 	auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
+		// 	auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
+		// 	const glm::mat4& cameraProjection = camera.GetProjection();
+		// 	auto& cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
+
+		// 	// Entity transform
+		// 	auto& tc = selectedEntity.GetComponent<TransformComponent>();
+		// 	glm::mat4 transform = tc.GetTransform();
+
+		// 	// Snapping //TODO
+
+		// 	ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+		// 		ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::LOCAL, glm::value_ptr(transform));
+
+		// 	if (ImGuizmo::IsUsing())
+		// 	{
+		// 		glm::vec3 translation, rotation, scale;
+		// 		// Math::DecomposeTransform(transform, translation, rotation, scale);
+		// 	}
+		// }
+
+
 		ImGui::End();
 		ImGui::PopStyleVar();
 
@@ -256,7 +326,7 @@ namespace Rndr
 	{
 		//TODO: camera controller
 		{
-			m_CameraController.OnEvent(e);
+			// m_CameraController.OnEvent(e);
 
 			// auto& camera = m_CameraEntity.GetComponent<CameraComponent>().Camera;
 			// camera.SetProjection(m_CameraController.GetCamera().GetProjectionMatrix());
@@ -264,5 +334,79 @@ namespace Rndr
 
 
 		// m_PerspectiveCamera.OnEvent(e);
+
+		RNDR_CORE_INFO("{0}", e);
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<KeyPressedEvent>(RNDR_BIND_EVENT_FN(Sandbox3D::OnKeyPressed));
+	}
+
+	bool Sandbox3D::OnKeyPressed(KeyPressedEvent& e)
+	{
+		//TODO: Check why event is not being dispatched
+		RNDR_CORE_INFO("Key Pressed: {0}", e.GetKeyCode());
+		if (e.GetRepeatCount() > 0)
+			return false;
+
+
+		bool control = Input::IsKeyPressed(RNDR_KEY_LEFT_CONTROL) || Input::IsKeyPressed(RNDR_KEY_RIGHT_CONTROL);
+		bool shift = Input::IsKeyPressed(RNDR_KEY_LEFT_SHIFT) || Input::IsKeyPressed(RNDR_KEY_RIGHT_SHIFT);
+		switch (e.GetKeyCode())
+		{
+			case RNDR_KEY_S:
+			{
+				if (control && shift)
+					SaveSceneAs();
+				break;
+			}
+			case RNDR_KEY_O:
+			{
+				if (control)
+					OpenScene();
+				break;
+			}
+			case RNDR_KEY_N:
+			{
+				if (control)
+					NewScene();
+				break;
+			}
+
+		}
+
+		return false;
+	}
+
+	void Sandbox3D::NewScene()
+	{
+		RNDR_CORE_INFO("New Scene");
+		m_ActiveScene = CreateRef<Scene>();
+		m_ActiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+	}
+
+	void Sandbox3D::OpenScene()
+	{
+		RNDR_CORE_INFO("Open Scene");
+		std::string filepath = FileDialogs::OpenFile("Rndr Scene (*.yaml)\0*.yaml\0");
+		if (!filepath.empty())
+		{
+			m_ActiveScene = CreateRef<Scene>();
+			m_ActiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+			m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+
+			SceneSerializer serializer(m_ActiveScene);
+			serializer.Deserialize(filepath);
+		}
+	}
+
+	void Sandbox3D::SaveSceneAs()
+	{
+		RNDR_CORE_INFO("Save Scene As");
+		std::string filepath = FileDialogs::SaveFile("Rndr Scene (*.yaml)\0*.yaml\0");
+		if (!filepath.empty())
+		{
+			SceneSerializer serializer(m_ActiveScene);
+			serializer.Serialize(filepath);
+		}
 	}
 }

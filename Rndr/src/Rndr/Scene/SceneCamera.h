@@ -44,7 +44,8 @@ namespace Rndr
 	private:
 		void RecalculateProjection();
 	private:
-		ProjectionType m_ProjectionType = ProjectionType::Orthographic;
+		// ProjectionType m_ProjectionType = ProjectionType::Orthographic;
+		ProjectionType m_ProjectionType = ProjectionType::Perspective;
 
 		float m_OrthographicSize = 10.0f;
 		float m_OrthographicNear = -1.0f, m_OrthographicFar = 1.0f;

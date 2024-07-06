@@ -40,15 +40,25 @@ namespace Rndr
 		std::array<Ref<Texture2D>, MaxTextureSlots> TextureSlots;
 		uint32_t TextureSlotIndex = 1; // 0 = white texture
 
+		// glm::vec4 CubeVertexPositions[8] = {
+		// 	{ -1.0f, -1.0f, 1.0f, 1.0f },
+		// 	{ -1.0f, 1.0f, 1.0f, 1.0f },
+		// 	{ -1.0f, -1.0f, 1.0f, 1.0f },
+		// 	{ -1.0f, 1.0f, -1.0f, 1.0f },
+		// 	{ 1.0f, -1.0f, 1.0f, 1.0f },
+		// 	{ 1.0f, 1.0f, 1.0f, 1.0f },
+		// 	{ 1.0f, -1.0f, -1.0f, 1.0f },
+		// 	{ 1.0f, 1.0f, -1.0f, 1.0f }
+		// };
 		glm::vec4 CubeVertexPositions[8] = {
-			{ -1.0f, -1.0f, 1.0f, 1.0f },
-			{ -1.0f, 1.0f, 1.0f, 1.0f },
-			{ -1.0f, -1.0f, 1.0f, 1.0f },
-			{ -1.0f, 1.0f, -1.0f, 1.0f },
-			{ 1.0f, -1.0f, 1.0f, 1.0f },
-			{ 1.0f, 1.0f, 1.0f, 1.0f },
-			{ 1.0f, -1.0f, -1.0f, 1.0f },
-			{ 1.0f, 1.0f, -1.0f, 1.0f }
+			{ -1.0f, -1.0f, -1.0f, 1.0f }, // 1
+			{ 1.0f, -1.0f, -1.0f, 1.0f }, // 2
+			{ 1.0f, 1.0f, -1.0f, 1.0f }, // 3
+			{ -1.0f, 1.0f, -1.0f, 1.0f }, // 4
+			{ -1.0f, -1.0f, 1.0f, 1.0f }, // 5
+			{ 1.0f, -1.0f, 1.0f, 1.0f }, // 6
+			{ 1.0f, 1.0f, 1.0f, 1.0f }, // 7
+			{ -1.0f, 1.0f, 1.0f, 1.0f } // 8
 		};
 		glm::vec3 CubeVertexNormals[6] = {
 			{ -1.0f, 0.0f, 0.0f },
@@ -57,6 +67,16 @@ namespace Rndr
 			{ 0.0f, 0.0f, 1.0f },
 			{ 0.0f, -1.0f, 0.0f },
 			{ 0.0f, 1.0f, 0.0f }
+		};
+
+		uint32_t CubeIndices[36] = 
+		{
+			0, 1, 2, 0, 2, 3,  // Front face
+			5, 4, 7, 5, 7, 6,  // Back face
+			4, 0, 3, 4, 3, 7,  // Left face
+			1, 5, 6, 1, 6, 2,  // Right face
+			3, 2, 6, 3, 6, 7,  // Top face
+			4, 5, 1, 4, 1, 0   // Bottom face
 		};
 
 		Renderer3D::Statistics Stats;
@@ -82,65 +102,60 @@ namespace Rndr
 		s_Data.CubeVertexBufferBase = new CubeVertex[s_Data.MaxVertices];
 
 		uint32_t* cubeIndices = new uint32_t[s_Data.MaxIndices];
+		// memset(cubeIndices, 0, s_Data.MaxIndices * sizeof(uint32_t));
 
 		uint32_t offset = 0;
 		for (uint32_t i = 0; i < s_Data.MaxIndices; i += 36)
 		{
-			cubeIndices[i + 0] = offset + 2 - 1;
-			cubeIndices[i + 1] = offset + 3 - 1;
-			cubeIndices[i + 2] = offset + 1 - 1;
+			// for (uint32_t j = 0; j < 36; j++)
+			// 	cubeIndices[i + j] = s_Data.CubeIndices[j] + offset;
+			// offset += 8;
+			// break ;
 
-			cubeIndices[i + 3] = offset + 4 - 1;
-			cubeIndices[i + 4] = offset + 7 - 1;
-			cubeIndices[i + 5] = offset + 3 - 1;
+			cubeIndices[i + 0] = offset + 0;
+			cubeIndices[i + 1] = offset + 1;
+			cubeIndices[i + 2] = offset + 2;
+			cubeIndices[i + 3] = offset + 0;
+			cubeIndices[i + 4] = offset + 2;
+			cubeIndices[i + 5] = offset + 3;
 
+			cubeIndices[i + 6] = offset + 5;
+			cubeIndices[i + 7] = offset + 4;
+			cubeIndices[i + 8] = offset + 7;
+			cubeIndices[i + 9] = offset + 5;
+			cubeIndices[i + 10] = offset + 7;
+			cubeIndices[i + 11] = offset + 6;
 
-			cubeIndices[i + 6] = offset + 8 - 1;
-			cubeIndices[i + 7] = offset + 5 - 1;
-			cubeIndices[i + 8] = offset + 7 - 1;
+			cubeIndices[i + 12] = offset + 4;
+			cubeIndices[i + 13] = offset + 0;
+			cubeIndices[i + 14] = offset + 3;
+			cubeIndices[i + 15] = offset + 4;
+			cubeIndices[i + 16] = offset + 3;
+			cubeIndices[i + 17] = offset + 7;
 
-			cubeIndices[i + 9] = offset + 6 - 1;
-			cubeIndices[i + 10] = offset + 1 - 1;
-			cubeIndices[i + 11] = offset + 5 - 1;
+			cubeIndices[i + 18] = offset + 1;
+			cubeIndices[i + 19] = offset + 5;
+			cubeIndices[i + 20] = offset + 6;
+			cubeIndices[i + 21] = offset + 1;
+			cubeIndices[i + 22] = offset + 6;
+			cubeIndices[i + 23] = offset + 2;
 
+			cubeIndices[i + 24] = offset + 3;
+			cubeIndices[i + 25] = offset + 2;
+			cubeIndices[i + 26] = offset + 6;
+			cubeIndices[i + 27] = offset + 3;
+			cubeIndices[i + 28] = offset + 6;
+			cubeIndices[i + 29] = offset + 7;
 
-			cubeIndices[i + 12] = offset + 7 - 1;
-			cubeIndices[i + 13] = offset + 1 - 1;
-			cubeIndices[i + 14] = offset + 3 - 1;
+			cubeIndices[i + 30] = offset + 4;
+			cubeIndices[i + 31] = offset + 5;
+			cubeIndices[i + 32] = offset + 1;
+			cubeIndices[i + 33] = offset + 4;
+			cubeIndices[i + 34] = offset + 1;
+			cubeIndices[i + 35] = offset + 0;
 
-			cubeIndices[i + 15] = offset + 4 - 1;
-			cubeIndices[i + 16] = offset + 6 - 1;
-			cubeIndices[i + 17] = offset + 8 - 1;
-
-
-			cubeIndices[i + 18] = offset + 2 - 1;
-			cubeIndices[i + 19] = offset + 4 - 1;
-			cubeIndices[i + 20] = offset + 3 - 1;
-
-			cubeIndices[i + 21] = offset + 4 - 1;
-			cubeIndices[i + 22] = offset + 8 - 1;
-			cubeIndices[i + 23] = offset + 7 - 1;
-
-
-			cubeIndices[i + 24] = offset + 8 - 1;
-			cubeIndices[i + 25] = offset + 6 - 1;
-			cubeIndices[i + 26] = offset + 4 - 1;
-
-			cubeIndices[i + 27] = offset + 6 - 1;
-			cubeIndices[i + 28] = offset + 2 - 1;
-			cubeIndices[i + 29] = offset + 1 - 1;
-
-
-			cubeIndices[i + 30] = offset + 7 - 1;
-			cubeIndices[i + 31] = offset + 5 - 1;
-			cubeIndices[i + 32] = offset + 1 - 1;
-
-			cubeIndices[i + 33] = offset + 4 - 1;
-			cubeIndices[i + 34] = offset + 2 - 1;
-			cubeIndices[i + 35] = offset + 6 - 1;
 
 			offset += 8;
-			break ;
 		}
 
 		Ref<IndexBuffer> cubeIB = IndexBuffer::Create(cubeIndices, s_Data.MaxIndices);

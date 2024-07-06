@@ -7,4 +7,4 @@
 	url = https://github.com/jbeder/yaml-cpp.git
 [submodule "Rndr/dep/ImGuizmo"]
 	path = Rndr/dep/ImGuizmo
-	url = https://github.com/TheCherno/ImGuizmo.git
+	url = https://github.com/CedricGuillemet/ImGuizmo.git

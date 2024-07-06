@@ -14,3 +14,8 @@ cmake --build . --config Debug
 
 @REM cmake -A x64 -DCMAKE_BUILD_TYPE=Debug ..
 @REM cmake --build . --config Debug
+
+
+
+
+@REM cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake 

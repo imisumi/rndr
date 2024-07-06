@@ -40,6 +40,7 @@ namespace Rndr
 	void SceneHierarchyPanel::SetContext(const Ref<Scene>& scene)
 	{
 		m_Context = scene;
+		m_SelectionContext = { entt::null, nullptr };
 	}
 
 	void SceneHierarchyPanel::OnImGuiRender()

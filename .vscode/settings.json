@@ -103,6 +103,14 @@
 		"coroutine": "cpp",
 		"resumable": "cpp",
 		"deque": "cpp",
-		"set": "cpp"
+		"set": "cpp",
+		"any": "cpp",
+		"codecvt": "cpp",
+		"csignal": "cpp",
+		"queue": "cpp",
+		"shared_mutex": "cpp",
+		"source_location": "cpp",
+		"stack": "cpp",
+		"valarray": "cpp"
 	}
 }

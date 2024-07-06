@@ -96,7 +96,7 @@ namespace Rndr
 			out << YAML::EndMap; // TagComponent
 		}
 
-		if (entity.HasComponent<TagComponent>())
+		if (entity.HasComponent<TransformComponent>())
 		{
 			out << YAML::Key << "TransformComponent";
 			out << YAML::BeginMap; // TransformComponent
@@ -142,6 +142,17 @@ namespace Rndr
 			out << YAML::Key << "Color" << YAML::Value << qc.Color;
 
 			out << YAML::EndMap; // QuadComponent
+		}
+
+		if (entity.HasComponent<CubeComponent>())
+		{
+			out << YAML::Key << "CubeComponent";
+			out << YAML::BeginMap; // CubeComponent
+
+			auto& qc = entity.GetComponent<CubeComponent>();
+			out << YAML::Key << "Color" << YAML::Value << qc.Color;
+
+			out << YAML::EndMap; // CubeComponent
 		}
 
 
@@ -239,6 +250,13 @@ namespace Rndr
 				{
 					auto& qc = deserializedEntity.AddComponent<QuadComponent>();
 					qc.Color = quadComponent["Color"].as<glm::vec4>();
+				}
+
+				auto cubeComponent = entity["CubeComponent"];
+				if (cubeComponent)
+				{
+					auto& cc = deserializedEntity.AddComponent<CubeComponent>();
+					cc.Color = cubeComponent["Color"].as<glm::vec4>();
 				}
 			}
 		}

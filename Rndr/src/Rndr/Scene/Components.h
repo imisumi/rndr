@@ -9,6 +9,8 @@
 
 #include "SceneCamera.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 namespace Rndr
 {
@@ -39,9 +41,11 @@ namespace Rndr
 		{
 			glm::mat4 translation = glm::translate(glm::mat4(1.0f), Translation);
 
-			glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), Rotation.x, { 1, 0, 0 });
-			rotation = glm::rotate(rotation, Rotation.y, { 0, 1, 0 });
-			rotation = glm::rotate(rotation, Rotation.z, { 0, 0, 1 });
+			// glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), Rotation.x, { 1, 0, 0 });
+			// rotation = glm::rotate(rotation, Rotation.y, { 0, 1, 0 });
+			// rotation = glm::rotate(rotation, Rotation.z, { 0, 0, 1 });
+
+			glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
 
 			glm::mat4 scale = glm::scale(glm::mat4(1.0f), Scale);
 

@@ -23,6 +23,12 @@ namespace Rndr
 		void OnImGuiRender() override;
 		void OnEvent(Event& e) override;
 
+	private:
+		bool OnKeyPressed(KeyPressedEvent& e);
+
+		void NewScene();
+		void OpenScene();
+		void SaveSceneAs();
 
 
 	private:
@@ -31,7 +37,7 @@ namespace Rndr
 		// Camera3D m_Camera3D;
 		// OrthographicCamera m_Camera;
 
-		OrthographicCameraController m_CameraController;
+		// OrthographicCameraController m_CameraController;
 
 		PerspectiveCamera m_PerspectiveCamera;
 

@@ -1,0 +1,63 @@
+Scene: Untitled
+Entities:
+  - Entity: 12345
+    TagComponent:
+      Tag: Empty Entity
+    TransformComponent:
+      Translation: [2.20000005, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    QuadComponent:
+      Color: [0.800000012, 0.200000003, 0.300000012, 1]
+  - Entity: 12345
+    TagComponent:
+      Tag: Camera Entity 2
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 1
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+  - Entity: 12345
+    TagComponent:
+      Tag: Camera Entity
+    TransformComponent:
+      Translation: [0.600000024, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 1
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+  - Entity: 12345
+    TagComponent:
+      Tag: Green Square
+    TransformComponent:
+      Translation: [-2.20000005, 0, 0]
+      Rotation: [0.00872664619, 0, 0]
+      Scale: [1, 1, 1]
+    QuadComponent:
+      Color: [0.486486495, 0.401961833, 0.416049302, 1]
+  - Entity: 12345
+    TagComponent:
+      Tag: Quad Entity
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    QuadComponent:
+      Color: [0.200000003, 0.362162203, 0.800000012, 1]

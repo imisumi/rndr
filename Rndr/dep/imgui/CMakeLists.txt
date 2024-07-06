@@ -15,12 +15,15 @@ set(IMGUI_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/imgui/imstb_truetype.h
 	${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui_tables.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui_widgets.cpp
-
+	
 	${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_glfw.h
 	${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_glfw.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_opengl3.h
 	${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_opengl3.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_opengl3_loader.h
+	
+	${CMAKE_CURRENT_SOURCE_DIR}/../ImGuizmo/ImGuizmo.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../ImGuizmo/ImGuizmo.h
 )
 
 add_library(imgui STATIC ${IMGUI_SOURCES})
@@ -29,4 +32,5 @@ target_link_libraries(imgui PRIVATE glfw)
 
 target_include_directories(imgui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
 target_include_directories(imgui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends)
+target_include_directories(imgui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../ImGuizmo)
 # target_include_directories(imgui PRIVATE ${RNDR_COURCE_DIR}/../dep/glfw/include)

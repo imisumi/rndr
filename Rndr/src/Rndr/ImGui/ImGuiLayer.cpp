@@ -20,6 +20,8 @@
 
 #include "Rndr/Core/Application.h"
 
+#include "ImGuizmo.h"
+
 namespace Rndr
 {
 	ImGuiLayer::ImGuiLayer()
@@ -120,6 +122,7 @@ namespace Rndr
 	{
 		if (m_BlockEvents)
 		{
+			// RNDR_CORE_INFO("{0}", e);
 			ImGuiIO& io = ImGui::GetIO();
 			e.Handled |= e.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
 			e.Handled |= e.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
@@ -131,6 +134,8 @@ namespace Rndr
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+
+		ImGuizmo::BeginFrame();
 	}
 
 	void ImGuiLayer::End()
@@ -223,18 +228,18 @@ namespace Rndr
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		}
 
-		if (ImGui::BeginMenuBar())
-		{
-			if (ImGui::BeginMenu("File"))
-			{
+		// if (ImGui::BeginMenuBar())
+		// {
+		// 	if (ImGui::BeginMenu("File"))
+		// 	{
 			
 
 
-				if (ImGui::MenuItem("Exit")) Application::Get().Close();
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenuBar();
-		}
+		// 		if (ImGui::MenuItem("Exit")) Application::Get().Close();
+		// 		ImGui::EndMenu();
+		// 	}
+		// 	ImGui::EndMenuBar();
+		// }
 	}
 	
 	void ImGuiLayer::ImGuiEndDockspace()

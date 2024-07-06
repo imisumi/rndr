@@ -12,13 +12,11 @@ namespace Rndr
 		Editor()
 			: Application("Editor")
 		{
-			// PushLayer(new EditorLayer());
 			PushLayer(new Sandbox3D());
 		}
 
 		~Editor()
 		{
-
 		}
 
 	};

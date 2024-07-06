@@ -1,0 +1,28 @@
+Scene: Untitled
+Entities:
+  - Entity: 12345
+    TagComponent:
+      Tag: cube
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CubeComponent:
+      Color: [0.800000012, 0.200000003, 0.300000012, 1]
+  - Entity: 12345
+    TagComponent:
+      Tag: cam
+    TransformComponent:
+      Translation: [0, 0, 10.6000004]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true

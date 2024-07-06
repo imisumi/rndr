@@ -79,5 +79,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/Rndr/dep/imgui
 	${CMAKE_CURRENT_SOURCE_DIR}/Rndr/dep/imgui/imgui
 	${CMAKE_CURRENT_SOURCE_DIR}/Rndr/dep
+	${CMAKE_CURRENT_SOURCE_DIR}/Rndr/dep/ImGuizmo
 )
 

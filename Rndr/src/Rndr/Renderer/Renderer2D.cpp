@@ -127,7 +127,7 @@
 
 // 	void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
 // 	{
-		// RNDR_PROFILE_FUNCTION();
+// 		// RNDR_PROFILE_FUNCTION();
 
 // 		glm::mat4 viewProj = camera.GetProjection() * glm::inverse(transform);
 
@@ -141,7 +141,7 @@
 
 // 	void Renderer2D::EndScene()
 // 	{
-		// RNDR_PROFILE_FUNCTION();
+// 		// RNDR_PROFILE_FUNCTION();
 
 // 		uint32_t dataSize = (uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase;
 // 		s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertexBufferBase, dataSize);
@@ -158,7 +158,7 @@
 
 // 	void Renderer2D::NextBatch()
 // 	{
-		// RNDR_PROFILE_FUNCTION();
+// 		// RNDR_PROFILE_FUNCTION();
 
 // 		Flush();
 // 		StartBatch();
@@ -166,7 +166,7 @@
 
 // 	void Renderer2D::Flush()
 // 	{
-		// RNDR_PROFILE_FUNCTION();
+// 		// RNDR_PROFILE_FUNCTION();
 
 // 		// Bind texture
 // 		// s_Data.WhiteTexture->Bind();
@@ -335,6 +335,16 @@
 // 		memset(&s_Data.Stats, 0, sizeof(Statistics));
 // 	}
 // }
+
+
+
+
+
+
+
+
+
+
 
 
 
