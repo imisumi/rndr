@@ -52,9 +52,7 @@ file(GLOB_RECURSE ALL_SOURCES
 "${RNDR_SOURCE_DIR}/*.cpp"
 "${RNDR_SOURCE_DIR}/**/*.cpp"
 "${RNDR_SOURCE_DIR}/**/**/*.cpp"
-# "${SANDBOX_COURCE_DIR}/*.cpp"
-# "${SANDBOX_COURCE_DIR}/**/*.cpp"
-# "${SANDBOX_COURCE_DIR}/**/**/*.cpp"
+
 "${EDITOR_COURCE_DIR}/*.cpp"
 "${EDITOR_COURCE_DIR}/**/*.cpp"
 "${EDITOR_COURCE_DIR}/**/**/*.cpp"
@@ -79,6 +77,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/Rndr/dep/imgui
 	${CMAKE_CURRENT_SOURCE_DIR}/Rndr/dep/imgui/imgui
 	${CMAKE_CURRENT_SOURCE_DIR}/Rndr/dep
-	${CMAKE_CURRENT_SOURCE_DIR}/Rndr/dep/ImGuizmo
+	# ${CMAKE_CURRENT_SOURCE_DIR}/Rndr/dep/ImGuizmo
 )
 

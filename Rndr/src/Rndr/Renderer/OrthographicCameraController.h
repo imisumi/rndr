@@ -16,15 +16,13 @@ namespace Rndr {
 		void OnUpdate(Timestep ts);
 		void OnEvent(Event& e);
 
+		void OnResize(float width, float height);
+
 		OrthographicCamera& GetCamera() { return m_Camera; }
 		const OrthographicCamera& GetCamera() const { return m_Camera; }
 
 		float GetZoomLevel() const { return m_ZoomLevel; }
 		void SetZoomLevel(float level) { m_ZoomLevel = level; }
-
-		void OnResize(uint32_t width, uint32_t height);
-
-		glm::mat4 GetTransform() const { return m_Transform; }
 	private:
 		bool OnMouseScrolled(MouseScrolledEvent& e);
 		bool OnWindowResized(WindowResizeEvent& e);
@@ -32,8 +30,6 @@ namespace Rndr {
 		float m_AspectRatio;
 		float m_ZoomLevel = 1.0f;
 		OrthographicCamera m_Camera;
-
-		glm::mat4 m_Transform = glm::mat4(1.0f);
 
 		bool m_Rotation;
 

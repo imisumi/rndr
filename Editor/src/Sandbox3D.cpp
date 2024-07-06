@@ -17,39 +17,27 @@
 #include "Rndr/Utils/PlatformUtils.h"
 
 
-#include "ImGuizmo.h"
+// #include "ImGuizmo.h"
+#include "Rndr/ImGui/ImGuizmo.h"
+
+
+
+#include "Rndr/Math/Math.h"
 
 namespace Rndr
 {
 	Sandbox3D::Sandbox3D()
-		: Layer("Sandbox3D") //m_CameraController(1920.0f / 1080.0f)
+		: Layer("Sandbox3D") 
 	{
-		// m_Camera3D(glm::perspective(glm::radians(45.0f), 991.0f / 617.0f, 0.1f, 1000.0f)),
-		// m_Camera(-1.6f, 1.6f, -0.9f, 0.9f)
-		// m_PerspectiveCamera = PerspectiveCamera(45.0f, 991.0f / 617.0f, 0.1f, 1000.0f);
-	}
-
-	Sandbox3D::~Sandbox3D()
-	{
-		
 	}
 
 	void Sandbox3D::OnAttach()
 	{
-		// OnImGuiRender();
-
-		// ImVec2 viewPortSize =  ImGui::GetContentRegionAvail();
-		// RNDR_CORE_INFO("Viewport size: {0}, {1}", viewPortSize.x, viewPortSize.y);
-		// ImGui::End();
-
 		FrameBufferSpecification frameBufferSpec;
 		frameBufferSpec.Width = 1280;
 		frameBufferSpec.Height = 720;
 		m_FrameBuffer = FrameBuffer::Create(frameBufferSpec);
 
-
-		m_Texture = Texture2D::Create("Editor/assets/textures/uv.png");
-		m_PenguinTexture = Texture2D::Create("Editor/assets/textures/penguin.png");
 
 
 		m_ActiveScene = CreateRef<Scene>();
@@ -58,41 +46,11 @@ namespace Rndr
 		// auto square = m_ActiveScene->CreateEntity("Quad Entity");
 		// square.AddComponent<QuadComponent>(m_SquareColor);
 
-		// // glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.0f, -0.1f));
-		// // auto square2 = m_ActiveScene->CreateEntity("Quad Entity 2", glm::vec3(3.0f, 0.0f, -0.1f));
-		// // square2.AddComponent<QuadComponent>(glm::vec4(0.8f, 0.2f, 0.3f, 1.0f));
-		// // square2.AddComponent<QuadComponent>();
-
-
-
-		// // auto square = m_ActiveScene->CreateEntity("Square");
-
-		// m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
-		// m_CameraEntity.AddComponent<CameraComponent>();
-
-		// auto camera2 = m_ActiveScene->CreateEntity("Camera Entity 2");
-		// camera2.AddComponent<CameraComponent>();
-
-		// auto greenSquare = m_ActiveScene->CreateEntity("Green Square");
-		// greenSquare.AddComponent<QuadComponent>(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
-
 		// auto camera = m_ActiveScene->CreateEntity("Camera Entity");
 		// auto cam = camera.AddComponent<CameraComponent>().Primary = true;
 		// cam.Camera.SetViewportSize(1280, 720);
-		
-
-		// auto cube = m_ActiveScene->CreateEntity("Cube");
-		// cube.AddComponent<CubeComponent>();
-
-
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
-
-
-
-		// SceneSerializer serializer(m_ActiveScene);
-		// serializer.Serialize("Editor/assets/scenes/Scene.yaml");
-		// serializer.Deserialize("Editor/assets/scenes/Scene.yaml");
 	}
 
 	void Sandbox3D::OnDetach()
@@ -102,251 +60,334 @@ namespace Rndr
 
 	void Sandbox3D::OnUpdate(Timestep ts)
 	{
-		if (m_Resize)
+		FrameBufferSpecification spec = m_FrameBuffer->GetSpecification();
+		if (m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && (spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
 		{
-			m_FrameBuffer->Resize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
-			// m_Camera = OrthographicCamera(-m_ViewPortSize.x / m_ViewPortSize.y, m_ViewPortSize.x / m_ViewPortSize.y, -1.0f, 1.0f);
-			// m_CameraController.OnResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
-			m_Resize = false;
-			m_ActiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+			m_FrameBuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+			// m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
 		}
 
-
-
-		// m_PerspectiveCamera.OnUpdate(ts);
-
-		// if (m_ViewPortFocused)
+		if (m_ViewportFocused)
 		{
 			// m_CameraController.OnUpdate(ts);
-			// auto& camera = m_CameraEntity.GetComponent<CameraComponent>().Camera;
-			// auto& transform = m_CameraEntity.GetComponent<TransformComponent>().Transform;
-			// // glm::vec3 pos = m_CameraController.GetCamera().GetPosition();
-			// // transform = glm::translate(glm::mat4(1.0f), pos);
-			// transform = m_CameraController.GetTransform();
 		}
 
-		// Renderer2D::ResetStats();
-
+		Renderer2D::ResetStats();
 		m_FrameBuffer->Bind();
 		RenderCommand::SetClearColor(glm::vec4(0.1f, 0.2f, 0.3f, 1));
 		RenderCommand::Clear();
 
-
 		m_ActiveScene->OnUpdate(ts);
-
-
-		// Renderer2D::BeginScene(m_CameraController.GetCamera());
-		// Renderer2D::DrawQuad({ 0.0f, 0.0f}, { 0.5f, 0.5f }, m_SquareColor);
-		// Renderer2D::DrawQuad({ 0.5f, 0.3f}, { 0.5f, 0.8f }, glm::vec4(0.8f, 0.2f, 0.3f, 1.0f));
-		// Renderer2D::DrawQuad({ -5.0f, -5.0f, -0.1}, { 10.0f, 10.0f }, m_Texture, 10.0f);
-		// Renderer2D::DrawQuad({ -0.5f, -0.5f, -0.05}, { 1.0f, 1.0f }, m_PenguinTexture);
-		// Renderer2D::EndScene();
-
-
-		// Renderer2D::BeginScene(m_CameraController.GetCamera());
-		// constexpr float step = 0.05f;
-		// constexpr float size = 5.0f;
-		// for (float y = -size; y < size; y += step)
-		// {
-		// 	for (float x = -size; x < size; x += step)
-		// 	{
-		// 		glm::vec4 color = { (x + 5.0f) / 10.0f, 0.4f, (y + 5.0f) / 10.0f, 0.5f };
-		// 		Renderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, color);
-		// 	}
-		// }
-		// Renderer2D::EndScene();
 
 		m_FrameBuffer->Unbind();
 	}
 
-	void Sandbox3D::OnRender()
-	{
-	}
+	// void Sandbox3D::OnImGuiRender()
+	// {
+	// 	ImGuiLayer::ImGuiBeginDockspace();
+
+	// 	//? Open File Dialog
+	// 	if (ImGui::BeginMenuBar())
+	// 	{
+	// 		if (ImGui::BeginMenu("File"))
+	// 		{
+
+	// 			if (ImGui::MenuItem("New Scene", "Ctrl+N"))
+	// 			{
+	// 				NewScene();
+	// 			}
+
+	// 			if (ImGui::MenuItem("Open Scene...", "Ctrl+O"))
+	// 			{
+	// 				OpenScene();
+	// 			}
+
+	// 			if (ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S"))
+	// 			{
+	// 				SaveSceneAs();
+	// 			}
+			
+
+
+	// 			if (ImGui::MenuItem("Exit")) Application::Get().Close();
+	// 			ImGui::EndMenu();
+	// 		}
+	// 		ImGui::EndMenuBar();
+	// 	}
+
+	// 	m_SceneHierarchyPanel.OnImGuiRender();
+
+
+	// 	{
+	// 		ImGui::Begin("Settings");
+
+	// 		auto stats = Renderer2D::GetStats();
+	// 		ImGui::Text("Renderer2D Stats:");
+	// 		ImGui::Text("Draw Calls: %d", stats.DrawCalls);
+	// 		ImGui::Text("Quads: %d", stats.QuadCount);
+	// 		ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
+	// 		ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
+
+	// 		ImGui::End();
+	// 	}
+
+
+	// 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+	// 	{
+	// 		ImGui::Begin("Viewport");
+
+	// 		m_ViewportFocused = ImGui::IsWindowFocused();
+	// 		m_ViewportHovered = ImGui::IsWindowHovered();
+	// 		Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused && !m_ViewportHovered);
+
+
+	// 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+	// 		m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+
+
+
+	// 		uint64_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
+	// 		ImGui::Image((void*)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+
+
+	// 	{
+	// 		// Gizmos
+	// 		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+	// 		if (selectedEntity && m_GizmoType != -1)
+	// 		{
+	// 			ImGuizmo::SetOrthographic(false);
+	// 			ImGuizmo::SetDrawlist();
+
+	// 			float windowWidth = (float)ImGui::GetWindowWidth();
+	// 			float windowHeight = (float)ImGui::GetWindowHeight();
+	// 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+
+	// 			// Camera
+	// 			auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
+	// 			const auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
+	// 			const glm::mat4& cameraProjection = camera.GetProjection();
+	// 			glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
+
+	// 			// Entity transform
+	// 			auto& tc = selectedEntity.GetComponent<TransformComponent>();
+	// 			glm::mat4 transform = tc.GetTransform();
+
+	// 			// Snapping
+	// 			bool snap = Input::IsKeyPressed(RNDR_KEY_LEFT_CONTROL);
+	// 			float snapValue = 0.5f; // Snap to 0.5m for translation/scale
+	// 			// Snap to 45 degrees for rotation
+	// 			if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
+	// 				snapValue = 45.0f;
+
+	// 			float snapValues[3] = { snapValue, snapValue, snapValue };
+
+	// 			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+	// 				(ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
+	// 				nullptr, snap ? snapValues : nullptr);
+
+	// 			if (ImGuizmo::IsUsing())
+	// 			{
+	// 				glm::vec3 translation, rotation, scale;
+	// 				Math::DecomposeTransform(transform, translation, rotation, scale);
+
+	// 				glm::vec3 deltaRotation = rotation - tc.Rotation;
+	// 				tc.Translation = translation;
+	// 				tc.Rotation += deltaRotation;
+	// 				tc.Scale = scale;
+	// 			}
+	// 		}
+	// 	}
+
+
+
+
+
+
+	// 		ImGui::End();
+	// 	}
+
+	// 	ImGui::PopStyleVar();
+
+	// 	ImGuiLayer::ImGuiEndDockspace();
+	// }
+
+
 
 	void Sandbox3D::OnImGuiRender()
 	{
-		ImGuiLayer::ImGuiBeginDockspace();
+		// HZ_PROFILE_FUNCTION();
+
+		// Note: Switch this to true to enable dockspace
+		static bool dockspaceOpen = true;
+		static bool opt_fullscreen_persistant = true;
+		bool opt_fullscreen = opt_fullscreen_persistant;
+		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+
+		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+		// because it would be confusing to have two docking targets within each others.
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		if (opt_fullscreen)
+		{
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(viewport->Pos);
+			ImGui::SetNextWindowSize(viewport->Size);
+			ImGui::SetNextWindowViewport(viewport->ID);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+		}
+
+		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
+		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+			window_flags |= ImGuiWindowFlags_NoBackground;
+
+		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+		// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive, 
+		// all active windows docked into it will lose their parent and become undocked.
+		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise 
+		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
+		ImGui::PopStyleVar();
+
+		if (opt_fullscreen)
+			ImGui::PopStyleVar(2);
+
+		// DockSpace
+		ImGuiIO& io = ImGui::GetIO();
+		ImGuiStyle& style = ImGui::GetStyle();
+		float minWinSizeX = style.WindowMinSize.x;
+		style.WindowMinSize.x = 370.0f;
+		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+		{
+			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+		}
+
+		style.WindowMinSize.x = minWinSizeX;
 
 		if (ImGui::BeginMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-
-				if (ImGui::MenuItem("New Scene", "Ctrl+N"))
-				{
+				// Disabling fullscreen would allow the window to be moved to the front of other windows, 
+				// which we can't undo at the moment without finer window depth/z control.
+				//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);1
+				if (ImGui::MenuItem("New", "Ctrl+N"))
 					NewScene();
-				}
 
-				if (ImGui::MenuItem("Open Scene...", "Ctrl+O"))
-				{
+				if (ImGui::MenuItem("Open...", "Ctrl+O"))
 					OpenScene();
-				}
 
-				if (ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S"))
-				{
+				if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))
 					SaveSceneAs();
-				}
-			
-
 
 				if (ImGui::MenuItem("Exit")) Application::Get().Close();
 				ImGui::EndMenu();
 			}
+
 			ImGui::EndMenuBar();
 		}
 
-
 		m_SceneHierarchyPanel.OnImGuiRender();
 
-		ImGui::Begin("Settings");
+		ImGui::Begin("Stats");
 
-		// if (ImGui::BeginMenuBar())
-		// {
-		// 	if (ImGui::BeginMenu("File"))
-		// 	{
-		// 		if (ImGui::MenuItem("Serialize "))
-		// 		{
-		// 			SceneSerializer serializer(m_ActiveScene);
-		// 			serializer.Serialize("Editor/assets/scenes/Scene.yaml");
-		// 		}
-
-		// 		if (ImGui::MenuItem("Deserialize "))
-		// 		{
-		// 			SceneSerializer serializer(m_ActiveScene);
-		// 			serializer.Deserialize("Editor/assets/scenes/Scene.yaml");
-		// 		}
-
-		// 		ImGui::EndMenu();
-		// 	}
-
-		// 	ImGui::EndMenuBar();
-		// }
-
-		if (ImGui::Button("Serialize"))
-		{
-			SceneSerializer serializer(m_ActiveScene);
-			serializer.Serialize("Editor/assets/scenes/Scene.yaml");
-		}
-
-		if (ImGui::Button("Deserialize"))
-		{
-			SceneSerializer serializer(m_ActiveScene);
-			serializer.Deserialize("Editor/assets/scenes/Scene.yaml");
-		}
-
-
-		// auto stats = Renderer2D::GetStats();
-		// ImGui::Text("Renderer2D Stats:");
-		// ImGui::Text("Draw Calls: %d", stats.DrawCalls);
-		// ImGui::Text("Quads: %d", stats.QuadCount);
-		// ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
-		// ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
-
-		ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
-		glm::vec3 pos = m_PerspectiveCamera.GetPosition();
-		ImGui::Text("Camera Position: (%f, %f, %f)", pos.x, pos.y, pos.z);
-
-
-		// {
-		// 	auto& camera = m_CameraEntity.GetComponent<CameraComponent>().Camera;
-		// 	float orthoSize = camera.GetOrthographicSize();
-		// 	if (ImGui::DragFloat("Orthographic Size", &orthoSize))
-		// 	{
-		// 		camera.SetOrthographicSize(orthoSize);
-		// 	}
-		// }
+		auto stats = Renderer2D::GetStats();
+		ImGui::Text("Renderer2D Stats:");
+		ImGui::Text("Draw Calls: %d", stats.DrawCalls);
+		ImGui::Text("Quads: %d", stats.QuadCount);
+		ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
+		ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 
 		ImGui::End();
 
-
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("Viewport");
 
-		ImVec2 viewPortSize =  ImGui::GetContentRegionAvail();
-		if (m_ViewPortSize != *(glm::vec2*)&viewPortSize && viewPortSize.x > 0 && viewPortSize.y > 0)
-		{
-			m_ViewPortSize =  { viewPortSize.x, viewPortSize.y };
-			m_Resize = true;
-			RNDR_WARN("Viewport size: {0}, {1}", viewPortSize.x, viewPortSize.y);
-		}
+		m_ViewportFocused = ImGui::IsWindowFocused();
+		m_ViewportHovered = ImGui::IsWindowHovered();
+		Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused && !m_ViewportHovered);
 
+		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+		m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 
-		ImGui::Image((void*)m_FrameBuffer->GetColorAttachmentRendererID(), 
-			ImVec2{ (float)m_FrameBuffer->GetWidth(), (float)m_FrameBuffer->GetHeight() }, 
-			ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+		uint64_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
+		ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 		// Gizmos
-		// Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
-		// if (selectedEntity)
-		// {
-		// 	auto tag = selectedEntity.GetComponent<TagComponent>().Tag;
-		// 	RNDR_CORE_INFO("Selected Entity: {0}", tag);
+		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+		if (selectedEntity && m_GizmoType != -1)
+		{
+			ImGuizmo::SetOrthographic(false);
+			ImGuizmo::SetDrawlist();
 
-		// 	ImGuizmo::SetOrthographic(false);
-		// 	ImGuizmo::SetDrawlist();
+			float windowWidth = (float)ImGui::GetWindowWidth();
+			float windowHeight = (float)ImGui::GetWindowHeight();
+			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 
-		// 	float windowWidth = (float)ImGui::GetWindowWidth();
-		// 	float windowHeight = (float)ImGui::GetWindowHeight();
-		// 	ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+			// Camera
+			auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
+			const auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
+			const glm::mat4& cameraProjection = camera.GetProjection();
+			glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
 
-		// 	// Camera
-		// 	auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
-		// 	auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
-		// 	const glm::mat4& cameraProjection = camera.GetProjection();
-		// 	auto& cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
+			// Entity transform
+			auto& tc = selectedEntity.GetComponent<TransformComponent>();
+			glm::mat4 transform = tc.GetTransform();
 
-		// 	// Entity transform
-		// 	auto& tc = selectedEntity.GetComponent<TransformComponent>();
-		// 	glm::mat4 transform = tc.GetTransform();
+			// Snapping
+			bool snap = Input::IsKeyPressed(RNDR_KEY_LEFT_CONTROL);
+			float snapValue = 0.5f; // Snap to 0.5m for translation/scale
+			// Snap to 45 degrees for rotation
+			if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
+				snapValue = 45.0f;
 
-		// 	// Snapping //TODO
+			float snapValues[3] = { snapValue, snapValue, snapValue };
 
-		// 	ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
-		// 		ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::LOCAL, glm::value_ptr(transform));
+			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+				(ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
+				nullptr, snap ? snapValues : nullptr);
 
-		// 	if (ImGuizmo::IsUsing())
-		// 	{
-		// 		glm::vec3 translation, rotation, scale;
-		// 		// Math::DecomposeTransform(transform, translation, rotation, scale);
-		// 	}
-		// }
+			if (ImGuizmo::IsUsing())
+			{
+				glm::vec3 translation, rotation, scale;
+				Math::DecomposeTransform(transform, translation, rotation, scale);
+
+				glm::vec3 deltaRotation = rotation - tc.Rotation;
+				tc.Translation = translation;
+				tc.Rotation += deltaRotation;
+				tc.Scale = scale;
+			}
+		}
 
 
 		ImGui::End();
 		ImGui::PopStyleVar();
 
-
-
-
-
-		ImGuiLayer::ImGuiEndDockspace();
+		ImGui::End();
 	}
+
+
+
 
 	void Sandbox3D::OnEvent(Event& e)
 	{
 		//TODO: camera controller
-		{
-			// m_CameraController.OnEvent(e);
-
-			// auto& camera = m_CameraEntity.GetComponent<CameraComponent>().Camera;
-			// camera.SetProjection(m_CameraController.GetCamera().GetProjectionMatrix());
-		}
-
-
-		// m_PerspectiveCamera.OnEvent(e);
-
-		RNDR_CORE_INFO("{0}", e);
+	
+		// RNDR_CORE_INFO("{0}", e);
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<KeyPressedEvent>(RNDR_BIND_EVENT_FN(Sandbox3D::OnKeyPressed));
 	}
 
 	bool Sandbox3D::OnKeyPressed(KeyPressedEvent& e)
 	{
-		//TODO: Check why event is not being dispatched
-		RNDR_CORE_INFO("Key Pressed: {0}", e.GetKeyCode());
+		// RNDR_CORE_INFO("Key Pressed: {0}", e.GetKeyCode());
 		if (e.GetRepeatCount() > 0)
 			return false;
-
 
 		bool control = Input::IsKeyPressed(RNDR_KEY_LEFT_CONTROL) || Input::IsKeyPressed(RNDR_KEY_RIGHT_CONTROL);
 		bool shift = Input::IsKeyPressed(RNDR_KEY_LEFT_SHIFT) || Input::IsKeyPressed(RNDR_KEY_RIGHT_SHIFT);
@@ -371,6 +412,21 @@ namespace Rndr
 				break;
 			}
 
+
+			// Gizmos
+			case RNDR_KEY_Q:
+				m_GizmoType = -1;
+				break;
+			case RNDR_KEY_W:
+				m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+				break;
+			case RNDR_KEY_E:
+				m_GizmoType = ImGuizmo::OPERATION::ROTATE;
+				break;
+			case RNDR_KEY_R:
+				m_GizmoType = ImGuizmo::OPERATION::SCALE;
+				break;
+
 		}
 
 		return false;
@@ -380,7 +436,7 @@ namespace Rndr
 	{
 		RNDR_CORE_INFO("New Scene");
 		m_ActiveScene = CreateRef<Scene>();
-		m_ActiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 	}
 
@@ -391,7 +447,7 @@ namespace Rndr
 		if (!filepath.empty())
 		{
 			m_ActiveScene = CreateRef<Scene>();
-			m_ActiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
 			SceneSerializer serializer(m_ActiveScene);

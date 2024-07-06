@@ -27,7 +27,6 @@
 #include "Rndr/Renderer/VertexArray.h"
 
 #include "Rndr/Renderer/Camera.h"
-#include "Rndr/Renderer/PerspectiveCamera.h"
 #include "Rndr/Renderer/OrthographicCamera.h"
 #include "Rndr/Renderer/OrthographicCameraController.h"
 

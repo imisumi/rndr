@@ -23,8 +23,6 @@ namespace Rndr
 		~Scene();
 
 		Entity CreateEntity(const std::string& name = std::string());
-		// Entity CreateEntity(const std::string& name, const glm::vec3& translation);
-
 		void DestroyEntity(Entity entity);
 
 		void OnUpdate(Timestep ts);
@@ -32,11 +30,6 @@ namespace Rndr
 
 
 		Entity GetPrimaryCameraEntity();
-
-		// Entity CreateEntity();
-
-		//? TEMP
-		// entt::registry& Reg() { return m_Registry; }
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component)
@@ -53,29 +46,6 @@ namespace Rndr
 			// }
 		}
 
-		// template<>
-		// void OnComponentAdded<TagComponent>(Entity entity, TagComponent& component);
-
-		// template<>
-		// void OnComponentAdded<TransformComponent>(Entity entity, TransformComponent& component);
-
-		// template<>
-		// void OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& component)
-		// {
-		// 	component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
-		// }
-
-		// template<>
-		// void OnComponentAdded<TagComponent>(Entity entity, TagComponent& component);
-
-
-
-		// void OnComponentAdded(Entity entity, CameraComponent& component);
-		// void OnComponentAdded(Entity entity, TagComponent& component);
-		// void OnComponentAdded(Entity entity, TransformComponent& component);
-		// void OnComponentAdded(Entity entity, TagComponent& component);
-
-		
 	private:
 		entt::registry m_Registry;
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;

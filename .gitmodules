@@ -5,6 +5,3 @@
 [submodule "Rndr/dep/yaml-cpp"]
 	path = Rndr/dep/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
-[submodule "Rndr/dep/ImGuizmo"]
-	path = Rndr/dep/ImGuizmo
-	url = https://github.com/CedricGuillemet/ImGuizmo.git

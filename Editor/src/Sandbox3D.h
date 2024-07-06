@@ -13,15 +13,14 @@ namespace Rndr
 	{
 	public:
 		Sandbox3D();
-		~Sandbox3D();
+		virtual ~Sandbox3D() = default;
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
 
-		void OnUpdate(Timestep ts);
-		void OnRender();
-		void OnImGuiRender() override;
-		void OnEvent(Event& e) override;
+		virtual void OnUpdate(Timestep ts) override;
+		virtual void OnImGuiRender() override;
+		virtual void OnEvent(Event& e) override;
 
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
@@ -29,24 +28,8 @@ namespace Rndr
 		void NewScene();
 		void OpenScene();
 		void SaveSceneAs();
-
-
 	private:
-		Ref<Texture2D> m_Texture;
-		Ref<Texture2D> m_PenguinTexture;
-		// Camera3D m_Camera3D;
-		// OrthographicCamera m_Camera;
-
-		// OrthographicCameraController m_CameraController;
-
-		PerspectiveCamera m_PerspectiveCamera;
-
-		Ref<VertexArray> m_SquareVA;
-		Ref<Shader> m_Shader;
-
-		glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
-
-		ShaderLibrary m_ShaderLibrary;
+		// ShaderLibrary m_ShaderLibrary;
 
 		Ref<Scene> m_ActiveScene;
 
@@ -54,11 +37,11 @@ namespace Rndr
 
 		Ref<FrameBuffer> m_FrameBuffer;
 
-		glm::vec2 m_ViewPortSize = { 0.0f, 0.0f };
-		bool m_Resize = false;
+		glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
 
+		bool m_ViewportFocused = false, m_ViewportHovered = false;
 
-
+		int m_GizmoType = -1;
 
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 	};

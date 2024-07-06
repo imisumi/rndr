@@ -1,30 +1,20 @@
 #pragma once
 
-#include <imgui/imgui.h>
-
-
-#include "Rndr/Scene/Scene.h"
-
 #include "Rndr/Core/Base.h"
-
+#include "Rndr/Scene/Scene.h"
 #include "Rndr/Scene/Entity.h"
 
-namespace Rndr
-{
+namespace Rndr {
+
 	class SceneHierarchyPanel
 	{
 	public:
-		SceneHierarchyPanel();
-		~SceneHierarchyPanel();
-
-
+		SceneHierarchyPanel() = default;
 		SceneHierarchyPanel(const Ref<Scene>& scene);
-
 
 		void SetContext(const Ref<Scene>& scene);
 
 		void OnImGuiRender();
-
 
 		Entity GetSelectedEntity() const { return m_SelectionContext; }
 	private:
@@ -32,8 +22,7 @@ namespace Rndr
 		void DrawComponents(Entity entity);
 	private:
 		Ref<Scene> m_Context;
-		Entity m_SelectionContext = { entt::null, nullptr };
+		Entity m_SelectionContext;
 	};
-	
 
 }

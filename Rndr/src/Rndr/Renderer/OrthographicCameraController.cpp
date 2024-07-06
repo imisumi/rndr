@@ -1,12 +1,8 @@
 
-#include "OrthographicCameraController.h"
+#include "Rndr/Renderer/OrthographicCameraController.h"
 
 #include "Rndr/Core/Input.h"
 #include "Rndr/Core/KeyCodes.h"
-
-#include "Rndr/Core/Log.h"
-
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace Rndr {
 
@@ -17,6 +13,8 @@ namespace Rndr {
 
 	void OrthographicCameraController::OnUpdate(Timestep ts)
 	{
+		// HZ_PROFILE_FUNCTION();
+
 		if (Input::IsKeyPressed(RNDR_KEY_A))
 		{
 			m_CameraPosition.x -= cos(glm::radians(m_CameraRotation)) * m_CameraTranslationSpeed * ts;
@@ -55,20 +53,29 @@ namespace Rndr {
 		}
 
 		m_Camera.SetPosition(m_CameraPosition);
-		m_Transform = glm::translate(glm::mat4(1.0f), m_CameraPosition) * glm::rotate(glm::mat4(1.0f), glm::radians(m_CameraRotation), glm::vec3(0, 0, 1));
 
 		m_CameraTranslationSpeed = m_ZoomLevel;
 	}
 
 	void OrthographicCameraController::OnEvent(Event& e)
 	{
+		// HZ_PROFILE_FUNCTION();
+
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<MouseScrolledEvent>(RNDR_BIND_EVENT_FN(OrthographicCameraController::OnMouseScrolled));
 		dispatcher.Dispatch<WindowResizeEvent>(RNDR_BIND_EVENT_FN(OrthographicCameraController::OnWindowResized));
 	}
 
+	void OrthographicCameraController::OnResize(float width, float height)
+	{
+		m_AspectRatio = width / height;
+		m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
+	}
+
 	bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& e)
 	{
+		// HZ_PROFILE_FUNCTION();
+
 		m_ZoomLevel -= e.GetYOffset() * 0.25f;
 		m_ZoomLevel = std::max(m_ZoomLevel, 0.25f);
 		m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
@@ -77,16 +84,10 @@ namespace Rndr {
 
 	bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
 	{
-		RNDR_CORE_WARN("WindowResizeEvent: {0}, {1}", e.GetWidth(), e.GetHeight());
-		m_AspectRatio = (float)e.GetWidth() / (float)e.GetHeight();
-		m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
-		return false;
-	}
+		// HZ_PROFILE_FUNCTION();
 
-	void OrthographicCameraController::OnResize(uint32_t width, uint32_t height)
-	{
-		m_AspectRatio = (float)width / (float)height;
-		m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
+		OnResize((float)e.GetWidth(), (float)e.GetHeight());
+		return false;
 	}
 
 }
