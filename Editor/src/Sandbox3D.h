@@ -7,6 +7,9 @@
 
 #include "Panels/SceneHierarchyPanel.h"
 
+
+#include "Rndr/Renderer/EditorCamera.h"
+
 namespace Rndr
 {
 	class Sandbox3D : public Layer
@@ -44,5 +47,8 @@ namespace Rndr
 		int m_GizmoType = -1;
 
 		SceneHierarchyPanel m_SceneHierarchyPanel;
+
+
+		EditorCamera m_EditorCamera;
 	};
 }

@@ -7,6 +7,7 @@
 
 #include "Rndr/Core/Log.h"
 
+
 namespace Rndr
 {
 	enum class ShaderDataType : uint8_t
@@ -145,10 +146,64 @@ namespace Rndr
 	};
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	enum class FrameBufferTextureFormat
+	{
+		None = 0,
+		RGBA8,
+		RGBA16F,
+		RGBA32F,
+
+		DEPTH24STENCIL8,
+
+		Depth = DEPTH24STENCIL8
+	};
+
+	struct FrameBufferTextureSpecification
+	{
+		FrameBufferTextureSpecification() = default;
+		FrameBufferTextureSpecification(FrameBufferTextureFormat format)
+			: TextureFormat(format)
+		{
+		}
+
+		FrameBufferTextureFormat TextureFormat = FrameBufferTextureFormat::None;
+		//TODO : Filtering, Wrapping
+	};
+
+	struct FrameBufferAttachmentSpecification
+	{
+		FrameBufferAttachmentSpecification() = default;
+		FrameBufferAttachmentSpecification(std::initializer_list<FrameBufferTextureSpecification> attachments)
+			: Attachments(attachments) {}
+
+
+		std::vector<FrameBufferTextureSpecification> Attachments;
+	};
+
 	struct FrameBufferSpecification
 	{
 		uint32_t Width, Height;
 		uint32_t Samples = 1;
+
+		FrameBufferAttachmentSpecification Attachments;
 
 		bool SwapChainTarget = false;
 	};
@@ -169,6 +224,7 @@ namespace Rndr
 		virtual uint32_t GetHeight() const = 0;
 
 		virtual uint32_t GetColorAttachmentRendererID() const = 0;
+		virtual uint32_t GetDepthAttachmentRendererID() const = 0;
 
 
 		static Ref<FrameBuffer> Create(const FrameBufferSpecification& spec);

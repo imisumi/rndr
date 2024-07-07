@@ -2,6 +2,9 @@
 
 #include <glad/glad.h>
 
+
+#include "ImGui/backends/imgui_impl_opengl3.h"
+
 namespace Rndr
 {
 
@@ -71,20 +74,25 @@ namespace Rndr
 
 
 	/*
-		? Frame Buffer
+		? Frame Buffer --------------------------------------------------------------------------------------------------
 	*/
 
 	OpenGLFrameBuffer::OpenGLFrameBuffer(const FrameBufferSpecification& spec)
 		: m_Specification(spec)
 	{
+
+		// print the width and height of the framebuffer
+		RNDR_CORE_INFO("Framebuffer width = {0}, height = {1}", m_Specification.Width, m_Specification.Height);
 		// Invalidate();
 		glCreateFramebuffers(1, &m_RendererID);
 
 		// Create a texture and attach it to the m_RendererID
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_ColorAttachment);
-		glTextureStorage2D(m_ColorAttachment, 1, GL_RGBA8, m_Specification.Width, m_Specification.Height); // Allocate storage for the m_ColorAttachment
 		glTextureParameteri(m_ColorAttachment, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTextureParameteri(m_ColorAttachment, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameteri(m_ColorAttachment, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(m_ColorAttachment, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTextureStorage2D(m_ColorAttachment, 1, GL_RGBA8, m_Specification.Width, m_Specification.Height); // Allocate storage for the m_ColorAttachment
 
 		// Attach the m_ColorAttachment to the m_RendererID
 		glNamedFramebufferTexture(m_RendererID, GL_COLOR_ATTACHMENT0, m_ColorAttachment, 0);
@@ -99,6 +107,8 @@ namespace Rndr
 		// Check the completeness of the m_RendererID
 		if (glCheckNamedFramebufferStatus(m_RendererID, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			RNDR_CORE_ERROR("Framebuffer is incomplete!");
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	OpenGLFrameBuffer::~OpenGLFrameBuffer()
@@ -116,32 +126,30 @@ namespace Rndr
 			return;
 		}
 		if (m_Specification.Width == width && m_Specification.Height == heigth)
+		{
+			RNDR_CORE_WARN("Attempted to resize framebuffer to the same size {0}, {1}", width, heigth);
 			return;
+		}
+		RNDR_CORE_INFO("Resizing framebuffer from {0}, {1} to {2}, {3}", m_Specification.Width, m_Specification.Height, width, heigth);
+
 		
 		m_Specification.Width = width;
 		m_Specification.Height = heigth;
 
+		glDeleteFramebuffers(1, &m_RendererID);
+		glDeleteTextures(1, &m_ColorAttachment);
+		glDeleteTextures(1, &m_DepthAttachment);
 
-		//TODO: check why this is not working
-		// if (m_ColorAttachment)
-		// 	glDeleteTextures(1, &m_ColorAttachment);
-		// if (m_DepthAttachment)
-		// 	glDeleteTextures(1, &m_DepthAttachment);
-
-		if (m_RendererID)
-		{
-			// glDeleteFramebuffers(1, &m_RendererID);
-			// glDeleteTextures(1, &m_ColorAttachment);
-			// glDeleteTextures(1, &m_DepthAttachment);
-		}
-
-		// glCreateFramebuffers(1, &m_RendererID);
+		glCreateFramebuffers(1, &m_RendererID);
 
 		// Create a texture and attach it to the m_RendererID
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_ColorAttachment);
-		glTextureStorage2D(m_ColorAttachment, 1, GL_RGBA8, m_Specification.Width, m_Specification.Height); // Allocate storage for the m_ColorAttachment
 		glTextureParameteri(m_ColorAttachment, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTextureParameteri(m_ColorAttachment, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameteri(m_ColorAttachment, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(m_ColorAttachment, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(m_ColorAttachment, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTextureStorage2D(m_ColorAttachment, 1, GL_RGBA8, m_Specification.Width, m_Specification.Height); // Allocate storage for the m_ColorAttachment
 
 		// Attach the m_ColorAttachment to the m_RendererID
 		glNamedFramebufferTexture(m_RendererID, GL_COLOR_ATTACHMENT0, m_ColorAttachment, 0);
@@ -156,7 +164,13 @@ namespace Rndr
 		// Check the completeness of the m_RendererID
 		if (glCheckNamedFramebufferStatus(m_RendererID, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			RNDR_CORE_ERROR("Framebuffer is incomplete!");
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//TODO: idk why but if I don't call this function, the ImGui will not render the UI
+		ImGui_ImplOpenGL3_CreateFontsTexture();
 	}
+
 
 	void OpenGLFrameBuffer::Bind()
 	{

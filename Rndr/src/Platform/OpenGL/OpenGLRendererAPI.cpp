@@ -2,6 +2,8 @@
 
 #include <glad/glad.h>
 
+#include <iostream>
+
 namespace Rndr
 {
 	void OpenGLRendererAPI::Init()
@@ -29,8 +31,17 @@ namespace Rndr
 
 	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
 	{
+		// uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
 		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
+
 		// uint32_t count = indexCount ? vertexArray->GetIndexBuffer()->GetCount() : indexCount;
+
+		// uint32_t count;
+		// if (indexCount)
+		// 	count = indexCount;
+		// else
+		// 	count = vertexArray->GetIndexBuffer()->GetCount();
+		// std::cout << "OpenGLRendererAPI::DrawIndexed: count = " << count << std::endl;
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 
 		//TODO: TEMP

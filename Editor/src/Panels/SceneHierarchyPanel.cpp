@@ -99,48 +99,46 @@
 // 		ImGui::End();
 // 	}
 
-// 	void SceneHierarchyPanel::DrawEntityNode(Entity entity)
-// 	{
-// 		auto& tag = entity.GetComponent<TagComponent>().Tag;
-// 		ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | 
-// 			ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-// 		bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.c_str());
-// 		if (ImGui::IsItemClicked())
-// 		{
-// 			m_SelectionContext = entity;
-// 		}
+	// void SceneHierarchyPanel::DrawEntityNode(Entity entity)
+	// {
+	// 	auto& tag = entity.GetComponent<TagComponent>().Tag;
+	// 	ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | 
+	// 		ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+	// 	bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.c_str());
+	// 	if (ImGui::IsItemClicked())
+	// 	{
+	// 		m_SelectionContext = entity;
+	// 	}
 
-// 		bool entityDeleted = false;
-// 		if (ImGui::BeginPopupContextItem())
-// 		{
-// 			if (ImGui::MenuItem("Delete Entity"))
-// 			{
-// 				entityDeleted = true;
-// 			}
+	// 	bool entityDeleted = false;
+	// 	if (ImGui::BeginPopupContextItem())
+	// 	{
+	// 		if (ImGui::MenuItem("Delete Entity"))
+	// 		{
+	// 			entityDeleted = true;
+	// 		}
 
-// 			ImGui::EndPopup();
-// 		}
+	// 		ImGui::EndPopup();
+	// 	}
 
-// 		if (opened)
-// 		{
-// 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-// 			bool opened = ImGui::TreeNodeEx((void*)9817239, flags, tag.c_str());
-// 			if (opened)
-// 			{
-// 				ImGui::TreePop();
-// 			}
-// 			ImGui::TreePop();
-// 		}
+	// 	if (opened)
+	// 	{
+	// 		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+	// 		bool opened = ImGui::TreeNodeEx((void*)9817239, flags, tag.c_str());
+	// 		if (opened)
+	// 			ImGui::TreePop();
+	// 		ImGui::TreePop();
+	// 	}
 
-// 		if (entityDeleted)
-// 		{
-// 			m_Context->m_Registry.destroy(entity);
-// 			if (m_SelectionContext == entity)
-// 			{
-// 				m_SelectionContext = { entt::null, nullptr };
-// 			}
-// 		}
-// 	}
+	// 	if (entityDeleted)
+	// 	{
+	// 		m_Context->m_Registry.destroy(entity);
+	// 		if (m_SelectionContext == entity)
+	// 		{
+	// 			m_SelectionContext = { entt::null, nullptr };
+	// 		}
+	// 	}
+	// }
 
 // 	static void DrawVec3Control(const std::string& label, glm::vec3& value, float resetValue = 0.0f, float columnWidth = 100.0f)
 // 	{
@@ -459,7 +457,7 @@ namespace Rndr {
 
 	void SceneHierarchyPanel::OnImGuiRender()
 	{
-		ImGui::Begin("Scene Hierarchy");
+		ImGui::Begin("Objects");
 
 		auto view = m_Context->m_Registry.view<TagComponent>();
 		for (auto entity : view)
@@ -469,20 +467,24 @@ namespace Rndr {
 		}
 
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
-			m_SelectionContext = {};
+			m_SelectionContext = { entt::null, nullptr };
 
 		// Right-click on blank space
-		if (ImGui::BeginPopupContextWindow(0, 1))
+		ImGuiPopupFlags popup_flags = ImGuiPopupFlags_MouseButtonRight | 
+			ImGuiPopupFlags_NoOpenOverExistingPopup | ImGuiPopupFlags_NoOpenOverItems;
+		if (ImGui::BeginPopupContextWindow(0, popup_flags))
 		{
 			if (ImGui::MenuItem("Create Empty Entity"))
+			{
 				m_Context->CreateEntity("Empty Entity");
+			}
 
 			ImGui::EndPopup();
 		}
 
 		ImGui::End();
 
-		ImGui::Begin("Properties");
+		ImGui::Begin("Attributes");
 		if (m_SelectionContext)
 		{
 			DrawComponents(m_SelectionContext);
@@ -493,10 +495,19 @@ namespace Rndr {
 
 	void SceneHierarchyPanel::DrawEntityNode(Entity entity)
 	{
-		auto& tag = entity.GetComponent<TagComponent>().Tag;
+		// auto& tag = entity.GetComponent<TagComponent>().Tag;
 		
-		ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
-		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+		// ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+		// flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+		// bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.c_str());
+		// if (ImGui::IsItemClicked())
+		// {
+		// 	m_SelectionContext = entity;
+		// }
+
+		auto& tag = entity.GetComponent<TagComponent>().Tag;
+		ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | 
+			ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 		bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.c_str());
 		if (ImGui::IsItemClicked())
 		{
@@ -525,7 +536,7 @@ namespace Rndr {
 		{
 			m_Context->DestroyEntity(entity);
 			if (m_SelectionContext == entity)
-				m_SelectionContext = {};
+				m_SelectionContext = { entt::null, nullptr };
 		}
 	}
 
@@ -668,12 +679,21 @@ namespace Rndr {
 					ImGui::CloseCurrentPopup();
 				}
 
-				if (ImGui::MenuItem("Sprite Renderer"))
+				if (ImGui::MenuItem("Quad"))
 				{
 					if (!m_SelectionContext.HasComponent<QuadComponent>())
 						m_SelectionContext.AddComponent<QuadComponent>();
 					else
-						RNDR_CORE_WARN("This entity already has the Sprite Renderer Component!");
+						RNDR_CORE_WARN("This entity already has the Quad Component!");
+					ImGui::CloseCurrentPopup();
+				}
+
+				if (ImGui::MenuItem("Cube"))
+				{
+					if (!m_SelectionContext.HasComponent<CubeComponent>())
+						m_SelectionContext.AddComponent<CubeComponent>();
+					else
+						RNDR_CORE_WARN("This entity already has the Cube Component!");
 					ImGui::CloseCurrentPopup();
 				}
 
@@ -682,14 +702,45 @@ namespace Rndr {
 
 		ImGui::PopItemWidth();
 
-		DrawComponent<TransformComponent>("Transform", entity, [](auto& component)
+		// DrawComponent<TransformComponent>("Transform", entity, [](auto& component)
+		// {
+		// 	DrawVec3Control("Translation", component.Translation);
+		// 	glm::vec3 rotation = glm::degrees(component.Rotation);
+		// 	DrawVec3Control("Rotation", rotation);
+		// 	component.Rotation = glm::radians(rotation);
+		// 	DrawVec3Control("Scale", component.Scale, 1.0f);
+		// });
+
+		if (entity.HasComponent<TransformComponent>())
 		{
-			DrawVec3Control("Translation", component.Translation);
-			glm::vec3 rotation = glm::degrees(component.Rotation);
-			DrawVec3Control("Rotation", rotation);
-			component.Rotation = glm::radians(rotation);
-			DrawVec3Control("Scale", component.Scale, 1.0f);
+			const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | 
+				ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_SpanAvailWidth | 
+				ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_FramePadding;
+			if (ImGui::TreeNodeEx((void*)typeid(TransformComponent).hash_code(), treeNodeFlags, "Transform"))
+			{
+				auto& tc = entity.GetComponent<TransformComponent>();
+
+				DrawVec3Control("Translation", tc.Translation);
+				glm::vec3 rotation = glm::degrees(tc.Rotation);
+				DrawVec3Control("Rotation", rotation);
+				tc.Rotation = glm::radians(rotation);
+				DrawVec3Control("Scale", tc.Scale, 1.0f);
+
+				// ImGui::DragFloat3("Position", glm::value_ptr(tc.Translation), 0.1f);
+				ImGui::TreePop();
+			}
+		}
+
+		DrawComponent<QuadComponent>("Quad", entity, [](auto& component)
+		{
+			ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
 		});
+
+		DrawComponent<CubeComponent>("Cube", entity, [](auto& component)
+		{
+			ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
+		});
+
 
 		DrawComponent<CameraComponent>("Camera", entity, [](auto& component)
 		{
@@ -748,11 +799,6 @@ namespace Rndr {
 
 				ImGui::Checkbox("Fixed Aspect Ratio", &component.FixedAspectRatio);
 			}
-		});
-
-		DrawComponent<QuadComponent>("Sprite Renderer", entity, [](auto& component)
-		{
-			ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
 		});
 
 	}

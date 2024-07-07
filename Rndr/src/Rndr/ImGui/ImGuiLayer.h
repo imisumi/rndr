@@ -24,6 +24,9 @@ namespace Rndr {
 		void BlockEvents(bool block) { m_BlockEvents = block; }
 		
 		void SetDarkThemeColors();
+
+		static void ImGuiBeginDockspace();
+		static void ImGuiEndDockspace();
 	private:
 		bool m_BlockEvents = true;
 		float m_Time = 0.0f;

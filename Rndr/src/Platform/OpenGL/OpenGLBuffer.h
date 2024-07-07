@@ -36,7 +36,7 @@ namespace Rndr
 		virtual uint32_t GetCount() const override { return m_Count; }
 
 	private:
-		uint32_t m_RendererID;
+		uint32_t m_RendererID = 0;
 		uint32_t m_Count;
 	};
 
@@ -51,6 +51,7 @@ namespace Rndr
 		virtual const FrameBufferSpecification& GetSpecification() const override { return m_Specification; }
 
 		virtual uint32_t GetColorAttachmentRendererID() const override { return m_ColorAttachment; }
+		virtual uint32_t GetDepthAttachmentRendererID() const override { return m_DepthAttachment; }
 
 		virtual void Resize(uint32_t width, uint32_t height) override;
 

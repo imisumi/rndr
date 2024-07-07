@@ -7,6 +7,7 @@
 #include "Entity.h"
 
 #include "Rndr/Renderer/Renderer2D.h"
+#include "Rndr/Renderer/Renderer3D.h"
 
 #include "Rndr/Core/Log.h"
 
@@ -34,9 +35,27 @@ namespace Rndr
 		m_Registry.destroy(entity);
 	}
 
+	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
+	{
+		// Render 2D
+		Renderer2D::BeginScene(camera);
+
+		auto group = m_Registry.group<TransformComponent>(entt::get<QuadComponent>);
+		for (auto entity : group)
+		{
+			auto [transform, quad] = group.get<TransformComponent, QuadComponent>(entity);
+
+			Renderer2D::DrawQuad(transform.GetTransform(), quad.Color);
+			// Renderer2D::PrintVertexData();
+		}
+
+		Renderer2D::EndScene();
+	
+	}
 
 
-	void Scene::OnUpdate(Timestep ts)
+
+	void Scene::OnUpdateRuntime(Timestep ts)
 	{
 		//? use view for one component only else use group
 
