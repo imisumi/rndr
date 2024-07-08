@@ -14,6 +14,9 @@
 
 #include "Rndr/Renderer/EditorCamera.h"
 
+
+#include "Rndr/Renderer/Grid.h"
+
 namespace Rndr
 {
 	class Entity;
@@ -52,6 +55,8 @@ namespace Rndr
 	private:
 		entt::registry m_Registry;
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
+
+		Ref<ViewportGrid> m_Grid;
 
 		friend class Entity;
 		friend class SceneSerializer;

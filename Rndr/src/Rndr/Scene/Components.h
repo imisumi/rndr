@@ -85,4 +85,9 @@ namespace Rndr
 	{
 		glm::vec4 Color = { 0.8f, 0.2f, 0.3f, 1.0f };
 	};
+
+	struct TriComponent
+	{
+		glm::vec4 Color = { 0.8f, 0.2f, 0.3f, 1.0f };
+	};
 }

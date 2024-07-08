@@ -13,6 +13,8 @@ namespace Rndr {
 	struct Vertex
 	{
 		glm::vec3 Position;
+		glm::vec3 Color;
+		int EntityID;
 	};
 
 	struct Renderer2DData
@@ -33,19 +35,26 @@ namespace Rndr {
 		glm::vec4 VertexPositions[3];
 
 		Renderer2D::Statistics Stats;
+
+		// Ref<ViewportGrid> grid;
+
+		
 	};
 
 	static Renderer2DData s_Data;
 
 	void Renderer2D::Init()
 	{
+
 		// HZ_PROFILE_FUNCTION();
 
 		s_Data.CubeVertexArray = VertexArray::Create();
 
 		s_Data.CubeVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(Vertex));
 		s_Data.CubeVertexBuffer->SetLayout({
-			{ ShaderDataType::Float3, "a_Position" }
+			{ ShaderDataType::Float3, "a_Position" },
+			{ ShaderDataType::Float3, "a_Color"},
+			{ ShaderDataType::Int, "a_EntityID" }
 		});
 		s_Data.CubeVertexArray->AddVertexBuffer(s_Data.CubeVertexBuffer);
 
@@ -165,14 +174,30 @@ namespace Rndr {
 			// std::cout << s_Data.VertexBufferPtr->Position.x << " " << s_Data.VertexBufferPtr->Position.y << " " << s_Data.VertexBufferPtr->Position.z << std::endl;
 			s_Data.VertexBufferPtr++;
 		}
-		// exit(1);
 
 		s_Data.VertexIndexCount += 3;
 
 		s_Data.Stats.QuadCount++;
+	}
 
-		// PrintVertexData();
-		// exit(1);
+	void Renderer2D::DrawQuad(const glm::mat4& transform, QuadComponent& tri, int entityID)
+	{
+		constexpr size_t VertexCount = 3;
+
+		if (s_Data.VertexIndexCount >= Renderer2DData::MaxIndices)
+			NextBatch();
+
+		for (size_t i = 0; i < VertexCount; i++)
+		{
+			s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[i];
+			s_Data.VertexBufferPtr->Color = tri.Color;
+			s_Data.VertexBufferPtr->EntityID = entityID;
+			s_Data.VertexBufferPtr++;
+		}
+
+		s_Data.VertexIndexCount += 3;
+
+		s_Data.Stats.QuadCount++;
 	}
 
 	void Renderer2D::PrintVertexData()

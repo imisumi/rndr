@@ -34,11 +34,11 @@ namespace Rndr
 	void Sandbox3D::OnAttach()
 	{
 		FrameBufferSpecification frameBufferSpec;
-		frameBufferSpec.Attachments = { FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::Depth };
+		frameBufferSpec.Attachments = { FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::RED_INTEGER, FrameBufferTextureFormat::Depth };
 		frameBufferSpec.Width = 1280;
 		frameBufferSpec.Height = 720;
 		m_FrameBuffer = FrameBuffer::Create(frameBufferSpec);
-		m_FrameBuffer->Resize(1000, 1000);
+		// m_FrameBuffer->Resize(1000, 1000);
 		// m_FrameBuffer->~FrameBuffer();
 		// m_FrameBuffer = FrameBuffer::Create(frameBufferSpec);
 
@@ -95,8 +95,36 @@ namespace Rndr
 		RenderCommand::SetClearColor(glm::vec4(0.1f, 0.2f, 0.3f, 1));
 		RenderCommand::Clear();
 
+		m_FrameBuffer->ClearAttachment(1, -1);
+
 		// m_ActiveScene->OnUpdateRuntime(ts);
 		m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
+
+
+		auto [mx, my] = ImGui::GetMousePos();
+		mx -= m_ViewportBounds[0].x;
+		my -= m_ViewportBounds[0].y;
+		glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
+
+		my = m_ViewportSize.y - my;
+		int mouseX = (int)mx;
+		int mouseY = (int)my;
+
+
+		if (mouseX >= 0 && mouseY >= 0 && mouseX < m_ViewportSize.x && mouseY < m_ViewportSize.y)
+		{
+			int pixelData = m_FrameBuffer->ReadPixel(1, mouseX, mouseY);
+			// RNDR_CORE_INFO("Pixel Data: {0}", pixelData);
+			// RNDR_CORE_WARN("MouseX: {0}, MouseY: {1}", mouseX, mouseY);
+
+			if (pixelData > -1)
+				m_HoveredEntity = { (entt::entity)pixelData, m_ActiveScene.get()} ;
+			else
+				m_HoveredEntity = { entt::null, nullptr };
+		}
+
+
+
 
 		m_FrameBuffer->Unbind();
 	}
@@ -104,7 +132,9 @@ namespace Rndr
 
 	void Sandbox3D::OnImGuiRender()
 	{
-		ImGuiLayer::ImGuiBeginDockspace();
+		{
+			ImGuiLayer::ImGuiBeginDockspace();
+		}
 
 		if (ImGui::BeginMenuBar())
 		{
@@ -128,90 +158,110 @@ namespace Rndr
 
 			ImGui::EndMenuBar();
 		}
-
-		m_SceneHierarchyPanel.OnImGuiRender();
-
-		ImGui::Begin("Stats");
-
-		ImGui::Text("Viewport Size: %.0fx%.0f", m_ViewportSize.x, m_ViewportSize.y);
-
-		ImGui::Text("Framebuffer Size: %dx%d", m_FrameBuffer->GetWidth(), m_FrameBuffer->GetHeight());
-		// auto stats = Renderer2D::GetStats();
-		// ImGui::Text("Renderer2D Stats:");
-		// ImGui::Text("Draw Calls: %d", stats.DrawCalls);
-		// ImGui::Text("Quads: %d", stats.QuadCount);
-		// ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
-		// ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
-
-		ImGui::End();
-
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-		ImGui::Begin("Viewport");
-
-		m_ViewportFocused = ImGui::IsWindowFocused();
-		m_ViewportHovered = ImGui::IsWindowHovered();
-		Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused && !m_ViewportHovered);
-
-		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-
-		uint64_t depthTextureID = m_FrameBuffer->GetDepthAttachmentRendererID();
-		uint64_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
-		ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-		ImGui::Image((void*)depthTextureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-
-		// Gizmos
-		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
-		if (selectedEntity && m_GizmoType != -1)
 		{
-			ImGuizmo::SetOrthographic(false);
-			ImGuizmo::SetDrawlist();
-
-			float windowWidth = (float)ImGui::GetWindowWidth();
-			float windowHeight = (float)ImGui::GetWindowHeight();
-			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
-
-			// Camera
-			// auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
-			// const auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
-			// const glm::mat4& cameraProjection = camera.GetProjection();
-			// glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
-
-			// Editor camera
-			const glm::mat4& cameraProjection = m_EditorCamera.GetProjection();
-			glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();
-
-			// Entity transform
-			auto& tc = selectedEntity.GetComponent<TransformComponent>();
-			glm::mat4 transform = tc.GetTransform();
-
-			// Snapping
-			bool snap = Input::IsKeyPressed(RNDR_KEY_LEFT_CONTROL);
-			float snapValue = 0.5f; // Snap to 0.5m for translation/scale
-			// Snap to 45 degrees for rotation
-			if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
-				snapValue = 45.0f;
-
-			float snapValues[3] = { snapValue, snapValue, snapValue };
-
-			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
-				(ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
-				nullptr, snap ? snapValues : nullptr);
-
-			if (ImGuizmo::IsUsing())
-			{
-				glm::vec3 translation, rotation, scale;
-				Math::DecomposeTransform(transform, translation, rotation, scale);
-
-				glm::vec3 deltaRotation = rotation - tc.Rotation;
-				tc.Translation = translation;
-				tc.Rotation += deltaRotation;
-				tc.Scale = scale;
-			}
+			m_SceneHierarchyPanel.OnImGuiRender();
 		}
+		{
+			ImGui::Begin("Stats");
 
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
-		ImGui::End();
+			std::string name = "None";
+			if (m_HoveredEntity)
+				name = m_HoveredEntity.GetComponent<TagComponent>().Tag;
+
+			ImGui::Text("Hovered Entity: %s", name.c_str());
+
+			ImGui::Text("Viewport Size: %.0fx%.0f", m_ViewportSize.x, m_ViewportSize.y);
+
+			ImGui::Text("Framebuffer Size: %dx%d", m_FrameBuffer->GetWidth(), m_FrameBuffer->GetHeight());
+			// auto stats = Renderer2D::GetStats();
+			// ImGui::Text("Renderer2D Stats:");
+			// ImGui::Text("Draw Calls: %d", stats.DrawCalls);
+			// ImGui::Text("Quads: %d", stats.QuadCount);
+			// ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
+			// ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
+
+			ImGui::End();
+		}
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+		{
+			ImGui::Begin("Viewport");
+			auto viewportOffset = ImGui::GetCursorPos(); // Includes tab bar
+
+			m_ViewportFocused = ImGui::IsWindowFocused();
+			m_ViewportHovered = ImGui::IsWindowHovered();
+			Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused && !m_ViewportHovered);
+
+			ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+			m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+
+			uint64_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
+			ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+			auto windowSize = ImGui::GetWindowSize();
+			auto minBound = ImGui::GetWindowPos();
+			minBound.x += viewportOffset.x;
+			minBound.y += viewportOffset.y;
+
+			ImVec2 maxBound = { minBound.x + windowSize.x, minBound.y + windowSize.y };
+			m_ViewportBounds[0] = { minBound.x, minBound.y };
+			m_ViewportBounds[1] = { maxBound.x, maxBound.y };
+
+			// RNDR_CORE_INFO("minBound: {0}, {1}", minBound.x, minBound.y);
+			
+
+			// Gizmos
+			Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+			if (selectedEntity && m_GizmoType != -1)
+			{
+				ImGuizmo::SetOrthographic(false);
+				ImGuizmo::SetDrawlist();
+
+				float windowWidth = (float)ImGui::GetWindowWidth();
+				float windowHeight = (float)ImGui::GetWindowHeight();
+				ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+
+				// Camera
+				// auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
+				// const auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
+				// const glm::mat4& cameraProjection = camera.GetProjection();
+				// glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
+
+				// Editor camera
+				const glm::mat4& cameraProjection = m_EditorCamera.GetProjection();
+				glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();
+
+				// Entity transform
+				auto& tc = selectedEntity.GetComponent<TransformComponent>();
+				glm::mat4 transform = tc.GetTransform();
+
+				// Snapping
+				bool snap = Input::IsKeyPressed(RNDR_KEY_LEFT_CONTROL);
+				float snapValue = 0.5f; // Snap to 0.5m for translation/scale
+				// Snap to 45 degrees for rotation
+				if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
+					snapValue = 45.0f;
+
+				float snapValues[3] = { snapValue, snapValue, snapValue };
+
+				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+					(ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
+					nullptr, snap ? snapValues : nullptr);
+
+				if (ImGuizmo::IsUsing())
+				{
+					glm::vec3 translation, rotation, scale;
+					Math::DecomposeTransform(transform, translation, rotation, scale);
+
+					glm::vec3 deltaRotation = rotation - tc.Rotation;
+					tc.Translation = translation;
+					tc.Rotation += deltaRotation;
+					tc.Scale = scale;
+				}
+			}
+			ImGui::End();
+		}
 		ImGui::PopStyleVar();
 
 		// ImGui::End();
@@ -229,6 +279,7 @@ namespace Rndr
 		// RNDR_CORE_INFO("{0}", e);
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<KeyPressedEvent>(RNDR_BIND_EVENT_FN(Sandbox3D::OnKeyPressed));
+		dispatcher.Dispatch<MouseButtonPressedEvent>(RNDR_BIND_EVENT_FN(Sandbox3D::OnMouseButtonPressed));
 	}
 
 	bool Sandbox3D::OnKeyPressed(KeyPressedEvent& e)
@@ -260,7 +311,6 @@ namespace Rndr
 				break;
 			}
 
-
 			// Gizmos
 			case RNDR_KEY_Q:
 				m_GizmoType = -1;
@@ -274,9 +324,18 @@ namespace Rndr
 			case RNDR_KEY_R:
 				m_GizmoType = ImGuizmo::OPERATION::SCALE;
 				break;
-
 		}
+		return false;
+	}
 
+	bool Sandbox3D::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+	{
+		//? Mouse picking
+		if (e.GetMouseButton() == RNDR_MOUSE_BUTTON_1 && m_ViewportHovered)
+		{
+			if (!ImGuizmo::IsOver() && !Input::IsKeyPressed(RNDR_KEY_LEFT_ALT))
+				m_SceneHierarchyPanel.SetSelectedEntity(m_HoveredEntity);
+		}
 		return false;
 	}
 

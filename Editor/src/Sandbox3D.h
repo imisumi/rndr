@@ -27,6 +27,7 @@ namespace Rndr
 
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
+		bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
 
 		void NewScene();
 		void OpenScene();
@@ -37,10 +38,12 @@ namespace Rndr
 		Ref<Scene> m_ActiveScene;
 
 		Entity m_CameraEntity;
-
+		Entity m_HoveredEntity = { entt::null, nullptr };
+	
 		Ref<FrameBuffer> m_FrameBuffer;
 
 		glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
+		glm::vec2 m_ViewportBounds[2];
 
 		bool m_ViewportFocused = false, m_ViewportHovered = false;
 

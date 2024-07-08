@@ -60,13 +60,49 @@ namespace Rndr
 		const auto& layout = vertexBuffer->GetLayout();
 		for (const auto& element : layout)
 		{
-			glEnableVertexAttribArray(index);
-			glVertexAttribPointer(index,
-				element.GetComponentCount(),
-				ShaderDataTypeToOpenGLBaseType(element.Type),
-				element.Normalized ? GL_TRUE : GL_FALSE,
-				layout.GetStride(),
-				(const void*)(uint64_t)element.Offset);
+
+			switch (element.Type)
+			{
+				case ShaderDataType::Int:
+				{
+					glEnableVertexAttribArray(index);
+					glVertexAttribIPointer(index,
+						element.GetComponentCount(),
+						ShaderDataTypeToOpenGLBaseType(element.Type),
+						layout.GetStride(),
+						(const void*)(uint64_t)element.Offset);
+					break;
+				}
+				case ShaderDataType::Bool:
+				{
+					glEnableVertexAttribArray(index);
+					glVertexAttribIPointer(index,
+						element.GetComponentCount(),
+						ShaderDataTypeToOpenGLBaseType(element.Type),
+						layout.GetStride(),
+						(const void*)(uint64_t)element.Offset);
+					break;
+				}
+				default:
+				{
+					glEnableVertexAttribArray(index);
+					glVertexAttribPointer(index,
+						element.GetComponentCount(),
+						ShaderDataTypeToOpenGLBaseType(element.Type),
+						element.Normalized ? GL_TRUE : GL_FALSE,
+						layout.GetStride(),
+						(const void*)(uint64_t)element.Offset);
+					break;
+				}
+			}
+
+			// glEnableVertexAttribArray(index);
+			// glVertexAttribPointer(index,
+			// 	element.GetComponentCount(),
+			// 	ShaderDataTypeToOpenGLBaseType(element.Type),
+			// 	element.Normalized ? GL_TRUE : GL_FALSE,
+			// 	layout.GetStride(),
+			// 	(const void*)(uint64_t)element.Offset);
 			index++;
 		}
 

@@ -45,11 +45,13 @@ namespace Rndr
 		{
 			auto [transform, quad] = group.get<TransformComponent, QuadComponent>(entity);
 
-			Renderer2D::DrawQuad(transform.GetTransform(), quad.Color);
+			Renderer2D::DrawQuad(transform.GetTransform(), quad, (int)entity);
 			// Renderer2D::PrintVertexData();
 		}
 
 		Renderer2D::EndScene();
+
+		// m_Grid->Draw();
 	
 	}
 
@@ -84,9 +86,10 @@ namespace Rndr
 			auto view = m_Registry.view<TransformComponent,QuadComponent>();
 			for (auto entity : view)
 			{
-				auto& [transform, quad] = view.get<TransformComponent, QuadComponent>(entity);
+				auto [transform, quad] = view.get<TransformComponent, QuadComponent>(entity);
 
-				Renderer2D::DrawQuad(transform.GetTransform(), quad.Color);
+				// Renderer2D::DrawQuad(transform.GetTransform(), quad.Color);
+				Renderer2D::DrawQuad(transform.GetTransform(), quad, (int)entity);
 			}
 
 			Renderer2D::EndScene();
