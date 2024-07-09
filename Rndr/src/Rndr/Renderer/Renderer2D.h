@@ -10,6 +10,9 @@
 
 #include "Rndr/Scene/Components.h"
 
+
+#include "Rndr/Renderer/Material.h"
+
 namespace Rndr {
 
 	class Renderer2D
@@ -18,21 +21,22 @@ namespace Rndr {
 		static void Init();
 		static void Shutdown();
 
+		static void BeginScene(const EditorCamera& camera, const Ref<Material>& material);
+
 		static void BeginScene(const Camera& camera, const glm::mat4& transform);
 		static void BeginScene(const EditorCamera& camera);
 		static void EndScene();
 		static void Flush();
 
-		static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
+		// static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
 		// static void DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 
 
 		//TODO: rename to tri
 		static void DrawQuad(const glm::mat4& transform, QuadComponent& tri, int entityID = -1);
+		static void DrawCube(const glm::mat4& transform, CubeComponent& cube, int entityID = -1);
 
-		// static void DrawGrid
-
-		static void PrintVertexData();
+		// static void DrawCube(const glm::mat4& transform, CubeComponent& cube, const Ref<Material> material, int entityID = -1);
 
 		// Stats
 		struct Statistics

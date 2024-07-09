@@ -5,6 +5,8 @@
 
 #include <string>
 
+
+#include "Rndr/Renderer/Material.h"
 //  
 
 #include "SceneCamera.h"
@@ -75,6 +77,11 @@ namespace Rndr
 	};
 
 
+	struct DefaultMaterialComponent
+	{
+		// Material Material;
+		Ref<Material> Material;
+	};
 
 	struct QuadComponent
 	{
@@ -84,10 +91,13 @@ namespace Rndr
 	struct CubeComponent
 	{
 		glm::vec4 Color = { 0.8f, 0.2f, 0.3f, 1.0f };
+		// float sizeX = 1.0f, sizeY = 1.0f, sizeZ = 1.0f;
+		glm::vec3 Size = { 1.0f, 1.0f, 1.0f };
 	};
 
 	struct TriComponent
 	{
 		glm::vec4 Color = { 0.8f, 0.2f, 0.3f, 1.0f };
 	};
+
 }

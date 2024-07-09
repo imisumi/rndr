@@ -47,11 +47,17 @@ namespace Rndr
 
 		bool m_ViewportFocused = false, m_ViewportHovered = false;
 
-		int m_GizmoType = -1;
+		int m_GizmoType = 7;
 
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 
 
 		EditorCamera m_EditorCamera;
+
+
+		Ref<Texture2D> m_CubeIcon;
+
+
+		Ref<MaterialLibrary> m_MaterialLibrary;
 	};
 }

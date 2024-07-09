@@ -18,6 +18,16 @@ namespace Rndr
 		virtual void Bind() const override;
 		virtual void Unbind() const override;
 
+		virtual void SetName(const std::string& name) override { m_Name = name; }
+		virtual const std::string& GetName() const override { return m_Name; }
+
+
+		uint32_t GetUniformLocation(const std::string& name);
+
+		virtual void SetBool(const std::string& name, bool value) override;
+
+		virtual void SetUnsignedInt(const std::string& name, uint32_t value) override;
+
 		virtual void SetInt(const std::string& name, int value) override;
 		virtual void SetIntArray(const std::string& name, int* values, uint32_t count) override;
 		
@@ -26,15 +36,11 @@ namespace Rndr
 		virtual void SetFloat3(const std::string& name, const glm::vec3& value) override;
 		virtual void SetFloat4(const std::string& name, const glm::vec4& value) override;
 
+		virtual void SetMat3(const std::string& name, const glm::mat3& value) override;
 		virtual void SetMat4(const std::string& name, const glm::mat4& value) override;
 
-		virtual const std::string& GetName() const override { return m_Name; }
+		
 
-		// Set uniforms
-		void UploadUniformInt(const std::string& name, int value);
-		void UploadUniformFloat3(const std::string& name, const glm::vec3& values);
-		void UploadUniformFloat4(const std::string& name, const glm::vec4& values);
-		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
 	private:
 		std::string ReadFile(const std::string& filepath);
 		// void Compile(const std::unordered_map<GLenum, std::string>& shaderSources);
@@ -44,5 +50,8 @@ namespace Rndr
 	private:
 		uint32_t m_RendererID;
 		std::string m_Name;
+
+
+		std::unordered_map<std::string, GLint> m_UniformLocationCache;
 	};
 }

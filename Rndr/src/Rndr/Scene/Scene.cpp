@@ -38,20 +38,45 @@ namespace Rndr
 	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
 	{
 		// Render 2D
-		Renderer2D::BeginScene(camera);
+		// Renderer2D::BeginScene(camera);
 
-		auto group = m_Registry.group<TransformComponent>(entt::get<QuadComponent>);
+		// auto group = m_Registry.group<TransformComponent>(entt::get<QuadComponent>);
+		// for (auto entity : group)
+		// {
+		// 	auto [transform, quad] = group.get<TransformComponent, QuadComponent>(entity);
+
+		// 	Renderer2D::DrawQuad(transform.GetTransform(), quad, (int)entity);
+		// 	// Renderer2D::PrintVertexData();
+		// }
+
+
+
+		// ? Cube
+		// auto group = m_Registry.group<TransformComponent>(entt::get<CubeComponent>);
+		// for (auto entity : group)
+		// {
+		// 	auto [transform, cube] = group.get<TransformComponent, CubeComponent>(entity);
+		// 	Renderer2D::DrawCube(transform.GetTransform(), cube, (int)entity);
+		// }
+
+
+
+		auto group = m_Registry.group<TransformComponent>(entt::get<DefaultMaterialComponent>);
+		auto defaultMaterial = group.get<DefaultMaterialComponent>(group.front());
+		Renderer2D::BeginScene(camera, defaultMaterial.Material);
 		for (auto entity : group)
 		{
-			auto [transform, quad] = group.get<TransformComponent, QuadComponent>(entity);
-
-			Renderer2D::DrawQuad(transform.GetTransform(), quad, (int)entity);
-			// Renderer2D::PrintVertexData();
+			Entity ent = { entity, this };
+			if (ent.HasComponent<CubeComponent>())
+			{
+				glm::mat4 transform = ent.GetComponent<TransformComponent>().GetTransform();
+				CubeComponent cube = ent.GetComponent<CubeComponent>();
+				Renderer2D::DrawCube(transform, cube, (int)entity);
+			}
 		}
 
 		Renderer2D::EndScene();
 
-		// m_Grid->Draw();
 	
 	}
 

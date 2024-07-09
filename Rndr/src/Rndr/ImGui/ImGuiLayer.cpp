@@ -229,8 +229,8 @@ namespace Rndr
 		//? Set window constraints
 		ImGuiStyle& style = ImGui::GetStyle();
 		float minWinSizeX = style.WindowMinSize.x;
-		style.WindowMinSize.x = 370.0f;
-		// style.WindowMinSize.y = 200.0f;
+		style.WindowMinSize.x = 56.0f;
+		style.WindowMinSize.y = 200.0f;
 
 
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
@@ -240,7 +240,11 @@ namespace Rndr
 		}
 
 		// style.WindowMinSize.x = 32.0f;
-		style.WindowMinSize.x = minWinSizeX;
+		// style.WindowMinSize.x = minWinSizeX;
+
+
+
+		// RNDR_CORE_INFO("WindowMinSize.x: {0}", style.WindowMinSize.x);
 
 		// if (ImGui::BeginMenuBar())
 		// {

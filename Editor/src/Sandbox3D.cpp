@@ -42,10 +42,26 @@ namespace Rndr
 		// m_FrameBuffer->~FrameBuffer();
 		// m_FrameBuffer = FrameBuffer::Create(frameBufferSpec);
 
+		// m_EditorCamera.SetPosition({ 0.0f, 0.0f, 2.0f });
 
+
+
+		Ref<Material> material = CreateRef<Material>();
+		material->SetShader(Shader::Create("Editor/assets/shaders/CubeShader.glsl"));
+		material->SetName("CubeMaterial");
+		// m_MaterialLibrary->Add("CubeMaterial", material);
+
+
+		m_CubeIcon = Texture2D::Create("editor/assets/textures/cube_icon.png");
 
 		m_ActiveScene = CreateRef<Scene>();
 
+
+		auto cube = m_ActiveScene->CreateEntity("Cube Entity");
+		cube.AddComponent<CubeComponent>();
+		cube.AddComponent<DefaultMaterialComponent>(material);
+		auto name = cube.GetComponent<DefaultMaterialComponent>().Material->GetName();
+		RNDR_CORE_INFO("Material Name: {0}", name);
 
 		// auto square = m_ActiveScene->CreateEntity("Quad Entity");
 		// square.AddComponent<QuadComponent>(m_SquareColor);
@@ -62,6 +78,7 @@ namespace Rndr
 
 
 		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
+		// m_EditorCamera.SetPosition({ 0.0f, 0.0f, 2.0f });
 	}
 
 	void Sandbox3D::OnDetach()
@@ -175,6 +192,11 @@ namespace Rndr
 			ImGui::Text("Viewport Size: %.0fx%.0f", m_ViewportSize.x, m_ViewportSize.y);
 
 			ImGui::Text("Framebuffer Size: %dx%d", m_FrameBuffer->GetWidth(), m_FrameBuffer->GetHeight());
+
+			ImGui::Separator();
+
+			glm::vec3 cameraPos = m_EditorCamera.GetPosition();
+			ImGui::Text("Camera Position: %.3f, %.3f, %.3f", cameraPos.x, cameraPos.y, cameraPos.z);
 			// auto stats = Renderer2D::GetStats();
 			// ImGui::Text("Renderer2D Stats:");
 			// ImGui::Text("Draw Calls: %d", stats.DrawCalls);
@@ -264,8 +286,37 @@ namespace Rndr
 		}
 		ImGui::PopStyleVar();
 
+		{
+			ImGui::Begin("##New-Entity");
+			{
+				ImVec2 size = ImVec2(32.0f, 32.0f);                         // Size of the image we want to make visible
+				ImVec2 uv1 = ImVec2(0.0f, 0.0f);                            // UV coordinates for lower-left
+				ImVec2 uv0 = ImVec2(1.0f, 1.0f);                            // UV coordinates for upper-right
+				ImVec4 bg_col = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);             // Black background
+				ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);           // No tint
+				if (ImGui::ImageButton("##Cube", reinterpret_cast<void*>(m_CubeIcon->GetTextureID()), size, uv0, uv1, bg_col, tint_col))
+				{
+					static int count = 0;
+					auto entity = m_ActiveScene->CreateEntity("Cube " + std::to_string(count++));
+					entity.AddComponent<CubeComponent>(glm::vec4(0.8f, 0.2f, 0.3f, 1.0f));
+					m_SceneHierarchyPanel.SetSelectedEntity(entity);
+				}
+			}
+			ImGui::End();
+		}
+
+		{
+			ImGui::Begin("Content Browser");
+			{
+
+			}
+			ImGui::End();
+		}
+
 		// ImGui::End();
 		ImGuiLayer::ImGuiEndDockspace();
+
+		// ImGui::ShowDemoWindow();
 	}
 
 
