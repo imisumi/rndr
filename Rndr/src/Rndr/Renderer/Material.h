@@ -5,14 +5,22 @@
 #include "Rndr/Renderer/Texture.h"
 
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 namespace Rndr
 {
+	enum class TextureType
+	{
+		Diffuse = 0,
+	};
+
 	//TODO: abstract and move to OpenGLMaterial.h
 	class Material
 	{
 	public:
-		Material() = default;
+		Material();
 		virtual ~Material() = default;
 
 		void Bind() const;
@@ -25,20 +33,26 @@ namespace Rndr
 		void SetShader(const Ref<Shader>& shader) { m_Shader = shader; }
 
 
-		void SetColor(const glm::vec4& color) { m_Shader->SetFloat4("u_Color", color); }
-		void SetColor(const glm::vec3& color) { m_Shader->SetFloat3("u_Color", glm::vec4(color, 1.0f)); }
-		void SetColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) { m_Shader->SetFloat4("u_Color", glm::vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f)); }
-		void SetColor(uint8_t r, uint8_t g, uint8_t b) { m_Shader->SetFloat3("u_Color", glm::vec4(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f)); }
-		void SetColor(uint32_t hexColor) { m_Shader->SetFloat4("u_Color", glm::vec4((hexColor >> 16 & 0xFF) / 255.0f, (hexColor >> 8 & 0xFF) / 255.0f, (hexColor & 0xFF) / 255.0f, (hexColor >> 24 & 0xFF) / 255.0f)); }
+		// void SetColor(const glm::vec4& color) { m_Shader->SetFloat4("u_Color", color); }
+		// void SetColor(const glm::vec3& color) { m_Shader->SetFloat3("u_Color", glm::vec4(color, 1.0f)); }
+		// void SetColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) { m_Shader->SetFloat4("u_Color", glm::vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f)); }
+		// void SetColor(uint8_t r, uint8_t g, uint8_t b) { m_Shader->SetFloat3("u_Color", glm::vec4(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f)); }
+		// void SetColor(uint32_t hexColor) { m_Shader->SetFloat4("u_Color", glm::vec4((hexColor >> 16 & 0xFF) / 255.0f, (hexColor >> 8 & 0xFF) / 255.0f, (hexColor & 0xFF) / 255.0f, (hexColor >> 24 & 0xFF) / 255.0f)); }
 
 
+		
 
 
 		void SetName(const std::string& name) { m_Name = name; }
 		const std::string& GetName() const { return m_Name; }
 
 		glm::vec4 GetColor() const { return m_Color; }
+		void SetColor(const glm::vec4& color) { m_Color = color; }
+		// get color value_ptr
 
+
+		void SetTexture(const Ref<Texture2D>& texture, TextureType type = TextureType::Diffuse);
+		uint32_t GetTextureID(TextureType type = TextureType::Diffuse) const;
 
 
 		static Ref<Material> Create();
@@ -48,7 +62,12 @@ namespace Rndr
 		Ref<Texture2D> m_Texture;
 
 
-		glm::vec4 m_Color = { 0.8f, 0.2f, 0.1f, 1.0f };
+
+
+
+		// glm::vec4 m_Color = { 0.8f, 0.2f, 0.1f, 1.0f };
+		glm::vec4 m_Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		Ref<Texture2D> m_DiffuseMap;
 
 	};
 

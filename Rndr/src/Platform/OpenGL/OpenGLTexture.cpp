@@ -24,6 +24,12 @@ namespace Rndr
 			std::memcpy(bottomRow, tempRow.data(), rowSize);
 		}
 	}
+
+	OpenGLTexture2D::OpenGLTexture2D(const std::filesystem::path& path)
+	{
+		OpenGLTexture2D(path.string());
+	}
+
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
 	{
 		std::filesystem::path current_path = std::filesystem::current_path();

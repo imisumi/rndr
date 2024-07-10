@@ -5,6 +5,13 @@
 
 namespace Rndr
 {
+	Material::Material()
+		: m_Shader(nullptr)
+	{
+		RNDR_CORE_INFO("Material created");
+		m_DiffuseMap = Texture2D::Create();
+	}
+
 	void Material::Bind() const
 	{
 		m_Shader->Bind();
@@ -17,6 +24,27 @@ namespace Rndr
 
 
 
+
+
+
+	void Material::SetTexture(const Ref<Texture2D>& texture, TextureType type)
+	{
+		switch (type)
+		{
+			case TextureType::Diffuse:     m_DiffuseMap = texture; break;
+		}
+
+		// texture->Bind();
+	}
+
+	uint32_t Material::GetTextureID(TextureType type) const
+	{
+		switch (type)
+		{
+			case TextureType::Diffuse:     return m_DiffuseMap->GetTextureID();
+		}
+		return 0;
+	}
 
 
 

@@ -33,6 +33,7 @@ namespace Rndr
 
 	void Sandbox3D::OnAttach()
 	{
+		RNDR_CORE_TRACE("Sandbox3D::OnAttach");
 		FrameBufferSpecification frameBufferSpec;
 		frameBufferSpec.Attachments = { FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::RED_INTEGER, FrameBufferTextureFormat::Depth };
 		frameBufferSpec.Width = 1280;
@@ -52,7 +53,7 @@ namespace Rndr
 		// m_MaterialLibrary->Add("CubeMaterial", material);
 
 
-		m_CubeIcon = Texture2D::Create("editor/assets/textures/cube_icon.png");
+		m_CubeIcon = Texture2D::Create(std::string("editor/assets/textures/cube_icon.png"));
 
 		m_ActiveScene = CreateRef<Scene>();
 
@@ -62,6 +63,15 @@ namespace Rndr
 		cube.AddComponent<DefaultMaterialComponent>(material);
 		auto name = cube.GetComponent<DefaultMaterialComponent>().Material->GetName();
 		RNDR_CORE_INFO("Material Name: {0}", name);
+		// name.SetColor(glm::vec4(0.8f, 0.2f, 0.3f, 1.0f));
+		// cube.GetComponent<DefaultMaterialComponent>().Material->SetColor(glm::vec4(0.8f, 1.0f, 0.3f, 1.0f));
+		// glm::vec4 color = cube.GetComponent<DefaultMaterialComponent>().Material->GetColor();
+		// RNDR_CORE_INFO("Material Color: {0}, {1}, {2}, {3}", color.r, color.g, color.b, color.a);
+		// exit(0);
+		// name.Mater
+
+
+
 
 		// auto square = m_ActiveScene->CreateEntity("Quad Entity");
 		// square.AddComponent<QuadComponent>(m_SquareColor);
@@ -177,9 +187,13 @@ namespace Rndr
 		}
 		{
 			m_SceneHierarchyPanel.OnImGuiRender();
+			m_ContentBrowserPanel.OnImGuiRender();
 		}
 		{
 			ImGui::Begin("Stats");
+
+			ImGui::ColorEdit4("Test Color", glm::value_ptr(M_TestColor));
+			// ImGui::ColorEdit4("MyColor##3", glm::value_ptr(color), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
@@ -231,6 +245,35 @@ namespace Rndr
 			m_ViewportBounds[1] = { maxBound.x, maxBound.y };
 
 			// RNDR_CORE_INFO("minBound: {0}, {1}", minBound.x, minBound.y);
+
+
+
+			// viewport drag and drop
+			// if (ImGui::BeginDragDropTarget())
+			// {
+			// 	if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+			// 	{
+			// 		const wchar_t* path = (const wchar_t*)payload->Data;
+			// 		// RNDR_CORE_INFO("Dropped file: {0}", path);
+			// 		std::filesystem::path scenePath(path);
+			// 		std::filesystem::path assetsPath("Editor/assets");
+			// 		OpenScene(assetsPath / scenePath);
+			// 	}
+			// 	ImGui::EndDragDropTarget();
+			// }
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+				{
+					const wchar_t* path = (const wchar_t*)payload->Data;
+					std::filesystem::path assetsPath("Editor/assets");
+					// OpenScene(std::filesystem::path(assetsPath) / path);
+					OpenScene(path);
+				}
+				ImGui::EndDragDropTarget();
+			}
+
 			
 
 			// Gizmos
@@ -306,17 +349,17 @@ namespace Rndr
 		}
 
 		{
-			ImGui::Begin("Content Browser");
-			{
+			// ImGui::Begin("Content Browser");
+			// {
 
-			}
-			ImGui::End();
+			// }
+			// ImGui::End();
 		}
 
 		// ImGui::End();
 		ImGuiLayer::ImGuiEndDockspace();
 
-		// ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 	}
 
 
@@ -398,19 +441,51 @@ namespace Rndr
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 	}
 
+	// void Sandbox3D::OpenScene()
+	// {
+	// 	RNDR_CORE_INFO("Open Scene");
+	// 	std::string filepath = FileDialogs::OpenFile("Rndr Scene (*.yaml)\0*.yaml\0");
+	// 	if (!filepath.empty())
+	// 	{
+	// 		OpenScene(filepath);
+	// 		// m_ActiveScene = CreateRef<Scene>();
+	// 		// m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+	// 		// m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+
+	// 		// SceneSerializer serializer(m_ActiveScene);
+	// 		// serializer.Deserialize(filepath);
+	// 	}
+	// }
+
+	// void Sandbox3D::OpenScene(const std::filesystem::path& path)
+	// {
+	// 	//TODO: check for balid file type
+	// 	m_ActiveScene = CreateRef<Scene>();
+	// 	m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+	// 	m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+
+	// 	SceneSerializer serializer(m_ActiveScene);
+	// 	serializer.Deserialize(path.string());
+	// }
+
+
 	void Sandbox3D::OpenScene()
 	{
-		RNDR_CORE_INFO("Open Scene");
+		// std::string filepath = FileDialogs::OpenFile("Hazel Scene (*.hazel)\0*.hazel\0");
 		std::string filepath = FileDialogs::OpenFile("Rndr Scene (*.yaml)\0*.yaml\0");
 		if (!filepath.empty())
-		{
-			m_ActiveScene = CreateRef<Scene>();
-			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+			OpenScene(filepath);
+	}
 
-			SceneSerializer serializer(m_ActiveScene);
-			serializer.Deserialize(filepath);
-		}
+	void Sandbox3D::OpenScene(const std::filesystem::path& path)
+	{
+		RNDR_CORE_INFO("Open Scene: {0}", path.string());
+		m_ActiveScene = CreateRef<Scene>();
+		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+
+		SceneSerializer serializer(m_ActiveScene);
+		serializer.Deserialize(path.string());
 	}
 
 	void Sandbox3D::SaveSceneAs()

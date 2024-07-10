@@ -5,10 +5,13 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
+#include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Rndr/Scene/Components.h"
 #include <cstring>
+
+#include "Rndr/Renderer/Texture.h"
 
 /* The Microsoft C++ compiler is non-compliant with the C++ standard and needs
  * the following definition to disable a security warning on std::strncpy().
@@ -217,6 +220,8 @@ namespace Rndr {
 		ImGui::Columns(1);
 
 		ImGui::PopID();
+
+		// ImGui::Separator();
 	}
 	
 	template<typename T, typename UIFunction>
@@ -230,7 +235,7 @@ namespace Rndr {
 
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
 			float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-			ImGui::Separator();
+			// ImGui::Separator();
 			bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, name.c_str());
 			ImGui::PopStyleVar(
 			);
@@ -324,11 +329,12 @@ namespace Rndr {
 		// 	DrawVec3Control("Scale", component.Scale, 1.0f);
 		// });
 
-		if (entity.HasComponent<TransformComponent>())
-		{
-			const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | 
+		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | 
 				ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_SpanAvailWidth | 
 				ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_FramePadding;
+
+		if (entity.HasComponent<TransformComponent>())
+		{
 			if (ImGui::TreeNodeEx((void*)typeid(TransformComponent).hash_code(), treeNodeFlags, "Transform"))
 			{
 				auto& tc = entity.GetComponent<TransformComponent>();
@@ -339,6 +345,8 @@ namespace Rndr {
 				tc.Rotation = glm::radians(rotation);
 				DrawVec3Control("Scale", tc.Scale, 1.0f);
 
+				ImGui::Dummy(ImVec2(0.0f, 0.0f));
+
 				// ImGui::DragFloat3("Position", glm::value_ptr(tc.Translation), 0.1f);
 				ImGui::TreePop();
 			}
@@ -346,13 +354,62 @@ namespace Rndr {
 
 		if (entity.HasComponent<CubeComponent>())
 		{
-			const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | 
-				ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_SpanAvailWidth | 
-				ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_FramePadding;
 			if (ImGui::TreeNodeEx((void*)typeid(CubeComponent).hash_code(), treeNodeFlags, "Object Properties"))
 			{
 				auto& cc = entity.GetComponent<CubeComponent>();
 				DrawVec3Control("Size", cc.Size, 1.0f);
+				ImGui::Dummy(ImVec2(0.0f, 0.0f));
+				ImGui::TreePop();
+			}
+		}
+
+		if (entity.HasComponent<DefaultMaterialComponent>())
+		{
+			if (ImGui::TreeNodeEx((void*)typeid(DefaultMaterialComponent).hash_code(), treeNodeFlags, "Material"))
+			{
+				auto& cc = entity.GetComponent<DefaultMaterialComponent>();
+
+				glm::vec4 color = cc.Material->GetColor();
+				// if (ImGui::ColorEdit4("MyColor##3", glm::value_ptr(color), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
+				// 	cc.Material->SetColor(color);
+				if (ImGui::ColorEdit4("MyColor##3", glm::value_ptr(color), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
+				{
+					cc.Material->SetColor(color);
+				}
+
+				// ImGui::Button("Texture", ImVec2(100.0f, 0.0f));
+				// ImGui::Image((ImTextureID)cc.Material->GetTextureID(TextureType::Diffuse), ImVec2(100.0f, 100.0f));
+				// ImGui::ImageButton((ImTextureID)cc.Material->GetTextureID(TextureType::Diffuse), ImVec2(100.0f, 100.0f));
+				// image is upside down
+
+				// ImGui::Image((ImTextureID)cc.Material->GetTextureID(TextureType::Diffuse), ImVec2(100.0f, 100.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 })
+				if (ImGui::ImageButton((ImTextureID)cc.Material->GetTextureID(TextureType::Diffuse), ImVec2(100.0f, 100.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 }))
+					RNDR_CORE_INFO("Texture clicked");
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+					{
+						const wchar_t* path = (const wchar_t*)payload->Data;
+
+
+						std::filesystem::path texturePath(path);
+						RNDR_CORE_INFO("Texture path: {0}", texturePath.string());
+						Ref<Texture2D> texture = Texture2D::Create(texturePath.string());
+						if (texture)
+							cc.Material->SetTexture(texture, TextureType::Diffuse);
+					}
+
+					ImGui::EndDragDropTarget();
+				}
+				//? Diffuse texture
+				// ImGui::Image((ImTextureID)cc.Material->GetTextureID(TextureType::Diffuse), ImVec2(100.0f, 100.0f));
+
+				//
+				// ImGui::Image((void*)0, ImVec2(100.0f, 100.0f));
+
+
+				// DrawVec3Control("Size", cc.Size, 1.0f);
+				ImGui::Dummy(ImVec2(0.0f, 0.0f));
 				ImGui::TreePop();
 			}
 		}

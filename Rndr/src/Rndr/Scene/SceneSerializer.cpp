@@ -133,24 +133,27 @@ namespace Rndr
 			out << YAML::EndMap; // CameraComponent
 		}
 
-		if (entity.HasComponent<QuadComponent>())
-		{
-			out << YAML::Key << "QuadComponent";
-			out << YAML::BeginMap; // QuadComponent
+		// if (entity.HasComponent<QuadComponent>())
+		// {
+		// 	out << YAML::Key << "QuadComponent";
+		// 	out << YAML::BeginMap; // QuadComponent
 
-			auto& qc = entity.GetComponent<QuadComponent>();
-			out << YAML::Key << "Color" << YAML::Value << qc.Color;
+		// 	auto& qc = entity.GetComponent<QuadComponent>();
+		// 	out << YAML::Key << "Color" << YAML::Value << qc.Color;
 
-			out << YAML::EndMap; // QuadComponent
-		}
+		// 	out << YAML::EndMap; // QuadComponent
+		// }
 
 		if (entity.HasComponent<CubeComponent>())
 		{
 			out << YAML::Key << "CubeComponent";
 			out << YAML::BeginMap; // CubeComponent
 
-			auto& qc = entity.GetComponent<CubeComponent>();
-			out << YAML::Key << "Color" << YAML::Value << qc.Color;
+			auto& cc = entity.GetComponent<CubeComponent>();
+			out << YAML::Key << "Color" << YAML::Value << cc.Color;
+			out << YAML::Key << "Size X" << YAML::Value << cc.Size.x;
+			out << YAML::Key << "Size Y" << YAML::Value << cc.Size.y;
+			out << YAML::Key << "Size Z" << YAML::Value << cc.Size.z;
 
 			out << YAML::EndMap; // CubeComponent
 		}
@@ -257,10 +260,18 @@ namespace Rndr
 				{
 					auto& cc = deserializedEntity.AddComponent<CubeComponent>();
 					cc.Color = cubeComponent["Color"].as<glm::vec4>();
+					
+					Ref<Material> material = CreateRef<Material>();
+					material->SetShader(Shader::Create("Editor/assets/shaders/CubeShader.glsl"));
+					material->SetName("CubeMaterial");
+
+					auto mat = deserializedEntity.AddComponent<DefaultMaterialComponent>(material);
+
 				}
 			}
 		}
 
+		RNDR_CORE_INFO("Loaded scene '{0}'", sceneName);
 		return true;
 	}
 

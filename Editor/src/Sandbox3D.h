@@ -6,6 +6,7 @@
 #include "Platform/OpenGL/OpenGLShader.h"
 
 #include "Panels/SceneHierarchyPanel.h"
+#include "Panels/ContentBrowserPanel.h"
 
 
 #include "Rndr/Renderer/EditorCamera.h"
@@ -31,6 +32,7 @@ namespace Rndr
 
 		void NewScene();
 		void OpenScene();
+		void OpenScene(const std::filesystem::path& path);
 		void SaveSceneAs();
 	private:
 		// ShaderLibrary m_ShaderLibrary;
@@ -49,8 +51,11 @@ namespace Rndr
 
 		int m_GizmoType = 7;
 
+		// Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;
+		ContentBrowserPanel m_ContentBrowserPanel;
 
+		glm::vec4 M_TestColor = { 0.8f, 0.2f, 0.3f, 1.0f };
 
 		EditorCamera m_EditorCamera;
 

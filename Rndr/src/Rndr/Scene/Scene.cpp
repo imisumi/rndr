@@ -59,23 +59,40 @@ namespace Rndr
 		// 	Renderer2D::DrawCube(transform.GetTransform(), cube, (int)entity);
 		// }
 
-
-
+		int defaultMaterialCount = 0;
 		auto group = m_Registry.group<TransformComponent>(entt::get<DefaultMaterialComponent>);
-		auto defaultMaterial = group.get<DefaultMaterialComponent>(group.front());
-		Renderer2D::BeginScene(camera, defaultMaterial.Material);
-		for (auto entity : group)
+		if (group.size())
 		{
-			Entity ent = { entity, this };
-			if (ent.HasComponent<CubeComponent>())
+			auto defaultMaterial = group.get<DefaultMaterialComponent>(group.front());
+			Renderer2D::BeginScene(camera, defaultMaterial.Material);
+			for (auto entity : group)
 			{
-				glm::mat4 transform = ent.GetComponent<TransformComponent>().GetTransform();
-				CubeComponent cube = ent.GetComponent<CubeComponent>();
-				Renderer2D::DrawCube(transform, cube, (int)entity);
+				Entity ent = { entity, this };
+				if (ent.HasComponent<CubeComponent>())
+				{
+					glm::mat4 transform = ent.GetComponent<TransformComponent>().GetTransform();
+					CubeComponent cube = ent.GetComponent<CubeComponent>();
+					Renderer2D::DrawCube(transform, cube, (int)entity);
+				}
 			}
+			Renderer2D::EndScene();	
 		}
 
-		Renderer2D::EndScene();
+		// auto group = m_Registry.group<TransformComponent>(entt::get<DefaultMaterialComponent>);
+		// auto defaultMaterial = group.get<DefaultMaterialComponent>(group.front());
+		// Renderer2D::BeginScene(camera, defaultMaterial.Material);
+		// for (auto entity : group)
+		// {
+		// 	Entity ent = { entity, this };
+		// 	if (ent.HasComponent<CubeComponent>())
+		// 	{
+		// 		glm::mat4 transform = ent.GetComponent<TransformComponent>().GetTransform();
+		// 		CubeComponent cube = ent.GetComponent<CubeComponent>();
+		// 		Renderer2D::DrawCube(transform, cube, (int)entity);
+		// 	}
+		// }
+
+		// Renderer2D::EndScene();
 
 	
 	}

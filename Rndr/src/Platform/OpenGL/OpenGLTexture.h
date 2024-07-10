@@ -2,18 +2,26 @@
 
 #include "Rndr/Renderer/Texture.h"
 
+#include "Rndr/Core/Log.h"
+
 namespace Rndr
 {
 	class OpenGLTexture2D : public Texture2D
 	{
 	public:
+		OpenGLTexture2D() = default;
 		OpenGLTexture2D(uint32_t width, uint32_t height);
 		OpenGLTexture2D(const std::string& path);
+		OpenGLTexture2D(const std::filesystem::path& path);
 		virtual ~OpenGLTexture2D();
 
 		virtual uint32_t GetWidth() const override { return m_Width; }
 		virtual uint32_t GetHeight() const override { return m_Height; }
-		virtual uint32_t GetTextureID() const override { return m_RendererID; }
+		virtual uint32_t GetTextureID() const override
+		{
+			// RNDR_CORE_INFO("Getting texture ID for {0}", m_Path);
+			return m_RendererID;
+		}
 
 		virtual void SetData(void* data, uint32_t size) override;
 
@@ -27,7 +35,7 @@ namespace Rndr
 	private:
 		std::string m_Path;
 		uint32_t m_Width, m_Height;
-		uint32_t m_RendererID;
+		uint32_t m_RendererID = 0;
 		uint32_t m_InternalFormat, m_DataFormat, m_nChannels;
 	};
 
