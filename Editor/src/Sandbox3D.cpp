@@ -39,21 +39,15 @@ namespace Rndr
 		frameBufferSpec.Width = 1280;
 		frameBufferSpec.Height = 720;
 		m_FrameBuffer = FrameBuffer::Create(frameBufferSpec);
-		// m_FrameBuffer->Resize(1000, 1000);
-		// m_FrameBuffer->~FrameBuffer();
-		// m_FrameBuffer = FrameBuffer::Create(frameBufferSpec);
-
-		// m_EditorCamera.SetPosition({ 0.0f, 0.0f, 2.0f });
-
 
 
 		Ref<Material> material = CreateRef<Material>();
 		material->SetShader(Shader::Create("Editor/assets/shaders/CubeShader.glsl"));
 		material->SetName("CubeMaterial");
-		// m_MaterialLibrary->Add("CubeMaterial", material);
+		m_MaterialLibrary.Add("CubeMaterial", material);
 
 
-		m_CubeIcon = Texture2D::Create(std::string("editor/assets/textures/cube_icon.png"));
+		m_CubeIcon = Texture2D::Create(std::string("Editor/assets/textures/cube_icon.png"));
 
 		m_ActiveScene = CreateRef<Scene>();
 
@@ -218,6 +212,17 @@ namespace Rndr
 			// ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
 			// ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 
+			ImGui::Separator();
+			ImGui::Text("Materials");
+			for (auto& material : m_MaterialLibrary)
+			{
+				auto [map_name, mat] = material;
+				std::string mat_name = mat->GetName();
+				// ImGui::Text("%s", map_name.c_str());
+				ImGui::Text("%s", mat_name.c_str());
+			}
+
+
 			ImGui::End();
 		}
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
@@ -244,24 +249,6 @@ namespace Rndr
 			m_ViewportBounds[0] = { minBound.x, minBound.y };
 			m_ViewportBounds[1] = { maxBound.x, maxBound.y };
 
-			// RNDR_CORE_INFO("minBound: {0}, {1}", minBound.x, minBound.y);
-
-
-
-			// viewport drag and drop
-			// if (ImGui::BeginDragDropTarget())
-			// {
-			// 	if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
-			// 	{
-			// 		const wchar_t* path = (const wchar_t*)payload->Data;
-			// 		// RNDR_CORE_INFO("Dropped file: {0}", path);
-			// 		std::filesystem::path scenePath(path);
-			// 		std::filesystem::path assetsPath("Editor/assets");
-			// 		OpenScene(assetsPath / scenePath);
-			// 	}
-			// 	ImGui::EndDragDropTarget();
-			// }
-
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
@@ -286,12 +273,6 @@ namespace Rndr
 				float windowWidth = (float)ImGui::GetWindowWidth();
 				float windowHeight = (float)ImGui::GetWindowHeight();
 				ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
-
-				// Camera
-				// auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
-				// const auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
-				// const glm::mat4& cameraProjection = camera.GetProjection();
-				// glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
 
 				// Editor camera
 				const glm::mat4& cameraProjection = m_EditorCamera.GetProjection();
@@ -347,19 +328,11 @@ namespace Rndr
 			}
 			ImGui::End();
 		}
-
-		{
-			// ImGui::Begin("Content Browser");
-			// {
-
-			// }
-			// ImGui::End();
-		}
+		// ImGui::ShowDemoWindow();
 
 		// ImGui::End();
 		ImGuiLayer::ImGuiEndDockspace();
 
-		ImGui::ShowDemoWindow();
 	}
 
 

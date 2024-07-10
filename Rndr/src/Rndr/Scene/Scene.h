@@ -17,6 +17,7 @@
 
 #include "Rndr/Renderer/Grid.h"
 
+
 namespace Rndr
 {
 	class Entity;
@@ -38,19 +39,14 @@ namespace Rndr
 		Entity GetPrimaryCameraEntity();
 	private:
 		template<typename T>
-		void OnComponentAdded(Entity entity, T& component)
-		{
-			if constexpr (std::is_same<T, CameraComponent>::value)
-			{
-				RNDR_CORE_INFO("Camera Component Added");
-				component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
-			}
-
-			// if constexpr (std::is_same<T, QuadComponent>::value)
-			// {
-			// 	component.Color = glm::vec4(0.8f, 0.2f, 0.3f, 1.0f);
-			// }
-		}
+		void OnComponentAdded(Entity entity, T& component);
+		// {
+		// 	if constexpr (std::is_same<T, CameraComponent>::value)
+		// 	{
+		// 		RNDR_CORE_INFO("Camera Component Added");
+		// 		component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
+		// 	}
+		// }
 
 	private:
 		entt::registry m_Registry;

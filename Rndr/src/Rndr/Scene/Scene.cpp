@@ -183,4 +183,39 @@ namespace Rndr
 		return {};
 	}
 
+
+
+
+
+
+
+
+
+
+
+
+	template<typename T>
+	void Scene::OnComponentAdded(Entity entity, T& component)
+	{
+		if constexpr (std::is_same<T, CameraComponent>::value)
+		{
+			RNDR_CORE_INFO("Camera Component Added");
+			component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
+		}
+		// Add more specializations as needed
+	}
+
+	// Explicit template instantiations
+	template void Scene::OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& component);
+	template void Scene::OnComponentAdded<QuadComponent>(Entity entity, QuadComponent& component);
+	template void Scene::OnComponentAdded<CubeComponent>(Entity entity, CubeComponent& component);
+	template void Scene::OnComponentAdded<DefaultMaterialComponent>(Entity entity, DefaultMaterialComponent& component);
+
+
+
+
+
+
+
+
 }

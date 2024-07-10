@@ -1,7 +1,8 @@
 #include "Rndr.h"
 #include "Rndr/Core/EntryPoint.h"
 // #include "EditorLayer.h"
-#include "SandBox3D.h"
+// #include "SandBox3D.h"
+#include "Sandbox3D.h"
 
 namespace Rndr
 {

@@ -52,8 +52,8 @@ namespace Rndr
 
 
 		// io.Fonts->AddFontFromFileTTF("editor/assets/fonts/opensans/OpenSans-Bold.ttf", 18.0f);
-		io.Fonts->AddFontFromFileTTF("editor/assets/fonts/opensans/OpenSans-ExtraBold.ttf", 18.0f);
-		io.FontDefault = io.Fonts->AddFontFromFileTTF("editor/assets/fonts/opensans/OpenSans-SemiBold.ttf", 18.0f);
+		io.Fonts->AddFontFromFileTTF("Editor/assets/fonts/opensans/OpenSans-ExtraBold.ttf", 18.0f);
+		io.FontDefault = io.Fonts->AddFontFromFileTTF("Editor/assets/fonts/opensans/OpenSans-SemiBold.ttf", 18.0f);
 
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();

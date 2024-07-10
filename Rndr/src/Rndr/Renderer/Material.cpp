@@ -66,7 +66,7 @@ namespace Rndr
 
 	void MaterialLibrary::Add(const Ref<Material>& material)
 	{
-		auto& name = material->GetShader()->GetName();
+		auto& name = material->GetName();
 		Add(name, material);
 	}
 

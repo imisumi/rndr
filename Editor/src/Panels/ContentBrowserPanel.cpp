@@ -60,7 +60,7 @@ namespace Rndr
 			// RNDR_CORE_INFO("ContentBrowserPanel::OnImGuiRender: {0}", path.string());
 
 			ImGui::BeginGroup();
-			if (ImGui::ImageButton(path.string().c_str(), (ImTextureID)icon->GetTextureID(), { s_IconSize, s_IconSize }, { 0, 1 }, { 1, 0 }))
+			if (ImGui::ImageButton(path.string().c_str(), (ImTextureID)(uint64_t)icon->GetTextureID(), { s_IconSize, s_IconSize }, { 0, 1 }, { 1, 0 }))
 			{
 				if (directoryEntry.is_directory())
 					m_CurrentDirectory /= path.filename();
@@ -70,9 +70,10 @@ namespace Rndr
 
 			if (ImGui::BeginDragDropSource())
 			{
-				const wchar_t* pathStr = path.c_str();
+				// const wchar_t* pathStr = path.c_str();
+				std::wstring wpath = path.wstring();
+				const wchar_t* pathStr = wpath.c_str();
 				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", pathStr, (wcslen(pathStr) + 1) * sizeof(wchar_t));
-				// ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", relativePath.string().c_str(), relativePath.string().size() + 1);
 				ImGui::EndDragDropSource();
 			}
 

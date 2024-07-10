@@ -63,6 +63,6 @@ namespace Rndr
 		Ref<Texture2D> m_CubeIcon;
 
 
-		Ref<MaterialLibrary> m_MaterialLibrary;
+		MaterialLibrary m_MaterialLibrary;
 	};
 }

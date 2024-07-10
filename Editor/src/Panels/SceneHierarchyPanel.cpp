@@ -83,7 +83,7 @@ namespace Rndr {
 		auto& tag = entity.GetComponent<TagComponent>().Tag;
 		ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | 
 			ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-		bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.c_str());
+		bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, "%s", tag.c_str());
 		if (ImGui::IsItemClicked())
 		{
 			m_SelectionContext = entity;
@@ -101,7 +101,7 @@ namespace Rndr {
 		if (opened)
 		{
 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-			bool opened = ImGui::TreeNodeEx((void*)9817239, flags, tag.c_str());
+			bool opened = ImGui::TreeNodeEx((void*)9817239, flags, "%s", tag.c_str());
 			if (opened)
 				ImGui::TreePop();
 			ImGui::TreePop();
@@ -124,7 +124,7 @@ namespace Rndr {
 
 		ImGui::Columns(2);
 		ImGui::SetColumnWidth(0, columnWidth);
-		ImGui::Text(label.c_str());
+		ImGui::Text("%s",label.c_str());
 		ImGui::NextColumn();
 
 		ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
@@ -165,7 +165,7 @@ namespace Rndr {
 
 		ImGui::Columns(2);
 		ImGui::SetColumnWidth(0, columnWidth);
-		ImGui::Text(label.c_str());
+		ImGui::Text("%s", label.c_str());
 		ImGui::NextColumn();
 
 		ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
@@ -236,7 +236,7 @@ namespace Rndr {
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
 			float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 			// ImGui::Separator();
-			bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, name.c_str());
+			bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, "%s", name.c_str());
 			ImGui::PopStyleVar(
 			);
 			ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
@@ -369,6 +369,15 @@ namespace Rndr {
 			{
 				auto& cc = entity.GetComponent<DefaultMaterialComponent>();
 
+				char buffer[256];
+				memset(buffer, 0, sizeof(buffer));
+				std::strncpy(buffer, cc.Material->GetName().c_str(), sizeof(buffer));
+				if (ImGui::InputText("##Material", buffer, sizeof(buffer)))
+				{
+					cc.Material->SetName(std::string(buffer));
+					RNDR_CORE_INFO("Material name: {0}", cc.Material->GetName());
+				}
+
 				glm::vec4 color = cc.Material->GetColor();
 				// if (ImGui::ColorEdit4("MyColor##3", glm::value_ptr(color), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
 				// 	cc.Material->SetColor(color);
@@ -383,7 +392,7 @@ namespace Rndr {
 				// image is upside down
 
 				// ImGui::Image((ImTextureID)cc.Material->GetTextureID(TextureType::Diffuse), ImVec2(100.0f, 100.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 })
-				if (ImGui::ImageButton((ImTextureID)cc.Material->GetTextureID(TextureType::Diffuse), ImVec2(100.0f, 100.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 }))
+				if (ImGui::ImageButton((ImTextureID)(uint64_t)cc.Material->GetTextureID(TextureType::Diffuse), ImVec2(100.0f, 100.0f), ImVec2{ 0, 1 }, ImVec2{ 1, 0 }))
 					RNDR_CORE_INFO("Texture clicked");
 				if (ImGui::BeginDragDropTarget())
 				{

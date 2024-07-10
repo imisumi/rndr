@@ -3,7 +3,9 @@
 #include <glad/glad.h>
 
 
-#include "ImGui/backends/imgui_impl_opengl3.h"
+// #include "ImGui/backends/imgui_impl_opengl3.h"
+
+#include "imgui/backends/imgui_impl_opengl3.h"
 
 namespace Rndr
 {
@@ -258,6 +260,7 @@ namespace Rndr
 			switch (format)
 			{
 				case FrameBufferTextureFormat::DEPTH24STENCIL8:  return true;
+				default:                                         return false;
 			}
 
 			return false;

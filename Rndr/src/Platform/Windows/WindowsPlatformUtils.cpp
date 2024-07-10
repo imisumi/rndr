@@ -3,10 +3,10 @@
 #ifdef RNDR_PLATFORM_WINDOWS
 	#include <Windows.h>
 	#include <commdlg.h>
+	#include <glfw/glfw3.h>
+	#define GLFW_EXPOSE_NATIVE_WIN32
+	#include <glfw/glfw3native.h>
 #endif
-#include <glfw/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <glfw/glfw3native.h>
 
 #include "Rndr/Core/Application.h"
 
@@ -29,6 +29,19 @@ namespace Rndr
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 		if (GetOpenFileNameA(&ofn) == TRUE)
 			return ofn.lpstrFile;
+	#elif RNDR_PLATFORM_LINUX
+		char filename[1024];
+		std::string command = "zenity --file-selection --file-filter='";
+		command += filter;
+		command += "' 2>/dev/null";
+		FILE* f = popen(command.c_str(), "r");
+		if (f == nullptr)
+			return std::string();
+		fgets(filename, sizeof(filename), f);
+		pclose(f);
+		// Remove the newline character at the end of the filename
+		filename[strcspn(filename, "\n")] = 0;
+		return std::string(filename);
 	#endif
 		return std::string();
 	}
@@ -48,6 +61,19 @@ namespace Rndr
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 		if (GetSaveFileNameA(&ofn) == TRUE)
 			return ofn.lpstrFile;
+	#elif RNDR_PLATFORM_LINUX
+		char filename[1024];
+		std::string command = "zenity --file-selection --save --confirm-overwrite --file-filter='";
+		command += filter;
+		command += "' 2>/dev/null";
+		FILE* f = popen(command.c_str(), "r");
+		if (f == nullptr)
+			return std::string();
+		fgets(filename, sizeof(filename), f);
+		pclose(f);
+		// Remove the newline character at the end of the filename
+		filename[strcspn(filename, "\n")] = 0;
+		return std::string(filename);
 	#endif
 		return std::string();
 	}

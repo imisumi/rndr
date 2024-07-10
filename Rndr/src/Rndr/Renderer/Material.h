@@ -9,6 +9,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
+#include <iterator> // for std::iterator
+
 namespace Rndr
 {
 	enum class TextureType
@@ -79,6 +81,19 @@ namespace Rndr
 
 		Ref<Material> Get(const std::string& name);
 		bool Exists(const std::string& name) const;
+
+
+
+
+		// Iterator typedefs
+		typedef typename std::unordered_map<std::string, Ref<Material>>::iterator iterator;
+		typedef typename std::unordered_map<std::string, Ref<Material>>::const_iterator const_iterator;
+
+		// Iterator functions
+		iterator begin() { return m_Materials.begin(); }
+		iterator end() { return m_Materials.end(); }
+		const_iterator begin() const { return m_Materials.begin(); }
+		const_iterator end() const { return m_Materials.end(); }
 	private:
 		std::unordered_map<std::string, Ref<Material>> m_Materials;
 	};
