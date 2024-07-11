@@ -7,6 +7,7 @@
 
 #include "Panels/SceneHierarchyPanel.h"
 #include "Panels/ContentBrowserPanel.h"
+#include "Panels/MaterialPanel.h"
 
 
 #include "Rndr/Renderer/EditorCamera.h"
@@ -54,6 +55,7 @@ namespace Rndr
 		// Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 		ContentBrowserPanel m_ContentBrowserPanel;
+		MaterialPanel m_MaterialPanel;
 
 		glm::vec4 M_TestColor = { 0.8f, 0.2f, 0.3f, 1.0f };
 
@@ -63,6 +65,7 @@ namespace Rndr
 		Ref<Texture2D> m_CubeIcon;
 
 
-		MaterialLibrary m_MaterialLibrary;
+		// MaterialLibrary m_MaterialLibrary;
+		Ref<MaterialLibrary> m_MaterialLibrary;
 	};
 }

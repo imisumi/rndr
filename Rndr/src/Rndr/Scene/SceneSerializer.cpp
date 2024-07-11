@@ -82,8 +82,10 @@ namespace Rndr
 
 	static void SerializeEntity(YAML::Emitter& out, Entity entity)
 	{
+		RNDR_CORE_ASSERT(entity.HasComponent<IDComponent>(), "Entity is null!");
 		out << YAML::BeginMap; // Entity
-		out << YAML::Key << "Entity" << YAML::Value << "12345"; //TODO: UUID goes here
+		// out << YAML::Key << "Entity" << YAML::Value << "12345"; //TODO: UUID goes here
+		out << YAML::Key << "Entity" << YAML::Value << entity.GetUUID();
 
 		if (entity.HasComponent<TagComponent>()) // Always true
 		{

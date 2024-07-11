@@ -18,6 +18,9 @@
 #include "Rndr/Renderer/Grid.h"
 
 
+#include "Rndr/Core/UUID.h"
+
+
 namespace Rndr
 {
 	class Entity;
@@ -29,6 +32,7 @@ namespace Rndr
 		~Scene();
 
 		Entity CreateEntity(const std::string& name = std::string());
+		Entity CreateEntityWithID(UUID uuid, const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
 
 		void OnUpdateEditor(Timestep ts, EditorCamera& camera);

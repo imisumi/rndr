@@ -44,8 +44,16 @@ namespace Rndr
 		Ref<Material> material = CreateRef<Material>();
 		material->SetShader(Shader::Create("Editor/assets/shaders/CubeShader.glsl"));
 		material->SetName("CubeMaterial");
-		m_MaterialLibrary.Add("CubeMaterial", material);
 
+		Ref<Material> mat2 = CreateRef<Material>();
+		mat2->SetShader(Shader::Create("Editor/assets/shaders/CubeShader.glsl"));
+		mat2->SetName("tempMaterial");
+
+		m_MaterialLibrary = CreateRef<MaterialLibrary>();
+		m_MaterialLibrary->Add("CubeMaterial", material);
+		m_MaterialLibrary->Add("tempMaterial", mat2);
+		// m_MaterialPanel(m_MaterialLibrary)
+		m_MaterialPanel.SetMaterialLibrary(m_MaterialLibrary);
 
 		m_CubeIcon = Texture2D::Create(std::string("Editor/assets/textures/cube_icon.png"));
 
@@ -182,6 +190,7 @@ namespace Rndr
 		{
 			m_SceneHierarchyPanel.OnImGuiRender();
 			m_ContentBrowserPanel.OnImGuiRender();
+			m_MaterialPanel.OnImGuiRender();
 		}
 		{
 			ImGui::Begin("Stats");
@@ -214,7 +223,7 @@ namespace Rndr
 
 			ImGui::Separator();
 			ImGui::Text("Materials");
-			for (auto& material : m_MaterialLibrary)
+			for (auto& material : *m_MaterialLibrary)
 			{
 				auto [map_name, mat] = material;
 				std::string mat_name = mat->GetName();
@@ -318,7 +327,8 @@ namespace Rndr
 				ImVec2 uv0 = ImVec2(1.0f, 1.0f);                            // UV coordinates for upper-right
 				ImVec4 bg_col = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);             // Black background
 				ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);           // No tint
-				if (ImGui::ImageButton("##Cube", reinterpret_cast<void*>(m_CubeIcon->GetTextureID()), size, uv0, uv1, bg_col, tint_col))
+				// if (ImGui::ImageButton("##Cube", reinterpret_cast<void*>(m_CubeIcon->GetTextureID()), size, uv0, uv1, bg_col, tint_col))
+				if (ImGui::ImageButton("##Cube", (ImTextureID)(uint64_t)m_CubeIcon->GetTextureID(), size, uv0, uv1, bg_col, tint_col))
 				{
 					static int count = 0;
 					auto entity = m_ActiveScene->CreateEntity("Cube " + std::to_string(count++));
