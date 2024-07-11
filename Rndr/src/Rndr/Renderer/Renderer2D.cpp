@@ -252,6 +252,13 @@ namespace Rndr {
 		int EntityID;
 	};
 
+	struct LineVertex
+	{
+		glm::vec3 Position;
+		glm::vec4 Color;
+		int EntityID;
+	};
+
 	struct Renderer2DData
 	{
 		static const uint32_t MaxCubes = 2;
@@ -282,7 +289,6 @@ namespace Rndr {
 	void Renderer2D::Init()
 	{
 
-		// HZ_PROFILE_FUNCTION();
 
 		s_Data.CubeVertexArray = VertexArray::Create();
 
@@ -368,6 +374,7 @@ namespace Rndr {
 		s_Data.TextureShader = Shader::Create("Editor/assets/shaders/CubeShader.glsl");
 		s_Data.TextureShader->Bind();
 
+		{ //? Cube vertices
 		//? Front face
 		s_Data.VertexPositions[0] = { -0.5f,  0.5f, 0.5f, 1.0f }; //? Top left
 		s_Data.VertexPositions[1] = { -0.5f, -0.5f, 0.5f, 1.0f }; //? Bottom left
@@ -403,6 +410,7 @@ namespace Rndr {
 		s_Data.VertexPositions[21] = { -0.5f, -0.5f, -0.5f, 1.0f }; //? Bottom left
 		s_Data.VertexPositions[22] = {  0.5f, -0.5f, -0.5f, 1.0f }; //? Bottom right
 		s_Data.VertexPositions[23] = {  0.5f, -0.5f,  0.5f, 1.0f }; //? Top right
+		}
 	}
 
 	void Renderer2D::Shutdown()
@@ -417,19 +425,11 @@ namespace Rndr {
 		// HZ_PROFILE_FUNCTION();
 
 		s_ViewProjection = camera.GetViewProjection();
-
-		// s_Data.TextureShader->Bind();
-		// s_Data.TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjection());
-
 		StartBatch();
 	}
 
 	void Renderer2D::BeginScene(const EditorCamera& camera, const Ref<Material>& material)
 	{
-		// HZ_PROFILE_FUNCTION();
-
-		// s_Data.TextureShader->Bind();
-		// s_Data.TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjection());
 		material->Bind();
 		material->GetShader()->SetMat4("u_ViewProjection", camera.GetViewProjection());
 
@@ -484,40 +484,8 @@ namespace Rndr {
 		StartBatch();
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, QuadComponent& tri, int entityID)
-	{
-		constexpr size_t VertexCount = 24;
-
-		if (s_Data.VertexIndexCount >= Renderer2DData::MaxIndices)
-			NextBatch();
-
-		constexpr glm::vec3 normals[] = {
-			{0.0f, 0.0f, 1.0f}, // Front face
-			{0.0f, 0.0f, -1.0f}, // Back face
-			{1.0f, 0.0f, 0.0f}, // Right face
-			{-1.0f, 0.0f, 0.0f}, // Left face
-			{0.0f, 1.0f, 0.0f}, // Top face
-			{0.0f, -1.0f, 0.0f} // Bottom face
-		};
-
-		uint32_t normalIndex = 0;
-		for (size_t i = 0; i < VertexCount; i++)
-		{
-			s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[i];
-			s_Data.VertexBufferPtr->Color = tri.Color;
-			s_Data.VertexBufferPtr->Normal = normals[normalIndex];
-			s_Data.VertexBufferPtr->EntityID = entityID;
-			s_Data.VertexBufferPtr++;
-			if (i % 4 == 3)
-				normalIndex++;
-		}
-
-		s_Data.VertexIndexCount += 36;
-
-		s_Data.Stats.QuadCount++;
-	}
-
-	void Renderer2D::DrawCube(const glm::mat4& transform, CubeComponent& cube, int entityID)
+	void Renderer2D::DrawCube(const glm::mat4& transform, CubeComponent& cube, 
+		DefaultMaterialComponent& material, int entityID)
 	{
 		constexpr size_t VertexCount = 24;
 
@@ -538,7 +506,7 @@ namespace Rndr {
 		{
 			s_Data.VertexBufferPtr->Position = transform * s_Data.VertexPositions[i];
 			// s_Data.VertexBufferPtr->Position = s_Data.VertexPositions[i];
-			s_Data.VertexBufferPtr->Color = cube.Color;
+			s_Data.VertexBufferPtr->Color = material.Material->GetColor();
 			s_Data.VertexBufferPtr->Normal = normals[normalIndex];
 			s_Data.VertexBufferPtr->EntityID = entityID;
 			s_Data.VertexBufferPtr++;
@@ -547,6 +515,21 @@ namespace Rndr {
 		}
 
 		s_Data.VertexIndexCount += 36;
+
+		s_Data.Stats.QuadCount++;
+	}
+
+	void Renderer2D::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color, int entityID)
+	{
+
+
+		if (s_Data.VertexIndexCount >= Renderer2DData::MaxIndices)
+			NextBatch();
+
+
+
+
+		s_Data.VertexIndexCount += 2;
 
 		s_Data.Stats.QuadCount++;
 	}

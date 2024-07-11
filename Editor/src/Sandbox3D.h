@@ -65,6 +65,9 @@ namespace Rndr
 		Ref<Texture2D> m_CubeIcon;
 
 
+		Ref<LineMaterial> m_LineMaterial;
+
+
 		// MaterialLibrary m_MaterialLibrary;
 		Ref<MaterialLibrary> m_MaterialLibrary;
 	};

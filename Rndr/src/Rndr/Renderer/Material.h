@@ -64,14 +64,45 @@ namespace Rndr
 		Ref<Texture2D> m_Texture;
 
 
-
-
-
-		// glm::vec4 m_Color = { 0.8f, 0.2f, 0.1f, 1.0f };
-		glm::vec4 m_Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		glm::vec4 m_Color = { 0.8f, 0.2f, 0.1f, 1.0f };
+		// glm::vec4 m_Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		Ref<Texture2D> m_DiffuseMap;
 
 	};
+
+
+
+	class LineMaterial
+	{
+	public:
+		LineMaterial() = default;
+		virtual ~LineMaterial() = default;
+
+		void Bind() const { m_Shader->Bind(); }
+		void Unbind() const { m_Shader->Unbind(); }
+
+		void SetColor(const glm::vec4& color) { m_Color = color; }
+		glm::vec4 GetColor() const { return m_Color; }
+
+		void SetShader(const Ref<Shader>& shader) { m_Shader = shader; }
+		Ref<Shader> GetShader() const { return m_Shader; }
+
+		void SetName(const std::string& name) { m_Name = name; }
+		const std::string& GetName() const { return m_Name; }
+
+		static Ref<LineMaterial> Create(const Ref<Shader>& shader, const std::string& name = "LineMaterial")
+		{
+			Ref<LineMaterial> material = CreateRef<LineMaterial>();
+			material->SetShader(shader);
+			material->SetName(name);
+			return material;
+		}
+	private:
+		std::string m_Name;
+		Ref<Shader> m_Shader;
+		glm::vec4 m_Color = { 0.8f, 0.2f, 0.1f, 1.0f };
+	};
+
 
 	class MaterialLibrary
 	{

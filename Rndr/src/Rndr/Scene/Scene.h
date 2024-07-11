@@ -21,6 +21,9 @@
 #include "Rndr/Core/UUID.h"
 
 
+#include "Rndr/Renderer/LineRenderer.h"
+
+
 namespace Rndr
 {
 	class Entity;
@@ -31,12 +34,18 @@ namespace Rndr
 		Scene();
 		~Scene();
 
+		void SetLineMaterial(const Ref<LineMaterial>& material)
+		{
+			m_LineMaterial = material;
+		}
+
+
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithID(UUID uuid, const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
 
 		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
-		void OnUpdateRuntime(Timestep ts);
+		// void OnUpdateRuntime(Timestep ts);
 		void OnViewportResize(uint32_t width, uint32_t height);
 
 
@@ -57,6 +66,8 @@ namespace Rndr
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 
 		Ref<ViewportGrid> m_Grid;
+
+		Ref<LineMaterial> m_LineMaterial;
 
 		friend class Entity;
 		friend class SceneSerializer;

@@ -9,6 +9,8 @@
 #include "Rndr/Renderer/Renderer2D.h"
 #include "Rndr/Renderer/Renderer3D.h"
 
+#include "Rndr/Renderer/LineRenderer.h"
+
 #include "Rndr/Core/Log.h"
 
 namespace Rndr
@@ -49,27 +51,7 @@ namespace Rndr
 
 	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
 	{
-		// Render 2D
-		// Renderer2D::BeginScene(camera);
 
-		// auto group = m_Registry.group<TransformComponent>(entt::get<QuadComponent>);
-		// for (auto entity : group)
-		// {
-		// 	auto [transform, quad] = group.get<TransformComponent, QuadComponent>(entity);
-
-		// 	Renderer2D::DrawQuad(transform.GetTransform(), quad, (int)entity);
-		// 	// Renderer2D::PrintVertexData();
-		// }
-
-
-
-		// ? Cube
-		// auto group = m_Registry.group<TransformComponent>(entt::get<CubeComponent>);
-		// for (auto entity : group)
-		// {
-		// 	auto [transform, cube] = group.get<TransformComponent, CubeComponent>(entity);
-		// 	Renderer2D::DrawCube(transform.GetTransform(), cube, (int)entity);
-		// }
 
 		int defaultMaterialCount = 0;
 		auto group = m_Registry.group<TransformComponent>(entt::get<DefaultMaterialComponent>);
@@ -84,87 +66,47 @@ namespace Rndr
 				{
 					glm::mat4 transform = ent.GetComponent<TransformComponent>().GetTransform();
 					CubeComponent cube = ent.GetComponent<CubeComponent>();
-					Renderer2D::DrawCube(transform, cube, (int)entity);
+					DefaultMaterialComponent material = ent.GetComponent<DefaultMaterialComponent>();
+					Renderer2D::DrawCube(transform, cube, material, (int)entity);
 				}
 			}
-			Renderer2D::EndScene();	
+			Renderer2D::EndScene();
 		}
 
-		// auto group = m_Registry.group<TransformComponent>(entt::get<DefaultMaterialComponent>);
-		// auto defaultMaterial = group.get<DefaultMaterialComponent>(group.front());
-		// Renderer2D::BeginScene(camera, defaultMaterial.Material);
-		// for (auto entity : group)
-		// {
-		// 	Entity ent = { entity, this };
-		// 	if (ent.HasComponent<CubeComponent>())
-		// 	{
-		// 		glm::mat4 transform = ent.GetComponent<TransformComponent>().GetTransform();
-		// 		CubeComponent cube = ent.GetComponent<CubeComponent>();
-		// 		Renderer2D::DrawCube(transform, cube, (int)entity);
-		// 	}
-		// }
 
-		// Renderer2D::EndScene();
+		LineRenderer::BeginScene(camera, m_LineMaterial, 1.0f);
+		float camY = camera.GetPosition().y;
+		glm::vec4 gridColor = {0.28f, 0.28f, 0.28f, .0f};
+		float gridSize = 25.0f;
+		float gridSpacing = 1.0f;
+		// float gridSpacing = 1.0f + std::floor(camY / 5.0f);
+		for (int x = -gridSize; x <= gridSize; x++)
+		{
+			for (int z = -gridSize; z <= gridSize; z++)
+			{
+				// LineRenderer::DrawLine({(float)x, 0.0f, (float)z}, {(float)x + 1.0f, 0.0f, (float)z}, gridColor);
+				// LineRenderer::DrawLine({(float)x, 0.0f, (float)z}, {(float)x, 0.0f, (float)z + 1.0f}, gridColor);
+				LineRenderer::DrawLine({(float)x, 0.0f, (float)z}, {(float)x + gridSpacing, 0.0f, (float)z}, gridColor);
+				LineRenderer::DrawLine({(float)x, 0.0f, (float)z}, {(float)x, 0.0f, (float)z + gridSpacing}, gridColor);
+			}
+		}
+		LineRenderer::EndScene();
+
+
+
+
+		LineRenderer::BeginScene(camera, m_LineMaterial, 2.0f);
+		//? x
+		LineRenderer::DrawLine(glm::vec3(0.0f), glm::vec3(2.0f, 0.0f, 0.0f), glm::vec4(0.8f, 0.2f, 0.2f, 1.0f));
+		//? Y
+		LineRenderer::DrawLine(glm::vec3(0.0f), glm::vec3(0.0f, 2.0f, 0.0f), glm::vec4(0.2f, 0.8f, 0.2f, 1.0f));
+		//? Z
+		LineRenderer::DrawLine(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 2.0f), glm::vec4(0.2f, 0.2f, 0.8f, 1.0f));
+		LineRenderer::EndScene();
 
 	
 	}
 
-
-
-	void Scene::OnUpdateRuntime(Timestep ts)
-	{
-		//? use view for one component only else use group
-
-		// Render 2D
-		Camera* mainCamera = nullptr;
-		glm::mat4 cameraTransform;
-		{
-			auto view = m_Registry.view<TransformComponent, CameraComponent>();
-			for (auto entity : view)
-			{
-				auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
-				
-				if (camera.Primary)
-				{
-					mainCamera = &camera.Camera;
-					cameraTransform = transform.GetTransform();
-					break;
-				}
-			}
-		}
-
-		if (mainCamera)
-		{
-			Renderer2D::BeginScene(*mainCamera, cameraTransform);
-
-			auto view = m_Registry.view<TransformComponent,QuadComponent>();
-			for (auto entity : view)
-			{
-				auto [transform, quad] = view.get<TransformComponent, QuadComponent>(entity);
-
-				// Renderer2D::DrawQuad(transform.GetTransform(), quad.Color);
-				Renderer2D::DrawQuad(transform.GetTransform(), quad, (int)entity);
-			}
-
-			Renderer2D::EndScene();
-
-
-
-
-			// Renderer3D::BeginScene(*mainCamera, cameraTransform);
-
-			// auto view3D = m_Registry.view<TransformComponent, CubeComponent>();
-			// for (auto entity : view3D)
-			// {
-			// 	auto& [transform, cube] = view3D.get<TransformComponent, CubeComponent>(entity);
-
-			// 	Renderer3D::DrawCube(transform.GetTransform(), cube.Color);
-			// }
-
-			// Renderer3D::EndScene();
-
-		}
-	}
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
 	{

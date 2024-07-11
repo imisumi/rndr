@@ -33,8 +33,11 @@ namespace Rndr {
 
 
 		//TODO: rename to tri
-		static void DrawQuad(const glm::mat4& transform, QuadComponent& tri, int entityID = -1);
-		static void DrawCube(const glm::mat4& transform, CubeComponent& cube, int entityID = -1);
+		// static void DrawQuad(const glm::mat4& transform, QuadComponent& tri, int entityID = -1);
+		static void DrawCube(const glm::mat4& transform, CubeComponent& cube, 
+			DefaultMaterialComponent& material, int entityID = -1);
+
+		static void DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color, int entityID = -1);
 
 		// static void DrawCube(const glm::mat4& transform, CubeComponent& cube, const Ref<Material> material, int entityID = -1);
 

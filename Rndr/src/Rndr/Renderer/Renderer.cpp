@@ -2,6 +2,7 @@
 #include "Rndr/Renderer/Renderer.h"
 #include "Rndr/Renderer/Renderer2D.h"
 #include "Rndr/Renderer/Renderer3D.h"
+#include "LineRenderer.h"
 
 namespace Rndr {
 
@@ -13,7 +14,8 @@ namespace Rndr {
 
 		RenderCommand::Init();
 		Renderer2D::Init();
-		// Renderer3D::Init();
+
+		LineRenderer::Init();
 	}
 
 	void Renderer::Shutdown()

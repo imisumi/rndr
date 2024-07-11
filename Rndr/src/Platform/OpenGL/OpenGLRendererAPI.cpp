@@ -42,9 +42,23 @@ namespace Rndr
 		// else
 		// 	count = vertexArray->GetIndexBuffer()->GetCount();
 		// std::cout << "OpenGLRendererAPI::DrawIndexed: count = " << count << std::endl;
+		vertexArray->Bind();
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 
 		//TODO: TEMP
 		// glBindTexture(GL_TEXTURE_2D, 0);
 	}
+
+
+	void OpenGLRendererAPI::DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount, float lineWidth)
+	{
+		vertexArray->Bind();
+		glLineWidth(lineWidth);
+		glDrawArrays(GL_LINES, 0, vertexCount);
+	}
+
+	// void OpenGLRendererAPI::SetLineWidth(float width)
+	// {
+	// 	glLineWidth(width);
+	// }
 }

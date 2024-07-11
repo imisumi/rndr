@@ -6,12 +6,17 @@ project(Render-Engine LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
+# Set CMAKE_TOOLCHAIN_FILE to vcpkg's toolchain file
+set(CMAKE_TOOLCHAIN_FILE "C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake")
+
 # print build configuration
 if (NOT CMAKE_BUILD_TYPE)
 	message(STATUS "No build type selected, default to Release")
 	set(CMAKE_BUILD_TYPE "Release")
 endif()
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
 
 
 set(RNDR_SOURCE_DIR ${CMAKE_SOURCE_DIR}/Rndr/src)

@@ -73,7 +73,8 @@ namespace Rndr
 		// name.Mater
 
 
-
+		m_LineMaterial = LineMaterial::Create(Shader::Create("Editor/assets/shaders/LineShader.glsl"));
+		m_ActiveScene->SetLineMaterial(m_LineMaterial);
 
 		// auto square = m_ActiveScene->CreateEntity("Quad Entity");
 		// square.AddComponent<QuadComponent>(m_SquareColor);
@@ -121,7 +122,7 @@ namespace Rndr
 
 		Renderer2D::ResetStats();
 		m_FrameBuffer->Bind();
-		RenderCommand::SetClearColor(glm::vec4(0.1f, 0.2f, 0.3f, 1));
+		RenderCommand::SetClearColor(glm::vec4(0.2f, 0.2f, 0.2f, 1));
 		RenderCommand::Clear();
 
 		m_FrameBuffer->ClearAttachment(1, -1);
@@ -333,6 +334,12 @@ namespace Rndr
 					static int count = 0;
 					auto entity = m_ActiveScene->CreateEntity("Cube " + std::to_string(count++));
 					entity.AddComponent<CubeComponent>(glm::vec4(0.8f, 0.2f, 0.3f, 1.0f));
+					static int i = 0;
+					Ref<Material> newMaterial = CreateRef<Material>();
+					newMaterial->SetShader(Shader::Create("Editor/assets/shaders/CubeShader.glsl"));
+					newMaterial->SetName("tempMaterial" + std::to_string(i++));
+					m_MaterialLibrary->Add(newMaterial->GetName(), newMaterial);
+					entity.AddComponent<DefaultMaterialComponent>(newMaterial);
 					m_SceneHierarchyPanel.SetSelectedEntity(entity);
 				}
 			}
