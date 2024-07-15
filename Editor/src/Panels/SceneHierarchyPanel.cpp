@@ -320,6 +320,14 @@ namespace Rndr {
 
 		ImGui::PopItemWidth();
 
+		if (entity.HasComponent<IDComponent>())
+		{
+			auto& uuid = entity.GetComponent<IDComponent>().ID;
+			// convert uint64_t to char array
+			// std::string str = std::to_string(uuid);
+			ImGui::Text("UUID: %llu", uuid);
+		}
+
 		// DrawComponent<TransformComponent>("Transform", entity, [](auto& component)
 		// {
 		// 	DrawVec3Control("Translation", component.Translation);

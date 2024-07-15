@@ -272,6 +272,7 @@ namespace Rndr
 			{
 				case FrameBufferTextureFormat::RGBA8: return GL_RGBA8;
 				case FrameBufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
+				case FrameBufferTextureFormat::RGBA32F: return GL_RGBA32F;
 			}
 
 			RNDR_CORE_ASSERT(false);
@@ -335,6 +336,9 @@ namespace Rndr
 						break;
 					case FrameBufferTextureFormat::RED_INTEGER:
 						Utils::AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_R32I, GL_RED_INTEGER, m_Specification.Width, m_Specification.Height, i);
+						break;
+					case FrameBufferTextureFormat::RGBA32F:
+						Utils::AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_RGBA32F, GL_RGBA, m_Specification.Width, m_Specification.Height, i);
 						break;
 				}
 			}

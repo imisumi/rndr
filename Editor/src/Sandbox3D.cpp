@@ -24,6 +24,8 @@
 
 #include "Rndr/Math/Math.h"
 
+#include <OpenImageIO/imageio.h>
+
 namespace Rndr
 {
 	Sandbox3D::Sandbox3D()
@@ -35,10 +37,15 @@ namespace Rndr
 	{
 		RNDR_CORE_TRACE("Sandbox3D::OnAttach");
 		FrameBufferSpecification frameBufferSpec;
-		frameBufferSpec.Attachments = { FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::RED_INTEGER, FrameBufferTextureFormat::Depth };
+		frameBufferSpec.Attachments = { FrameBufferTextureFormat::RGBA8, 
+			FrameBufferTextureFormat::RED_INTEGER, 
+			FrameBufferTextureFormat::Depth };
 		frameBufferSpec.Width = 1280;
 		frameBufferSpec.Height = 720;
 		m_FrameBuffer = FrameBuffer::Create(frameBufferSpec);
+
+		frameBufferSpec.Attachments = { FrameBufferTextureFormat::RGBA32F };
+		m_ComputeFrameBuffer = FrameBuffer::Create(frameBufferSpec);
 
 
 		Ref<Material> material = CreateRef<Material>();
@@ -92,6 +99,79 @@ namespace Rndr
 
 		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 		// m_EditorCamera.SetPosition({ 0.0f, 0.0f, 2.0f });
+		m_ComputeShader = ComputeShader::Create("Editor/assets/shaders/ComputeShader.glsl");
+
+		// m_TempComputeTextureID;
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_TempComputeTextureID);
+		glTextureStorage2D(m_TempComputeTextureID, 1, GL_RGBA32F, 32, 32);
+		glTextureParameteri(m_TempComputeTextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameteri(m_TempComputeTextureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameteri(m_TempComputeTextureID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(m_TempComputeTextureID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		// m_Mesh = Mesh("Editor/assets/meshes/cube.obj");
+
+
+
+		// disable vsync
+		// Application::Get().GetWindow().SetVSync(false);
+
+
+		const char* filename = "Editor/assets/hdri/autumn_field_puresky_4k.exr";
+		std::unique_ptr<OIIO::ImageInput> inp = OIIO::ImageInput::open(filename);
+		if (!inp) {
+			RNDR_CORE_ASSERT(inp, "Could not open image");
+		}
+		const OIIO::ImageSpec &spec = inp->spec();
+		int width = spec.width;
+		int height = spec.height;
+		int channels = spec.nchannels;
+
+		m_SkyTextureWidth = width;
+		m_SkyTextureHeight = height;
+		bool convertToRgba = false;
+		if (channels == 3)
+		{
+			convertToRgba = true;
+			channels = 4;
+		}
+		m_SkyPixels.resize(width * height * channels);
+		inp->read_image(OIIO::TypeDesc::FLOAT, &m_SkyPixels[0]);
+		inp->close();
+
+		if (convertToRgba)
+		{
+			std::vector<float> tempPixels(width * height * 4);
+			for (int i = 0; i < width * height; i++)
+			{
+				tempPixels[i * 4] = m_SkyPixels[i * 3];
+				tempPixels[i * 4 + 1] = m_SkyPixels[i * 3 + 1];
+				tempPixels[i * 4 + 2] = m_SkyPixels[i * 3 + 2];
+				tempPixels[i * 4 + 3] = 1.0f;
+			}
+			m_SkyPixels = tempPixels;
+		}
+
+		// set m_SkyPixel to white 1.0f
+		// for (int i = 0; i < m_SkyPixels.size(); i++)
+		// 	m_SkyPixels[i] = 1.0f;
+		RNDR_CORE_INFO("Number of channels: {0}", channels);
+		RNDR_CORE_INFO("Image width: {0}, height: {1}", width, height);
+		RNDR_CORE_INFO("Image loaded successfully");
+
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_SkyTextureID);
+		glTextureStorage2D(m_SkyTextureID, 1, GL_RGBA32F, width, height);
+		glTextureSubImage2D(m_SkyTextureID, 0, 0, 0, width, height, GL_RGBA, GL_FLOAT, &m_SkyPixels[0]);
+		glTextureParameteri(m_SkyTextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameteri(m_SkyTextureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameteri(m_SkyTextureID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(m_SkyTextureID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
+
+
+		// m_ActiveScene->SetSkyTexture(m_SkyTextureID);
+
 	}
 
 	void Sandbox3D::OnDetach()
@@ -112,6 +192,16 @@ namespace Rndr
 			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			// m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
 			m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
+
+
+			glDeleteTextures(1, &m_TempComputeTextureID);
+			glCreateTextures(GL_TEXTURE_2D, 1, &m_TempComputeTextureID);
+			glTextureStorage2D(m_TempComputeTextureID, 1, GL_RGBA32F, spec.Width, spec.Height);
+			glTextureParameteri(m_TempComputeTextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTextureParameteri(m_TempComputeTextureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTextureParameteri(m_TempComputeTextureID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTextureParameteri(m_TempComputeTextureID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 		}
 
 		if (m_ViewportFocused)
@@ -129,6 +219,11 @@ namespace Rndr
 
 		// m_ActiveScene->OnUpdateRuntime(ts);
 		m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
+
+		// glm::vec3 min = glm::vec3(1.0f) * INFINITY;
+		// glm::vec3 max = glm::vec3(1.0f) * -INFINITY;
+
+		// min = glm::min(min, m_Mesh.m_Triangles.);
 
 
 		auto [mx, my] = ImGui::GetMousePos();
@@ -152,11 +247,38 @@ namespace Rndr
 			else
 				m_HoveredEntity = { entt::null, nullptr };
 		}
-
-
-
-
 		m_FrameBuffer->Unbind();
+
+		// Compute
+		// m_ComputeFrameBuffer->Bind();
+
+
+		// calculate aabb
+		
+		
+		// if (ImGui::Checkbox("Enable Compute", &m_EnableCompute))
+		if (m_EnableCompute)
+		{
+			RenderCommand::SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1));
+			RenderCommand::Clear();
+			m_ComputeShader->Bind();
+			m_ComputeShader->SetInt("u_ScreenWidth", m_ViewportSize.x);
+			m_ComputeShader->SetInt("u_ScreenHeight", m_ViewportSize.y);
+			m_ComputeShader->SetInt("u_SkyTextureWidth", m_SkyTextureWidth);
+			m_ComputeShader->SetInt("u_SkyTextureHeight", m_SkyTextureHeight);
+			m_ComputeShader->SetMat4("u_InvView", glm::inverse(m_EditorCamera.GetViewMatrix()));
+			m_ComputeShader->SetMat4("u_InvProj", glm::inverse(m_EditorCamera.GetProjection()));
+			m_ComputeShader->SetFloat3("u_CameraPos", m_EditorCamera.GetPosition());
+			glBindImageTexture(0, m_TempComputeTextureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+			glBindImageTexture(1, m_SkyTextureID, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+			m_ComputeShader->Dispatch((m_ViewportSize.x + 7) / 8, (m_ViewportSize.y + 7) / 8, 1);
+			// glGetError();
+		}
+		// m_TempComputeTextureID
+		// glBindTexture(GL_TEXTURE_2D, m_TempComputeTextureID);
+
+		// m_ComputeFrameBuffer->Unbind();
+
 	}
 
 
@@ -232,7 +354,13 @@ namespace Rndr
 				ImGui::Text("%s", mat_name.c_str());
 			}
 
-
+			ImGui::Checkbox("Enable Compute", &m_EnableCompute);
+			bool enableBVH = m_ActiveScene->GetBVHEnabled();
+			if (ImGui::Checkbox("Enable BVH", &enableBVH))
+				m_ActiveScene->EnableBVH(enableBVH);
+			uint32_t bvhDepth = m_ActiveScene->GetBVHDepth();
+			if (ImGui::InputInt("BVH Depth", (int*)&bvhDepth))
+				m_ActiveScene->SetBVHDepth(bvhDepth);
 			ImGui::End();
 		}
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
@@ -263,10 +391,14 @@ namespace Rndr
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
 				{
-					const wchar_t* path = (const wchar_t*)payload->Data;
-					std::filesystem::path assetsPath("Editor/assets");
-					// OpenScene(std::filesystem::path(assetsPath) / path);
-					OpenScene(path);
+					std::filesystem::path path((const wchar_t*)payload->Data);
+					RNDR_CORE_INFO("Dropped file: {0}", path.string());
+					// print file extension
+					std::string extension = path.extension().string();
+					RNDR_CORE_INFO("Extension: {0}", extension);
+					// OpenScene(path);
+					if (extension == ".fbx" || extension == ".obj")
+						LoadMeshEntity(path);
 				}
 				ImGui::EndDragDropTarget();
 			}
@@ -317,8 +449,21 @@ namespace Rndr
 				}
 			}
 			ImGui::End();
+
+
+			{
+				ImGui::Begin("Render view");
+				uint64_t textureID = m_TempComputeTextureID;
+				// uint64_t textureID = m_SkyTextureID;
+				ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+				ImGui::End();
+			}
 		}
 		ImGui::PopStyleVar();
+
+
+		
+
 
 		{
 			ImGui::Begin("##New-Entity");
@@ -487,5 +632,23 @@ namespace Rndr
 			SceneSerializer serializer(m_ActiveScene);
 			serializer.Serialize(filepath);
 		}
+	}
+
+
+
+
+
+
+
+
+
+	void Sandbox3D::LoadMeshEntity(const std::filesystem::path& path)
+	{
+		auto entity = m_ActiveScene->CreateEntity("Mesh Entity");
+		auto& mc = entity.AddComponent<MeshComponent>();
+		mc.Mesh = CreateRef<Mesh>(path.string());
+		mc.Material->SetShader(Shader::Create("Editor/assets/shaders/MeshShader.glsl"));
+		// entity.AddComponent<DefaultMaterialComponent>(m_MaterialLibrary->Get("tempMaterial"));
+		m_SceneHierarchyPanel.SetSelectedEntity(entity);
 	}
 }

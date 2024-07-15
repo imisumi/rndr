@@ -14,6 +14,10 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
+#include "Rndr/Renderer/Mesh.h"
+
+#include "Rndr/Core/Base.h"
+
 #include "Rndr/Core/UUID.h"
 
 namespace Rndr
@@ -107,6 +111,15 @@ namespace Rndr
 	struct TriComponent
 	{
 		glm::vec4 Color = { 0.8f, 0.2f, 0.3f, 1.0f };
+	};
+
+
+
+
+	struct MeshComponent
+	{
+		Ref<Mesh> Mesh = CreateRef<Rndr::Mesh>();
+		Ref<Material> Material = CreateRef<Rndr::Material>();
 	};
 
 }

@@ -55,6 +55,7 @@ namespace Rndr
 
 		void SetTexture(const Ref<Texture2D>& texture, TextureType type = TextureType::Diffuse);
 		uint32_t GetTextureID(TextureType type = TextureType::Diffuse) const;
+		Ref<Texture2D> GetTexture(TextureType type = TextureType::Diffuse) const;
 
 
 		static Ref<Material> Create();

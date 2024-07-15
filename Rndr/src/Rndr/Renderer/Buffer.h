@@ -171,7 +171,7 @@ namespace Rndr
 		// Color
 		RGBA8,
 		RGBA16F,
-		RNBG32F,
+		RGBA32F,
 		RED_INTEGER,
 
 		// Depth/stencil

@@ -24,6 +24,8 @@ namespace Rndr
 		// static void GetLineWidth();
 
 
+		static void DrawAABB(const glm::vec3& min, const glm::vec3& max, const glm::vec4& color, int entityID = -1);
+
 
 		// Stats
 		struct Statistics

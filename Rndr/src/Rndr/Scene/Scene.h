@@ -23,10 +23,30 @@
 
 #include "Rndr/Renderer/LineRenderer.h"
 
+#include "Rndr/Renderer/Mesh.h"
+
 
 namespace Rndr
 {
 	class Entity;
+
+	struct AABB
+	{
+		glm::vec3 Min = glm::vec3(INFINITY);
+		glm::vec3 Max = glm::vec3(-INFINITY);
+	};
+
+	class BVHNode
+	{
+	public:
+		BVHNode() = default;
+		// BVHNode(const AABB& aabb, const Ref<Mesh>& mesh, uint32_t start, uint32_t end)
+		// 	: AABB(aabb), Mesh(mesh), Start(start), End(end) {}
+
+		AABB AABB;
+		std::vector<Mesh::Triangle> Triangles;
+		Ref<BVHNode> ChildA, ChildB;
+	};
 
 	class Scene
 	{
@@ -49,6 +69,12 @@ namespace Rndr
 		void OnViewportResize(uint32_t width, uint32_t height);
 
 
+		void EnableBVH(bool enable) { m_EnableBVH = enable; }
+		bool GetBVHEnabled() { return m_EnableBVH; }
+		void SetBVHDepth(uint32_t depth) { m_BVHDepth = depth; }
+		uint32_t GetBVHDepth() { return m_BVHDepth; }
+
+
 		Entity GetPrimaryCameraEntity();
 	private:
 		template<typename T>
@@ -68,6 +94,17 @@ namespace Rndr
 		Ref<ViewportGrid> m_Grid;
 
 		Ref<LineMaterial> m_LineMaterial;
+
+		Ref<Material> m_MeshMaterial;
+		Mesh m_Mesh;
+
+		std::vector<float> m_SkyPixels;
+
+
+		BVHNode m_BVHTree;
+
+		bool m_EnableBVH = false;
+		uint32_t m_BVHDepth = 0;
 
 		friend class Entity;
 		friend class SceneSerializer;

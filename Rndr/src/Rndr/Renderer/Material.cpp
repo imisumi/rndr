@@ -14,6 +14,7 @@ namespace Rndr
 
 	void Material::Bind() const
 	{
+		RNDR_CORE_ASSERT(m_Shader, "Material has no shader!");
 		m_Shader->Bind();
 	}
 
@@ -44,6 +45,15 @@ namespace Rndr
 			case TextureType::Diffuse:     return m_DiffuseMap->GetTextureID();
 		}
 		return 0;
+	}
+
+	Ref<Texture2D> Material::GetTexture(TextureType type) const
+	{
+		switch (type)
+		{
+			case TextureType::Diffuse:     return m_DiffuseMap;
+		}
+		return nullptr;
 	}
 
 

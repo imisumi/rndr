@@ -12,6 +12,10 @@
 
 #include "Rndr/Renderer/EditorCamera.h"
 
+#include "Rndr/Renderer/Mesh.h"
+
+#include "Rndr/Renderer/ComputeShader.h"
+
 namespace Rndr
 {
 	class Sandbox3D : public Layer
@@ -35,15 +39,21 @@ namespace Rndr
 		void OpenScene();
 		void OpenScene(const std::filesystem::path& path);
 		void SaveSceneAs();
+
+
+		void LoadMeshEntity(const std::filesystem::path& path);
 	private:
 		// ShaderLibrary m_ShaderLibrary;
 
 		Ref<Scene> m_ActiveScene;
 
+		Mesh m_Mesh;
+
 		Entity m_CameraEntity;
 		Entity m_HoveredEntity = { entt::null, nullptr };
 	
 		Ref<FrameBuffer> m_FrameBuffer;
+		Ref<FrameBuffer> m_ComputeFrameBuffer;
 
 		glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
 		glm::vec2 m_ViewportBounds[2];
@@ -64,11 +74,20 @@ namespace Rndr
 
 		Ref<Texture2D> m_CubeIcon;
 
+		Ref<ComputeShader> m_ComputeShader;
+		uint32_t m_TempComputeTextureID;
 
 		Ref<LineMaterial> m_LineMaterial;
 
 
 		// MaterialLibrary m_MaterialLibrary;
 		Ref<MaterialLibrary> m_MaterialLibrary;
+
+
+		std::vector<float> m_SkyPixels;
+		uint32_t m_SkyTextureID;
+		uint32_t m_SkyTextureWidth, m_SkyTextureHeight;
+
+		bool m_EnableCompute = false;
 	};
 }

@@ -68,6 +68,11 @@ namespace Rndr
 
 		s_Data.LineVertexCount = 0;
 		s_Data.LineVertexBufferPtr = s_Data.LineVertexBufferBase;
+
+
+		s_Data.LineMaterial->Bind();
+		// s_Data.LineMaterial->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
+		material->GetShader()->SetMat4("u_ViewProjection", camera.GetViewProjection());
 	}
 
 	void LineRenderer::EndScene()
@@ -150,5 +155,33 @@ namespace Rndr
 		//     glm::vec3 end = origin + glm::vec3(0.0f, 0.0f, i * gridSize);
 		//     LineRenderer::DrawLine(start, end, zAxisColor);
 		// }
+	}
+
+
+	void LineRenderer::DrawAABB(const glm::vec3& min, const glm::vec3& max, const glm::vec4& color, int entityID)
+	{
+		glm::vec3 p0 = min;
+		glm::vec3 p1 = { min.x, min.y, max.z };
+		glm::vec3 p2 = { min.x, max.y, min.z };
+		glm::vec3 p3 = { min.x, max.y, max.z };
+		glm::vec3 p4 = { max.x, min.y, min.z };
+		glm::vec3 p5 = { max.x, min.y, max.z };
+		glm::vec3 p6 = { max.x, max.y, min.z };
+		glm::vec3 p7 = max;
+
+		DrawLine(p0, p1, color, entityID);
+		DrawLine(p1, p3, color, entityID);
+		DrawLine(p3, p2, color, entityID);
+		DrawLine(p2, p0, color, entityID);
+
+		DrawLine(p4, p5, color, entityID);
+		DrawLine(p5, p7, color, entityID);
+		DrawLine(p7, p6, color, entityID);
+		DrawLine(p6, p4, color, entityID);
+
+		DrawLine(p0, p4, color, entityID);
+		DrawLine(p1, p5, color, entityID);
+		DrawLine(p2, p6, color, entityID);
+		DrawLine(p3, p7, color, entityID);
 	}
 }
