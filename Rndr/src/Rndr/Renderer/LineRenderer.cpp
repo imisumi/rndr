@@ -20,7 +20,7 @@ namespace Rndr
 
 	struct LineRendererData
 	{
-		static const uint32_t MaxLines = 10000;
+		static const uint32_t MaxLines = 100000;
 		static const uint32_t MaxVertices = MaxLines * 2;
 		static const uint32_t MaxIndices = MaxLines * 2;
 
@@ -183,5 +183,18 @@ namespace Rndr
 		DrawLine(p1, p5, color, entityID);
 		DrawLine(p2, p6, color, entityID);
 		DrawLine(p3, p7, color, entityID);
+	}
+
+
+
+	void LineRenderer::ResetStats()
+	{
+		s_Data.Stats.DrawCalls = 0;
+		s_Data.Stats.LineCount = 0;
+	}
+
+	LineRenderer::Statistics LineRenderer::GetStats()
+	{
+		return s_Data.Stats;
 	}
 }

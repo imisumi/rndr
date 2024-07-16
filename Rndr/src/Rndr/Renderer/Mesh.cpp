@@ -204,6 +204,9 @@ namespace Rndr {
 				vertex.Texcoord = { mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y };
 
 			m_Vertices.push_back(vertex);
+
+			m_VerticesPositions.push_back({vertex.Position, 1.0f});
+			m_VerticesNormals.push_back({vertex.Normal, 1.0f});
 		}
 
 		m_VertexBuffer = VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
@@ -230,6 +233,10 @@ namespace Rndr {
 			triangle.V2 = m_Vertices[index.V2];
 			triangle.V3 = m_Vertices[index.V3];
 			m_Triangles.push_back(triangle);
+
+			m_VerticesIndex.push_back(index.V1);
+			m_VerticesIndex.push_back(index.V2);
+			m_VerticesIndex.push_back(index.V3);
 		}
 
 		m_IndexBuffer = IndexBuffer::Create((uint32_t*)m_Indices.data(), m_Indices.size() * sizeof(uint32_t));

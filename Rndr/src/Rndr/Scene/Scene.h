@@ -48,6 +48,31 @@ namespace Rndr
 		Ref<BVHNode> ChildA, ChildB;
 	};
 
+	// struct alignas(16) tempBVH
+	// {
+	// 	glm::vec3 Min = glm::vec3(INFINITY);
+	// 	glm::vec3 Max = glm::vec3(-INFINITY);
+	// 	int childIndex = 0;
+	// };
+	struct tempBVH
+	{
+		glm::vec4 Min = glm::vec4(INFINITY);
+		glm::vec4 Max = glm::vec4(-INFINITY);
+		int childIndex = 0;
+
+		int padding1;
+		int padding2;
+		int padding3;
+	};
+
+	class BVHNodeV2
+	{
+	public:
+		AABB AABB;
+		std::vector<Mesh::Triangle> Triangles;
+		int ChildIndex = 0; // for child 2 just add 1 to this index
+	};
+
 	class Scene
 	{
 	public:
@@ -76,6 +101,17 @@ namespace Rndr
 
 
 		Entity GetPrimaryCameraEntity();
+
+
+
+		void BVHV2Generate();
+		// void split(BVHNodeV2& parent, int depth = 0);
+		void split(int parentIndex, int depth);
+		void drawBVHV2(BVHNodeV2 node, int depth, int visableDepth);
+		void drawBVHV2temp(tempBVH node, int depth, int visableDepth);
+		Mesh m_Mesh;
+
+		std::vector<tempBVH> m_TempBVH;
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
@@ -94,16 +130,17 @@ namespace Rndr
 		Ref<ViewportGrid> m_Grid;
 
 		Ref<LineMaterial> m_LineMaterial;
-
+		
 		Ref<Material> m_MeshMaterial;
-		Mesh m_Mesh;
 
 		std::vector<float> m_SkyPixels;
 
 
+		std::vector<BVHNodeV2> m_BVHNodes;
+
 		BVHNode m_BVHTree;
 
-		bool m_EnableBVH = false;
+		bool m_EnableBVH = true;
 		uint32_t m_BVHDepth = 0;
 
 		friend class Entity;

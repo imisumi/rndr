@@ -116,5 +116,8 @@ namespace Rndr {
 
 		std::vector<Triangle> m_Triangles;
 
+		std::vector<glm::vec4> m_VerticesPositions;
+		std::vector<glm::vec4> m_VerticesNormals;
+		std::vector<uint32_t> m_VerticesIndex;
 	};
 }

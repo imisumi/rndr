@@ -76,6 +76,10 @@ namespace Rndr
 
 		Ref<ComputeShader> m_ComputeShader;
 		uint32_t m_TempComputeTextureID;
+		uint32_t m_PositionsSSBO;
+		uint32_t m_IndexSSBO;
+		uint32_t m_bvhSSBO;
+	
 
 		Ref<LineMaterial> m_LineMaterial;
 
@@ -88,6 +92,6 @@ namespace Rndr
 		uint32_t m_SkyTextureID;
 		uint32_t m_SkyTextureWidth, m_SkyTextureHeight;
 
-		bool m_EnableCompute = false;
+		bool m_EnableCompute = true;
 	};
 }

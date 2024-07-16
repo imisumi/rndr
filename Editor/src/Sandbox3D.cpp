@@ -26,12 +26,21 @@
 
 #include <OpenImageIO/imageio.h>
 
+#include <limits>
+
 namespace Rndr
 {
 	Sandbox3D::Sandbox3D()
 		: Layer("Sandbox3D") 
 	{
 	}
+
+	// struct alignas(16) tempBVH
+	// {
+	// 	glm::vec3 Min = glm::vec3(INFINITY);
+	// 	glm::vec3 Max = glm::vec3(-INFINITY);
+	// 	int childIndex = 0;
+	// };
 
 	void Sandbox3D::OnAttach()
 	{
@@ -168,8 +177,50 @@ namespace Rndr
 		glTextureParameteri(m_SkyTextureID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 
+		// float verticces[9] = {
+		// 	-20.0f, 0.0f, -10.0f,
+		// 	0.0f, 0.0f, 10.0f,
+		// 	10.0f, 0.0f, -10.0f
+		// };
+
+		// std::vector<glm::vec3> vertices;
+		// vertices.push_back({ -10.0f, 0.0f, -10.0f });
+		// vertices.push_back({ 0.0f, 0.0f, 10.0f });
+		// vertices.push_back({ 10.0f, 0.0f, -10.0f });
+		std::vector<glm::vec4> vertices;
+		vertices.push_back({ -10.0f, 0.0f, -10.0f, 1.0f });
+		vertices.push_back({ 0.0f, 0.0f, 10.0f, 1.0f });
+		vertices.push_back({ 10.0f, 0.0f, -10.0f, 1.0f });
+
+		glCreateBuffers(1, &m_PositionsSSBO);
+		// glNamedBufferData(m_PositionsSSBO, vertices.size() * sizeof(glm::vec4), vertices.data(), GL_STATIC_DRAW);
+		std::vector<glm::vec4> meshVertices = m_ActiveScene->m_Mesh.m_VerticesPositions;
+
+		glNamedBufferData(m_PositionsSSBO, meshVertices.size() * sizeof(glm::vec4), meshVertices.data(), GL_STATIC_DRAW);
 
 
+		glCreateBuffers(1, &m_IndexSSBO);
+		std::vector<uint32_t> index = m_ActiveScene->m_Mesh.m_VerticesIndex;
+		glNamedBufferData(m_IndexSSBO, index.size() * sizeof(uint32_t), index.data(), GL_STATIC_DRAW);
+
+		
+		// glNamedBufferData(m_PositionsSSBO, 9 * sizeof(float), verticces, GL_STATIC_DRAW);
+		// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_PositionsSSBO);
+
+		// m_ActiveScene->m_Mesh.m_Vertices;
+
+
+		// m_ActiveScene->m_TempBVH[1].Min = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+		// m_ActiveScene->m_TempBVH[1].Max = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
+		glCreateBuffers(1, &m_bvhSSBO);
+		glNamedBufferData(m_bvhSSBO, m_ActiveScene->m_TempBVH.size() * sizeof(tempBVH), m_ActiveScene->m_TempBVH.data(), GL_STATIC_DRAW);
+
+		glm::vec3 min = m_ActiveScene->m_TempBVH[1].Min;
+		glm::vec3 max = m_ActiveScene->m_TempBVH[1].Max;
+
+		RNDR_CORE_WARN("Min: {0}, {1}, {2}", min.x, min.y, min.z);
+		RNDR_CORE_WARN("Max: {0}, {1}, {2}", max.x, max.y, max.z);
+		RNDR_CORE_WARN("Size of tempBVH: {0}", sizeof(tempBVH));
 		// m_ActiveScene->SetSkyTexture(m_SkyTextureID);
 
 	}
@@ -218,6 +269,7 @@ namespace Rndr
 		m_FrameBuffer->ClearAttachment(1, -1);
 
 		// m_ActiveScene->OnUpdateRuntime(ts);
+		LineRenderer::ResetStats();
 		m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
 
 		// glm::vec3 min = glm::vec3(1.0f) * INFINITY;
@@ -269,8 +321,13 @@ namespace Rndr
 			m_ComputeShader->SetMat4("u_InvView", glm::inverse(m_EditorCamera.GetViewMatrix()));
 			m_ComputeShader->SetMat4("u_InvProj", glm::inverse(m_EditorCamera.GetProjection()));
 			m_ComputeShader->SetFloat3("u_CameraPos", m_EditorCamera.GetPosition());
+			m_ComputeShader->SetUnsignedInt("u_MaxIndices", m_ActiveScene->m_Mesh.m_VerticesIndex.size());
+			m_ComputeShader->SetUnsignedInt("u_ShowDepth", m_ActiveScene->GetBVHDepth());
 			glBindImageTexture(0, m_TempComputeTextureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 			glBindImageTexture(1, m_SkyTextureID, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_PositionsSSBO);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_IndexSSBO);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_bvhSSBO);
 			m_ComputeShader->Dispatch((m_ViewportSize.x + 7) / 8, (m_ViewportSize.y + 7) / 8, 1);
 			// glGetError();
 		}
@@ -361,6 +418,16 @@ namespace Rndr
 			uint32_t bvhDepth = m_ActiveScene->GetBVHDepth();
 			if (ImGui::InputInt("BVH Depth", (int*)&bvhDepth))
 				m_ActiveScene->SetBVHDepth(bvhDepth);
+
+
+
+			// LineRenderer::ResetStats();
+			LineRenderer::Statistics stats = LineRenderer::GetStats();
+			ImGui::Text("Draw Calls: %d", stats.DrawCalls);
+			ImGui::Text("Line Count: %d", stats.LineCount);
+
+
+
 			ImGui::End();
 		}
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
