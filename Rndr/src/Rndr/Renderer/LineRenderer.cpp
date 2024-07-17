@@ -26,7 +26,7 @@ namespace Rndr
 
 		Ref<VertexArray> LineVertexArray;
 		Ref<VertexBuffer> LineVertexBuffer;
-		Ref<LineMaterial> LineMaterial;
+		Ref<Rndr::LineMaterial> LineMaterial;
 
 		float LineWidth = 1.0f;
 

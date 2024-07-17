@@ -83,7 +83,7 @@ namespace Rndr
 		m_BVH[parentIndex].ChildIndex = m_BVH.size();
 		glm::vec3 size = parent.Max - parent.Min;
 		int splitAxis = size.x > std::max(size.y, size.z) ? 0 : size.y > size.z ? 1 : 2;
-		float splitPos = ((parent.Min + parent.Max) / 2.0f)[splitAxis];
+		float splitPos = (parent.Min[splitAxis] + parent.Max[splitAxis]) / 2.0f;
 
 		bvhNode childA, childB;
 		childA.TriangleIndex = parent.TriangleIndex;
@@ -111,7 +111,7 @@ namespace Rndr
 			if (isSideA)
 			{
 				int swap = child.TriangleIndex + child.TriangleCount - 1;
-				// std::swap(m_Mesh.m_Triangles[i], m_Mesh.m_Triangles[swap]);
+				std::swap(m_Mesh.m_Triangles[i], m_Mesh.m_Triangles[swap]);
 				childB.TriangleIndex++;
 			}
 		}

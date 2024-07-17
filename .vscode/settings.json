@@ -114,6 +114,10 @@
 		"source_location": "cpp",
 		"valarray": "cpp",
 		"queue": "cpp",
-		"stack": "cpp"
+		"stack": "cpp",
+		"*.tcc": "cpp",
+		"memory_resource": "cpp",
+		"numeric": "cpp",
+		"numbers": "cpp"
 	}
 }

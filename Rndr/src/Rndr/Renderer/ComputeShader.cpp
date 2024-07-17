@@ -2,32 +2,64 @@
 
 #include "Rndr/Core/Log.h"
 
-#include <fstream>
 
 #include <glad/glad.h>
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include <fstream>
+#include <sstream>
+#include <filesystem>
+
 namespace Rndr
 {
 	static std::string ReadFile(const std::string& filepath)
 	{
-		std::string result;
-		std::ifstream in(filepath, std::ios::in | std::ios::binary);
-		if (in)
-		{
-			in.seekg(0, std::ios::end);
-			result.resize(in.tellg());
-			in.seekg(0, std::ios::beg);
-			in.read(&result[0], result.size());
-			in.close();
-		}
-		else
-		{
+		std::ifstream file(filepath);
+		if (!file.is_open())
 			RNDR_CORE_ASSERT(false, "Could not open file '{0}'", filepath);
+		
+
+		std::stringstream buffer;
+		buffer << file.rdbuf();
+		return buffer.str();
+	}
+
+	static std::string processIncludes(const std::string& input, const std::filesystem::path& basePath)
+	{
+		std::stringstream output;
+		std::istringstream stream(input);
+		std::string line;
+
+		while (std::getline(stream, line)) {
+			if (line.find("#include \"") != std::string::npos) {
+				size_t start = line.find("#include \"") + 10;
+				size_t end = line.find("\"", start);
+				if (end == std::string::npos)
+					RNDR_CORE_ASSERT(false, "Malformed #include directive: {0}", line);
+
+				std::string includePath = line.substr(start, end - start);
+				std::filesystem::path fullPath = basePath / includePath;
+
+				if (!std::filesystem::exists(fullPath))
+					RNDR_CORE_ASSERT(false, "Include file does not exist: {0}", fullPath.string());
+
+				std::string includedContent = ReadFile(fullPath.string());
+				includedContent = processIncludes(includedContent, fullPath.parent_path()); // Recursively process includes
+				output << includedContent;
+			} else {
+				output << line << '\n';
+			}
 		}
 
-		return result;
+		return output.str();
+	}
+
+	static std::string loadAndProcessFile(const std::string& filepath)
+	{
+		std::filesystem::path path(filepath);
+		std::string content = ReadFile(filepath);
+		return processIncludes(content, path.parent_path());
 	}
 
 	static uint32_t compileComputeShader(const std::string& source)
@@ -67,7 +99,8 @@ namespace Rndr
 
 	ComputeShader::ComputeShader(const std::string& filename)
 	{
-		std::string source = ReadFile(filename);
+		// std::string source = ReadFile(filename);
+		std::string source = loadAndProcessFile(filename);
 
 		uint32_t computeShader = compileComputeShader(source);
 

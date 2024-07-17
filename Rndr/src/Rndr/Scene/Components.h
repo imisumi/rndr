@@ -93,7 +93,7 @@ namespace Rndr
 	struct DefaultMaterialComponent
 	{
 		// Material Material;
-		Ref<Material> Material;
+		Ref<Rndr::Material> Material;
 	};
 
 	struct QuadComponent
@@ -118,8 +118,8 @@ namespace Rndr
 
 	struct MeshComponent
 	{
-		Ref<Mesh> Mesh = CreateRef<Rndr::Mesh>();
-		Ref<Material> Material = CreateRef<Rndr::Material>();
+		Ref<Rndr::Mesh> Mesh = CreateRef<Rndr::Mesh>();
+		Ref<Rndr::Material> Material = CreateRef<Rndr::Material>();
 	};
 
 }

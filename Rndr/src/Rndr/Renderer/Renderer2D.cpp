@@ -54,7 +54,7 @@ namespace Rndr {
 		uint32_t TextureSlotIndex = 1; // 0 = white texture
 
 
-		Ref<Material> Material;
+		Ref<Rndr::Material> Material;
 
 		int32_t samplers[MaxTextureSlots];
 	};

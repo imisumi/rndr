@@ -1,6 +1,8 @@
 #pragma once
 
-#include <xhash>
+// #include <xhash>
+#include <functional>
+#include <cstdint>
 
 namespace Rndr
 {

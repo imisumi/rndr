@@ -1,121 +1,11 @@
 #version 450 core
-layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
-layout(binding = 0, rgba32f) writeonly uniform image2D img_output;
-layout(binding = 1, rgba32f) readonly uniform image2D u_SkyTexture;
+
+#include "globals.glsl"
+#include "uniforms.glsl"
+
+#include "raygen.glsl"
 
 
-struct Triangle
-{
-	vec3 posA, posB, posC;
-	vec3 normal;
-	// Material material;
-};
-
-//TODO: compress this struct for better memory alignment
-struct bvh
-{
-	int Left;
-	int TriangleIndex;
-	int TriangleCount;
-
-	int padding1;
-
-	vec3 Min;
-	vec3 Max;
-};
-// struct bvh
-// {
-// 	vec4 Min; // xyz for min and w for triangle count
-// 	vec4 Max; // xyz for max and w for index
-
-// 	int TriangleIndex; // only needs to be know for leaf node and becuase a leaf node cant have any childeren so we can use this as triangle index
-// 	// is a leaf if trianglecount is greater than 0 //TODO set to 0 in bvh construction of not a leaf
-// };
-
-
-layout(std430, binding = 2) buffer triangleBuffer {
-	Triangle data[]; // send as glm::vec4 but becuase of memory alignment, I just use vec3
-} triBuffer;
-
-layout(std430, binding = 3) buffer bvhBuffer {
-	bvh data[]; // send as glm::vec4 but becuase of memory alignment, I just use vec3
-} bvhData;
-
-
-// struct tempBVH
-// {
-// 	vec4 min;
-// 	vec4 max;
-// 	int ChildIndex;
-// 	int padding1;
-// 	int padding2;
-// 	int padding3;
-// };
-
-// layout(std430, binding = 4) buffer bvhNodes {
-// 	tempBVH data[];
-// } bvhNodeBuffer;
-
-uniform int u_TriangleCount;
-
-uniform int u_ScreenWidth;
-uniform int u_ScreenHeight;
-
-uniform int u_SkyTextureWidth;
-uniform int u_SkyTextureHeight;
-
-uniform mat4 u_InvProj;
-uniform mat4 u_InvView;
-
-uniform vec3 u_CameraPos;
-
-
-// uniform uint u_MaxIndices;
-
-// uniform uint u_ShowDepth;
-
-
-const float PI = 3.14159265359;
-// const float EPSILON = 0.0001;
-const float EPSILON = 1e-5;
-
-#define INFINITY (1.0 / 0.0)
-#define NEGATIVE_INFINITY (-1.0 / 0.0)
-
-struct Material
-{
-	vec3 albedo;
-};
-
-struct HitInfo
-{
-	bool hit;
-	vec3 position;
-	vec3 normal;
-	float distance;
-	Material material;
-};
-
-struct Ray
-{
-	vec3 origin;
-	vec3 dir;
-	vec3 invDir;
-};
-
-struct Sphere
-{
-	vec3 position;
-	float radius;
-	Material material;
-};
-
-// struct Triangle
-// {
-// 	vec3 posA, posB, posC;
-// 	vec3 normal;
-// 	Material material;
-// };
 
 uint generateSeed()
 {
@@ -214,7 +104,7 @@ HitInfo RayTriangle(Ray ray, Triangle tri)
     // Initialize hit info
     HitInfo hitInfo;
     hitInfo.hit = abs(determinant) >= EPSILON && dst >= 0 && u >= 0 && v >= 0 && w >= 0;
-	hitInfo.hit = abs(determinant) >= EPSILON && dst >= 0 && u >= 0 && v >= 0 && w >= 0;
+	// hitInfo.hit = abs(determinant) >= EPSILON && dst >= 0 && u >= 0 && v >= 0 && w >= 0;
 
 	// hitInfo.hit = determinant >= EPSILON && dst >= 0 && u >= 0 && v >= 0 && w >= 0;  // Note the use of fabs
     hitInfo.position = ray.origin + ray.dir * dst;
@@ -360,21 +250,8 @@ vec4 TraceRay(Ray ray)
 void main()
 {
 	ivec2 pixelID = ivec2(gl_GlobalInvocationID.xy);
-	// imageStore(img_output, pixelID, vec4(1.0, 0.0, 0.0, 1.0));
-	// return ;
 
-	vec2 coord = vec2(float(pixelID.x) / float(u_ScreenWidth - 1), float(pixelID.y) / float(u_ScreenHeight - 1));
-	coord = coord * 2.0 - 1.0;
-
-
-	vec4 target = u_InvProj * vec4(coord.x, coord.y, 1.0, 1.0);
-	vec3 rayDirection = vec3(u_InvView * vec4(normalize(vec3(target.xyz) / target.w), 0.0)).xyz; // Convert to world space
-	rayDirection = normalize(rayDirection);
-
-	Ray ray;
-	ray.origin = u_CameraPos;
-	ray.dir = rayDirection;
-	ray.invDir = 1.0 / rayDirection;
+	Ray ray = RayGen();
 
 	vec4 finalColor = TraceRay(ray);
 	imageStore(img_output, pixelID, finalColor);
