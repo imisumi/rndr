@@ -30,48 +30,24 @@ namespace Rndr
 {
 	class Entity;
 
-	struct AABB
+	struct bvhNode
 	{
-		glm::vec3 Min = glm::vec3(INFINITY);
-		glm::vec3 Max = glm::vec3(-INFINITY);
-	};
 
-	class BVHNode
-	{
-	public:
-		BVHNode() = default;
-		// BVHNode(const AABB& aabb, const Ref<Mesh>& mesh, uint32_t start, uint32_t end)
-		// 	: AABB(aabb), Mesh(mesh), Start(start), End(end) {}
-
-		AABB AABB;
-		std::vector<Mesh::Triangle> Triangles;
-		Ref<BVHNode> ChildA, ChildB;
-	};
-
-	// struct alignas(16) tempBVH
-	// {
-	// 	glm::vec3 Min = glm::vec3(INFINITY);
-	// 	glm::vec3 Max = glm::vec3(-INFINITY);
-	// 	int childIndex = 0;
-	// };
-	struct tempBVH
-	{
-		glm::vec4 Min = glm::vec4(INFINITY);
-		glm::vec4 Max = glm::vec4(-INFINITY);
-		int childIndex = 0;
-
-		int padding1;
-		int padding2;
+		int ChildIndex = 0;
+		int TriangleIndex = 0;
+		int TriangleCount = 0;
 		int padding3;
-	};
 
-	class BVHNodeV2
-	{
-	public:
-		AABB AABB;
-		std::vector<Mesh::Triangle> Triangles;
-		int ChildIndex = 0; // for child 2 just add 1 to this index
+	
+		glm::vec3 Min = glm::vec3(INFINITY);
+		float padding1;
+
+		glm::vec3 Max = glm::vec4(-INFINITY);
+		float padding2;
+	
+
 	};
+	static_assert(sizeof(bvhNode) == 48, "bvh struct size should be 48 bytes.");
 
 	class Scene
 	{
@@ -102,16 +78,15 @@ namespace Rndr
 
 		Entity GetPrimaryCameraEntity();
 
-
-
-		void BVHV2Generate();
-		// void split(BVHNodeV2& parent, int depth = 0);
-		void split(int parentIndex, int depth);
-		void drawBVHV2(BVHNodeV2 node, int depth, int visableDepth);
-		void drawBVHV2temp(tempBVH node, int depth, int visableDepth);
+		void generateBVH();
+		void splitBVH(int parentIndex, int depth);
+		void generateAABB(int parentIndex);
+		void drawBVH(bvhNode node, int depth, int visableDepth);
 		Mesh m_Mesh;
 
-		std::vector<tempBVH> m_TempBVH;
+		std::vector<bvhNode> m_BVH;
+
+		// std::vector<tempBVH> m_TempBVH;
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
@@ -136,9 +111,9 @@ namespace Rndr
 		std::vector<float> m_SkyPixels;
 
 
-		std::vector<BVHNodeV2> m_BVHNodes;
+		// std::vector<BVHNodeV2> m_BVHNodes;
 
-		BVHNode m_BVHTree;
+		// BVHNode m_BVHTree;
 
 		bool m_EnableBVH = true;
 		uint32_t m_BVHDepth = 0;

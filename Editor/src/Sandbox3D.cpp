@@ -123,7 +123,7 @@ namespace Rndr
 
 
 		// disable vsync
-		// Application::Get().GetWindow().SetVSync(false);
+		Application::Get().GetWindow().SetVSync(false);
 
 
 		const char* filename = "Editor/assets/hdri/autumn_field_puresky_4k.exr";
@@ -192,36 +192,76 @@ namespace Rndr
 		vertices.push_back({ 0.0f, 0.0f, 10.0f, 1.0f });
 		vertices.push_back({ 10.0f, 0.0f, -10.0f, 1.0f });
 
-		glCreateBuffers(1, &m_PositionsSSBO);
-		// glNamedBufferData(m_PositionsSSBO, vertices.size() * sizeof(glm::vec4), vertices.data(), GL_STATIC_DRAW);
-		std::vector<glm::vec4> meshVertices = m_ActiveScene->m_Mesh.m_VerticesPositions;
+		// glCreateBuffers(1, &m_PositionsSSBO);
+		// // glNamedBufferData(m_PositionsSSBO, vertices.size() * sizeof(glm::vec4), vertices.data(), GL_STATIC_DRAW);
+		// std::vector<glm::vec4> meshVertices = m_ActiveScene->m_Mesh.m_VerticesPositions;
 
-		glNamedBufferData(m_PositionsSSBO, meshVertices.size() * sizeof(glm::vec4), meshVertices.data(), GL_STATIC_DRAW);
+		// glNamedBufferData(m_PositionsSSBO, meshVertices.size() * sizeof(glm::vec4), meshVertices.data(), GL_STATIC_DRAW);
 
 
-		glCreateBuffers(1, &m_IndexSSBO);
-		std::vector<uint32_t> index = m_ActiveScene->m_Mesh.m_VerticesIndex;
-		glNamedBufferData(m_IndexSSBO, index.size() * sizeof(uint32_t), index.data(), GL_STATIC_DRAW);
+		// glCreateBuffers(1, &m_IndexSSBO);
+		// std::vector<uint32_t> index = m_ActiveScene->m_Mesh.m_VerticesIndex;
+		// glNamedBufferData(m_IndexSSBO, index.size() * sizeof(uint32_t), index.data(), GL_STATIC_DRAW);
 
+
+		// glCreateBuffers(1, &m_bvhSSBO);
+		// glNamedBufferData(m_bvhSSBO, m_ActiveScene->m_TempBVH.size() * sizeof(tempBVH), m_ActiveScene->m_TempBVH.data(), GL_STATIC_DRAW);
+
+		// glm::vec3 min = m_ActiveScene->m_TempBVH[1].Min;
+		// glm::vec3 max = m_ActiveScene->m_TempBVH[1].Max;
+
+		// RNDR_CORE_WARN("Min: {0}, {1}, {2}", min.x, min.y, min.z);
+		// RNDR_CORE_WARN("Max: {0}, {1}, {2}", max.x, max.y, max.z);
+		// RNDR_CORE_WARN("Size of tempBVH: {0}", sizeof(tempBVH));
+
+
+
+		// m_ActiveScene->m_Mesh.m_Triangles[1].V1 = glm::vec3(-10.0f, 0.0f, -10.0f);
+		// m_ActiveScene->m_Mesh.m_Triangles[1].V2 = glm::vec3(0.0f, 0.0f, 10.0f);
+		// m_ActiveScene->m_Mesh.m_Triangles[1].V3 = glm::vec3(10.0f, 0.0f, -10.0f);
+
+		glCreateBuffers(1, &m_TriangleBuffer);
+		glNamedBufferData(m_TriangleBuffer, 
+			m_ActiveScene->m_Mesh.m_Triangles.size() * sizeof(Mesh::Triangle), 
+			m_ActiveScene->m_Mesh.m_Triangles.data(), GL_STATIC_DRAW);
+
+		int size = m_ActiveScene->m_Mesh.m_Triangles.size() * sizeof(Mesh::Triangle);
+		int sizeMB = size / 1024 / 1024;
+		RNDR_CORE_INFO("Size of Triangle Buffer: {0}MB", sizeMB);
+
+		glm::vec3 v1 = m_ActiveScene->m_Mesh.m_Triangles[0].V1;
+		glm::vec3 v2 = m_ActiveScene->m_Mesh.m_Triangles[0].V2;
+		glm::vec3 v3 = m_ActiveScene->m_Mesh.m_Triangles[0].V3;
+
+		RNDR_CORE_WARN("V1: {0}, {1}, {2}", v1.x, v1.y, v1.z);
+		RNDR_CORE_WARN("V2: {0}, {1}, {2}", v2.x, v2.y, v2.z);
+		RNDR_CORE_WARN("V3: {0}, {1}, {2}", v3.x, v3.y, v3.z);
+
+
+		glCreateBuffers(1, &m_BVHBuffer);
+		glNamedBufferData(m_BVHBuffer, 
+			m_ActiveScene->m_BVH.size() * sizeof(bvhNode), 
+			m_ActiveScene->m_BVH.data(), GL_STATIC_DRAW);
 		
-		// glNamedBufferData(m_PositionsSSBO, 9 * sizeof(float), verticces, GL_STATIC_DRAW);
-		// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_PositionsSSBO);
 
-		// m_ActiveScene->m_Mesh.m_Vertices;
+		// int count = m_ActiveScene->m_BVH.size();
+		// int triangleCount = m_ActiveScene->m_BVH[0].TriangleCount;
+		int index = 2;
+		int count = m_ActiveScene->m_BVH[index].TriangleCount;
+		int triIndex = m_ActiveScene->m_BVH[index].TriangleIndex;
+		RNDR_CORE_INFO("BVH Index: {0}", index);
+		RNDR_CORE_INFO("BVH Count: {0}", count);
+		RNDR_CORE_INFO("Triangle Index: {0}", triIndex);
+		// RNDR_CORE_INFO("BVH Count: {0}", count);
+		// RNDR_CORE_INFO("Triangle Count: {0}", triangleCount);
 
 
-		// m_ActiveScene->m_TempBVH[1].Min = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-		// m_ActiveScene->m_TempBVH[1].Max = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
-		glCreateBuffers(1, &m_bvhSSBO);
-		glNamedBufferData(m_bvhSSBO, m_ActiveScene->m_TempBVH.size() * sizeof(tempBVH), m_ActiveScene->m_TempBVH.data(), GL_STATIC_DRAW);
 
-		glm::vec3 min = m_ActiveScene->m_TempBVH[1].Min;
-		glm::vec3 max = m_ActiveScene->m_TempBVH[1].Max;
-
-		RNDR_CORE_WARN("Min: {0}, {1}, {2}", min.x, min.y, min.z);
-		RNDR_CORE_WARN("Max: {0}, {1}, {2}", max.x, max.y, max.z);
-		RNDR_CORE_WARN("Size of tempBVH: {0}", sizeof(tempBVH));
 		// m_ActiveScene->SetSkyTexture(m_SkyTextureID);
+
+
+
+
 
 	}
 
@@ -309,6 +349,7 @@ namespace Rndr
 		
 		
 		// if (ImGui::Checkbox("Enable Compute", &m_EnableCompute))
+		// m_EnableCompute = false;
 		if (m_EnableCompute)
 		{
 			RenderCommand::SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1));
@@ -321,13 +362,19 @@ namespace Rndr
 			m_ComputeShader->SetMat4("u_InvView", glm::inverse(m_EditorCamera.GetViewMatrix()));
 			m_ComputeShader->SetMat4("u_InvProj", glm::inverse(m_EditorCamera.GetProjection()));
 			m_ComputeShader->SetFloat3("u_CameraPos", m_EditorCamera.GetPosition());
-			m_ComputeShader->SetUnsignedInt("u_MaxIndices", m_ActiveScene->m_Mesh.m_VerticesIndex.size());
-			m_ComputeShader->SetUnsignedInt("u_ShowDepth", m_ActiveScene->GetBVHDepth());
+			// m_ComputeShader->SetUnsignedInt("u_MaxIndices", m_ActiveScene->m_Mesh.m_VerticesIndex.size());
+			// m_ComputeShader->SetUnsignedInt("u_ShowDepth", m_ActiveScene->GetBVHDepth());
 			glBindImageTexture(0, m_TempComputeTextureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 			glBindImageTexture(1, m_SkyTextureID, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_PositionsSSBO);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_IndexSSBO);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_bvhSSBO);
+
+			m_ComputeShader->SetInt("u_TriangleCount", m_ActiveScene->m_Mesh.m_Triangles.size());
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_TriangleBuffer);
+
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_BVHBuffer);
+
+			// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_PositionsSSBO);
+			// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_IndexSSBO);
+			// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_bvhSSBO);
 			m_ComputeShader->Dispatch((m_ViewportSize.x + 7) / 8, (m_ViewportSize.y + 7) / 8, 1);
 			// glGetError();
 		}

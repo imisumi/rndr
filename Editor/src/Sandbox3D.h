@@ -79,6 +79,9 @@ namespace Rndr
 		uint32_t m_PositionsSSBO;
 		uint32_t m_IndexSSBO;
 		uint32_t m_bvhSSBO;
+
+		uint32_t m_TriangleBuffer;
+		uint32_t m_BVHBuffer;
 	
 
 		Ref<LineMaterial> m_LineMaterial;

@@ -229,9 +229,12 @@ namespace Rndr {
 			m_Indices.push_back(index);
 
 			Triangle triangle;
-			triangle.V1 = m_Vertices[index.V1];
-			triangle.V2 = m_Vertices[index.V2];
-			triangle.V3 = m_Vertices[index.V3];
+			// triangle.V1 = m_Vertices[index.V1];
+			// triangle.V2 = m_Vertices[index.V2];
+			// triangle.V3 = m_Vertices[index.V3];
+			triangle.V1 = m_VerticesPositions[index.V1];
+			triangle.V2 = m_VerticesPositions[index.V2];
+			triangle.V3 = m_VerticesPositions[index.V3];
 			m_Triangles.push_back(triangle);
 
 			m_VerticesIndex.push_back(index.V1);

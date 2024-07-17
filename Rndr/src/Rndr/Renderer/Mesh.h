@@ -81,9 +81,20 @@ namespace Rndr {
 
 		struct Triangle
 		{
-			Vertex V1, V2, V3;
+			// Vertex V1, V2, V3;
+
+			glm::vec3 V1;
+			float padding1;
+			glm::vec3 V2;
+			float padding2;
+			glm::vec3 V3;
+			float padding3;
+
+			glm::vec3 Normal;
+			float padding4;
 		};
-		// static_assert(sizeof(Vertex) == 14 * sizeof(float));
+		// static_assert(sizeof(Triangle) == 3 * sizeof(glm::vec3) + 3 * sizeof(float));
+		static_assert(sizeof(Triangle) == 16 * sizeof(float));
 		static const int NumAttributes = 4;
 
 		struct Index
