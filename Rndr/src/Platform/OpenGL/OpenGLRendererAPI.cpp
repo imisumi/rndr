@@ -32,7 +32,7 @@ namespace Rndr
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount, uint32_t baseIndex, uint32_t baseVertex)
 	{
 		// uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
 		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
@@ -46,9 +46,19 @@ namespace Rndr
 		// 	count = vertexArray->GetIndexBuffer()->GetCount();
 		// std::cout << "OpenGLRendererAPI::DrawIndexed: count = " << count << std::endl;
 		vertexArray->Bind();
-		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 
-		//TODO: TEMP
+		// GLsizeiptr offset = indexOffset * sizeof(uint32_t);
+		// glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (const void*)offset);
+		// glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
+
+
+		glDrawElementsBaseVertex(GL_TRIANGLES, 
+			count, 
+			GL_UNSIGNED_INT, 
+			(void*)(sizeof(uint32_t) * baseIndex), 
+			baseVertex);
+
+		//TODO: TEMP use glDrawElementsBaseVertex
 		// glBindTexture(GL_TEXTURE_2D, 0);
 	}
 

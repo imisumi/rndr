@@ -81,8 +81,12 @@ namespace Rndr {
 
 		struct Triangle
 		{
+			// Triangle() = default;
 			// Vertex V1, V2, V3;
-
+			// Triangle(const Vertex& v1, const Vertex& v2, const Vertex& v3)
+			// 	: V1(v1.Position), V2(v2.Position), V3(v3.Position), Normal(glm::normalize(glm::cross(v2.Position - v1.Position, v3.Position - v1.Position))) {}
+			// Triangle(const Vertex& v1, const Vertex& v2, const Vertex& v3)
+			// 	: V1(v1.Position), V2(v2.Position), V3(v3.Position) {}
 			glm::vec3 V1;
 			float padding1;
 			glm::vec3 V2;
@@ -96,6 +100,21 @@ namespace Rndr {
 		// static_assert(sizeof(Triangle) == 3 * sizeof(glm::vec3) + 3 * sizeof(float));
 		static_assert(sizeof(Triangle) == 16 * sizeof(float));
 		static const int NumAttributes = 4;
+
+
+
+		struct SubMesh
+		{
+			uint32_t BaseVertex;
+			uint32_t BaseIndex;
+			uint32_t MaterialIndex;
+			uint32_t IndexCount;
+
+
+			// aabb
+			glm::vec3 Min = glm::vec3(FLT_MAX);
+			glm::vec3 Max = glm::vec3(-FLT_MAX);
+		};
 
 		struct Index
 		{
@@ -120,6 +139,7 @@ namespace Rndr {
 
 		Ref<VertexBuffer> m_VertexBuffer;
 		Ref<IndexBuffer> m_IndexBuffer;
+		Ref<IndexBuffer> m_IndexBuffer2;
 
 		std::string m_FilePath;
 
@@ -130,5 +150,9 @@ namespace Rndr {
 		std::vector<glm::vec4> m_VerticesPositions;
 		std::vector<glm::vec4> m_VerticesNormals;
 		std::vector<uint32_t> m_VerticesIndex;
+
+
+		std::vector<SubMesh> m_SubMeshes;
+		std::unordered_map<uint32_t, std::vector<Triangle>> m_TriangleCache;
 	};
 }

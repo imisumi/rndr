@@ -118,6 +118,7 @@
 		"*.tcc": "cpp",
 		"memory_resource": "cpp",
 		"numeric": "cpp",
-		"numbers": "cpp"
+		"numbers": "cpp",
+		"*.inc": "cpp"
 	}
 }

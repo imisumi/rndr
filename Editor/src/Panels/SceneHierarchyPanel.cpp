@@ -11,7 +11,11 @@
 #include "Rndr/Scene/Components.h"
 #include <cstring>
 
+
 #include "Rndr/Renderer/Texture.h"
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 /* The Microsoft C++ compiler is non-compliant with the C++ standard and needs
  * the following definition to disable a security warning on std::strncpy().
@@ -30,6 +34,8 @@ namespace Rndr {
 		m_SelectionContext = {};
 	}
 
+
+
 	void SceneHierarchyPanel::OnImGuiRender()
 	{
 		ImGui::Begin("Objects");
@@ -38,7 +44,8 @@ namespace Rndr {
 		for (auto entity : view)
 		{
 			Entity ent = { entity, m_Context.get() };
-			DrawEntityNode(ent);
+			if (DrawEntityNode(ent) == false)
+				break;
 		}
 
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
@@ -68,51 +75,211 @@ namespace Rndr {
 		ImGui::End();
 	}
 
-	void SceneHierarchyPanel::DrawEntityNode(Entity entity)
+	void SceneHierarchyPanel::BeginDragDropSource(UUID id, const std::string& tag)
 	{
-		// auto& tag = entity.GetComponent<TagComponent>().Tag;
-		
-		// ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
-		// flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
-		// bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.c_str());
-		// if (ImGui::IsItemClicked())
-		// {
-		// 	m_SelectionContext = entity;
-		// }
+		if (ImGui::BeginDragDropSource())
+		{
+			ImGui::SetDragDropPayload("ENTITY_DRAG_DROP", &id, sizeof(UUID));
+			ImGui::Text("%s", tag.c_str());
+			ImGui::EndDragDropSource();
+		}
+	}
+	void SceneHierarchyPanel::BeginDragDropTarget(Entity entity)
+	{
+		if (ImGui::BeginDragDropTarget())
+		{
+			UUID id = entity.GetComponent<IDComponent>().ID;
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_DRAG_DROP"))
+			{
+				UUID droppedID = *(const UUID*)payload->Data;
+				if (droppedID != id)
+				{
+					Entity droppedEntity = m_Context->GetEntityWithID(droppedID);
+					UUID parentID = droppedEntity.GetComponent<ParentComponent>().Parent;
+					if (parentID != 0)
+					{
+						Entity parent = m_Context->GetEntityWithID(parentID);
+						parent.GetComponent<ChildComponent>().RemoveChild(droppedID);
+					}
+					entity.GetComponent<ChildComponent>().AddChild(droppedID);
+					droppedEntity.GetComponent<ParentComponent>().Parent = id;
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
+	}
+
+	void SceneHierarchyPanel::DrawChildEntityNode(Entity entity)
+	{
+		int childCount = entity.GetComponent<ChildComponent>().Children.size();
+		if (childCount > 0)
+		{
+			// RNDR_CORE_INFO("Child count: {0}", childCount);
+			for (int i = 0; i < childCount; i++)
+			{
+				UUID childID = entity.GetComponent<ChildComponent>().Children[i];
+				Entity child = m_Context->GetEntityWithID(childID);
+				auto& childTag = child.GetComponent<TagComponent>().Tag;
+
+				ImGuiTreeNodeFlags childFlags = ((m_SelectionContext == child) ? ImGuiTreeNodeFlags_Selected : 0) | 
+					ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+				bool opened = ImGui::TreeNodeEx((void*)(uint64_t)childID, childFlags, "%s", childTag.c_str());
+				bool entityDeleted = false;
+				if (ImGui::BeginPopupContextItem())
+				{
+					if (ImGui::MenuItem("Delete Entity"))
+						entityDeleted = true;
+					ImGui::EndPopup();
+				}
+				if (ImGui::IsItemClicked())
+					m_SelectionContext = child;
+
+				// Set the drag-and-drop source
+				// if (ImGui::BeginDragDropSource())
+				// {
+				// 	ImGui::SetDragDropPayload("ENTITY_DRAG_DROP", &childID, sizeof(UUID));
+				// 	ImGui::Text("%s", childTag.c_str());
+				// 	ImGui::EndDragDropSource();
+				// }
+				BeginDragDropSource(childID, childTag);
+				// Set the drag-and-drop target
+				// if (ImGui::BeginDragDropTarget())
+				// {
+				// 	if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_DRAG_DROP"))
+				// 	{
+				// 		UUID droppedID = *(const UUID*)payload->Data;
+				// 		if (droppedID != childID)
+				// 		{
+				// 			Entity droppedEntity = m_Context->GetEntityWithID(droppedID);
+				// 			UUID parentID = droppedEntity.GetComponent<ParentComponent>().Parent;
+				// 			if (parentID != 0)
+				// 			{
+				// 				Entity parent = m_Context->GetEntityWithID(parentID);
+				// 				parent.GetComponent<ChildComponent>().RemoveChild(droppedID);
+				// 			}
+				// 			child.GetComponent<ChildComponent>().AddChild(droppedID);
+				// 			droppedEntity.GetComponent<ParentComponent>().Parent = childID;
+							
+				// 		}
+				// 	}
+				// 	ImGui::EndDragDropTarget();
+				// }
+				BeginDragDropTarget(child);
+
+				if (opened)
+				{
+					DrawChildEntityNode(child);
+					ImGui::TreePop();
+				}
+
+				if (entityDeleted)
+				{
+					DeleteEntityNode(child);
+					break ;
+				}
+			}
+		}
+	}
+
+	bool SceneHierarchyPanel::DrawEntityNode(Entity entity)
+	{
+		UUID parentID = entity.GetComponent<ParentComponent>().Parent;
+
+		if (parentID != 0) // only render root entities
+			return true;
 
 		auto& tag = entity.GetComponent<TagComponent>().Tag;
 		ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | 
 			ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-		bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, "%s", tag.c_str());
-		if (ImGui::IsItemClicked())
-		{
-			m_SelectionContext = entity;
-		}
 
+		UUID entID = entity.GetComponent<IDComponent>().ID;
+		bool opened = ImGui::TreeNodeEx((void*)(uint64_t)entID, flags, "%s", tag.c_str());
+
+		// Set the drag-and-drop source
+		// if (ImGui::BeginDragDropSource())
+		// {
+		// 	ImGui::SetDragDropPayload("ENTITY_DRAG_DROP", &entID, sizeof(UUID));
+		// 	ImGui::Text("%s", tag.c_str());
+		// 	ImGui::EndDragDropSource();
+		// }
+		BeginDragDropSource(entID, tag);
+		// Set the drag-and-drop target
+		// if (ImGui::BeginDragDropTarget())
+		// {
+		// 	if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_DRAG_DROP"))
+		// 	{
+		// 		UUID droppedID = *(const UUID*)payload->Data;
+		// 		if (droppedID != entID)
+		// 		{
+		// 			Entity droppedEntity = m_Context->GetEntityWithID(droppedID);
+		// 			UUID parentID = droppedEntity.GetComponent<ParentComponent>().Parent;
+		// 			if (parentID != 0)
+		// 			{
+		// 				Entity parent = m_Context->GetEntityWithID(parentID);
+		// 				parent.GetComponent<ChildComponent>().RemoveChild(droppedID);
+		// 			}
+		// 			entity.GetComponent<ChildComponent>().AddChild(droppedID);
+		// 			droppedEntity.GetComponent<ParentComponent>().Parent = entID;
+		// 		}
+		// 	}
+		// 	ImGui::EndDragDropTarget();
+		// }
+		BeginDragDropTarget(entity);
 		bool entityDeleted = false;
 		if (ImGui::BeginPopupContextItem())
 		{
 			if (ImGui::MenuItem("Delete Entity"))
 				entityDeleted = true;
-
 			ImGui::EndPopup();
 		}
 
+		if (ImGui::IsItemClicked())
+			m_SelectionContext = entity;
 		if (opened)
 		{
-			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-			bool opened = ImGui::TreeNodeEx((void*)9817239, flags, "%s", tag.c_str());
-			if (opened)
-				ImGui::TreePop();
+			DrawChildEntityNode(entity);
 			ImGui::TreePop();
 		}
 
 		if (entityDeleted)
 		{
-			m_Context->DestroyEntity(entity);
-			if (m_SelectionContext == entity)
-				m_SelectionContext = { entt::null, nullptr };
+			DeleteEntityNode(entity);
+			// m_Context->DestroyEntity(entity);
+			// if (m_SelectionContext == entity)
+			// 	m_SelectionContext = { entt::null, nullptr };
+			return false;
 		}
+		return true;
+	}
+
+	void SceneHierarchyPanel::ReccursiveDeleteEntityNode(Entity entity)
+	{
+		int childCount = entity.GetComponent<ChildComponent>().Children.size();
+		if (childCount > 0)
+		{
+			for (int i = 0; i < childCount; i++)
+			{
+				UUID childID = entity.GetComponent<ChildComponent>().Children[i];
+				Entity child = m_Context->GetEntityWithID(childID);
+				ReccursiveDeleteEntityNode(child);
+				m_Context->DestroyEntity(child);
+			}
+		}
+		// m_Context->DestroyEntity(entity);
+	}
+
+	void SceneHierarchyPanel::DeleteEntityNode(Entity entity)
+	{
+		UUID parentID = entity.GetComponent<ParentComponent>().Parent;
+		if (parentID != 0)
+		{
+			Entity parent = m_Context->GetEntityWithID(parentID);
+			parent.GetComponent<ChildComponent>().RemoveChild(entity.GetComponent<IDComponent>().ID);
+		}
+		ReccursiveDeleteEntityNode(entity);
+		m_Context->DestroyEntity(entity);
+		// if (m_SelectionContext == entity)
+			m_SelectionContext = { entt::null, nullptr };
 	}
 
 	static void DrawFloatControll(const std::string& label, float& value, float resetValue = 0.0f, float columnWidth = 100.0f)
@@ -156,8 +323,9 @@ namespace Rndr {
 		ImGui::PopID();
 	}
 
-	static void DrawVec3Control(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columnWidth = 100.0f)
+	static bool DrawVec3Control(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columnWidth = 100.0f)
 	{
+		bool valueChanged = false;
 		ImGuiIO& io = ImGui::GetIO();
 		auto boldFont = io.Fonts->Fonts[0];
 
@@ -179,12 +347,16 @@ namespace Rndr {
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
 		ImGui::PushFont(boldFont);
 		if (ImGui::Button("X", buttonSize))
+		{
 			values.x = resetValue;
+			valueChanged = true;
+		}
 		ImGui::PopFont();
 		ImGui::PopStyleColor(3);
 
 		ImGui::SameLine();
-		ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f");
+		if (ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f"))
+			valueChanged = true;
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 
@@ -193,12 +365,16 @@ namespace Rndr {
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
 		ImGui::PushFont(boldFont);
 		if (ImGui::Button("Y", buttonSize))
+		{
 			values.y = resetValue;
+			valueChanged = true;
+		}
 		ImGui::PopFont();
 		ImGui::PopStyleColor(3);
 
 		ImGui::SameLine();
-		ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f");
+		if (ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f"))
+			valueChanged = true;
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 
@@ -207,12 +383,16 @@ namespace Rndr {
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
 		ImGui::PushFont(boldFont);
 		if (ImGui::Button("Z", buttonSize))
+		{
 			values.z = resetValue;
+			valueChanged = true;
+		}
 		ImGui::PopFont();
 		ImGui::PopStyleColor(3);
 
 		ImGui::SameLine();
-		ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f");
+		if (ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f"))
+			valueChanged = true;
 		ImGui::PopItemWidth();
 
 		ImGui::PopStyleVar();
@@ -222,6 +402,7 @@ namespace Rndr {
 		ImGui::PopID();
 
 		// ImGui::Separator();
+		return valueChanged;
 	}
 	
 	template<typename T, typename UIFunction>
@@ -265,8 +446,102 @@ namespace Rndr {
 		}
 	}
 
+	void SceneHierarchyPanel::ReccursiveUpdateWorldTransform(Entity entity)
+	{
+		int childCount = entity.GetComponent<ChildComponent>().Children.size();
+		UUID parentID = entity.GetComponent<ParentComponent>().Parent;
+		Entity parent = m_Context->GetEntityWithID(parentID);
+		if (childCount > 0)
+		{
+			for (int i = 0; i < childCount; i++)
+			{
+				auto& parentTC = parent.GetComponent<TransformComponent>();
+				auto& tc = entity.GetComponent<TransformComponent>();
+				tc.WorldTranslation = parentTC.WorldTranslation + tc.Translation;
+				tc.WorldRotation = parentTC.WorldRotation + tc.Rotation;
+				tc.WorldScale = parentTC.WorldScale * tc.Scale;
+
+				UUID childID = entity.GetComponent<ChildComponent>().Children[i];
+				Entity child = m_Context->GetEntityWithID(childID);
+				ReccursiveUpdateWorldTransform(child);
+			}
+		}
+		// else
+		// {
+			
+		// }
+	}
+
+
+	//TODO: fix propper scale/rotaion around parents axis
+	void SceneHierarchyPanel::UpdateWorldTransform(Entity entity)
+	{
+		auto& tc = entity.GetComponent<TransformComponent>();
+		UUID parentID = entity.GetComponent<ParentComponent>().Parent;
+		if (parentID == 0)
+		{
+			tc.WorldTranslation = tc.Translation;
+			tc.WorldRotation = tc.Rotation;
+			tc.WorldScale = tc.Scale;
+		}
+		else
+		{
+			Entity parent = m_Context->GetEntityWithID(parentID);
+			auto& parentTC = parent.GetComponent<TransformComponent>();
+			// tc.WorldTranslation = parentTC.WorldTranslation + tc.Translation;
+			// tc.WorldRotation = parentTC.WorldRotation + tc.Rotation;
+			// tc.WorldScale = parentTC.WorldScale * tc.Scale;
+
+			glm::mat4 worldTransform = parentTC.GetWorldTransform();
+			// scale
+			glm::mat4 scale = glm::scale(glm::mat4(1.0f), tc.Scale);
+			// rotation
+			glm::mat4 rotation = glm::toMat4(glm::quat(tc.Rotation));
+			// translation
+			glm::mat4 translation = glm::translate(glm::mat4(1.0f), tc.Translation);
+
+			worldTransform = worldTransform * translation * rotation * scale;
+
+			tc.WorldTranslation = glm::vec3(worldTransform[3]);
+			tc.WorldRotation = glm::eulerAngles(glm::quat(worldTransform));
+			tc.WorldScale = glm::vec3(glm::length(glm::vec3(worldTransform[0])), glm::length(glm::vec3(worldTransform[1])), glm::length(glm::vec3(worldTransform[2])));
+			
+
+			// scale * rotation * translation
+			// first scale around the parent origin
+			// glm::mat4 parentTransform = parentTC.GetTransform();
+			// glm::mat4 localTransform = tc.GetTransform();
+
+			// glm::mat4 worldTransform = parentTransform * localTransform;
+
+
+			// rotate tc.WorldRotation around the parent origin
+			// glm::vec3 worldPosition = parentTC.WorldTranslation;
+			
+
+
+			// then rotate around the parent origin
+			// then translate to the parent origin
+
+
+			// glm::rota
+		}
+		int childCount = entity.GetComponent<ChildComponent>().Children.size();
+		if (childCount > 0)
+		{
+			for (int i = 0; i < childCount; i++)
+			{
+				UUID childID = entity.GetComponent<ChildComponent>().Children[i];
+				Entity child = m_Context->GetEntityWithID(childID);
+				// ReccursiveUpdateWorldTransform(child);
+				UpdateWorldTransform(child);
+			}
+		}
+	}
+
 	void SceneHierarchyPanel::DrawComponents(Entity entity)
 	{
+		// return ;
 		if (entity.HasComponent<TagComponent>())
 		{
 			auto& tag = entity.GetComponent<TagComponent>().Tag;
@@ -325,7 +600,11 @@ namespace Rndr {
 			auto& uuid = entity.GetComponent<IDComponent>().ID;
 			// convert uint64_t to char array
 			// std::string str = std::to_string(uuid);
+			int childCount = entity.GetComponent<ChildComponent>().Children.size();
+			uint64_t parentID = entity.GetComponent<ParentComponent>().Parent;
 			ImGui::Text("UUID: %llu", uuid);
+			ImGui::Text("Parent ID: %llu", parentID);
+			ImGui::Text("Child count: %d", childCount);
 		}
 
 		// DrawComponent<TransformComponent>("Transform", entity, [](auto& component)
@@ -347,11 +626,49 @@ namespace Rndr {
 			{
 				auto& tc = entity.GetComponent<TransformComponent>();
 
-				DrawVec3Control("Translation", tc.Translation);
+				bool transformChanged = false;
+				if (DrawVec3Control("Translation", tc.Translation))
+					transformChanged = true;
 				glm::vec3 rotation = glm::degrees(tc.Rotation);
+				if (DrawVec3Control("Rotation", rotation))
+				{
+					tc.Rotation = glm::radians(rotation);
+					transformChanged = true;
+				}
+				if (DrawVec3Control("Scale", tc.Scale, 1.0f))
+					transformChanged = true;
+
+				if (transformChanged)
+				{
+				}
+				//TODO: also update when moved true gizmo
+				UpdateWorldTransform(entity);
+
+				ImGui::Dummy(ImVec2(0.0f, 0.0f));
+
+				// ImGui::DragFloat3("Position", glm::value_ptr(tc.Translation), 0.1f);
+				ImGui::TreePop();
+			}
+
+
+			//TODO: remove, this is for testing
+			if (ImGui::TreeNodeEx((void*)(typeid(TransformComponent).hash_code() + 1), treeNodeFlags, "WorldTransform"))
+			{
+				auto& tc = entity.GetComponent<TransformComponent>();
+
+				glm::vec3 originalTranslation = tc.WorldTranslation;
+				DrawVec3Control("Translation", tc.WorldTranslation);
+				tc.WorldTranslation = originalTranslation;
+
+				glm::vec3 originalRotation = tc.WorldRotation;
+				glm::vec3 rotation = glm::degrees(tc.WorldRotation);
 				DrawVec3Control("Rotation", rotation);
-				tc.Rotation = glm::radians(rotation);
-				DrawVec3Control("Scale", tc.Scale, 1.0f);
+				tc.WorldRotation = originalRotation;
+
+				glm::vec3 originalScale = tc.WorldScale;
+				DrawVec3Control("Scale", tc.WorldScale, 1.0f);
+				tc.WorldScale = originalScale;
+
 
 				ImGui::Dummy(ImVec2(0.0f, 0.0f));
 
@@ -360,16 +677,16 @@ namespace Rndr {
 			}
 		}
 
-		if (entity.HasComponent<CubeComponent>())
-		{
-			if (ImGui::TreeNodeEx((void*)typeid(CubeComponent).hash_code(), treeNodeFlags, "Object Properties"))
-			{
-				auto& cc = entity.GetComponent<CubeComponent>();
-				DrawVec3Control("Size", cc.Size, 1.0f);
-				ImGui::Dummy(ImVec2(0.0f, 0.0f));
-				ImGui::TreePop();
-			}
-		}
+		// if (entity.HasComponent<CubeComponent>())
+		// {
+		// 	if (ImGui::TreeNodeEx((void*)typeid(CubeComponent).hash_code(), treeNodeFlags, "Object Properties"))
+		// 	{
+		// 		auto& cc = entity.GetComponent<CubeComponent>();
+		// 		DrawVec3Control("Size", cc.Size, 1.0f);
+		// 		ImGui::Dummy(ImVec2(0.0f, 0.0f));
+		// 		ImGui::TreePop();
+		// 	}
+		// }
 
 		if (entity.HasComponent<DefaultMaterialComponent>())
 		{

@@ -16,7 +16,12 @@ namespace Rndr
 	EditorCamera::EditorCamera(float fov, float aspectRatio, float nearClip, float farClip)
 		: m_FOV(fov), m_AspectRatio(aspectRatio), m_NearClip(nearClip), m_FarClip(farClip), Camera(glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip))
 	{
+		// UpdateView({ 5.0f, 5.0f, 5.0f });
+		m_FocalPoint = glm::vec3(5.0f, 5.0f, 5.0f);
+		m_Pitch = glm::quarter_pi<float>();
+		m_Yaw = -glm::quarter_pi<float>();
 		UpdateView();
+		// m_Position = { 5.0f, 5.0f, 5.0f };
 	}
 
 	void EditorCamera::UpdateProjection()
@@ -27,11 +32,23 @@ namespace Rndr
 
 	}
 
+	void EditorCamera::UpdateView(glm::vec3 position)
+	{
+		// m_Yaw = m_Pitch = 0.0f; // Lock the camera's rotation
+		m_Position = { 5.0f, 5.0f, 5.0f };
+
+		glm::quat orientation = GetOrientation();
+		m_ViewMatrix = glm::translate(glm::mat4(1.0f), m_Position) * glm::toMat4(orientation);
+		// m_ViewMatrix = glm::toMat4(orientation) * glm::translate(glm::mat4(1.0f), -m_Position);
+		// m_ViewMatrix = glm::toMat4(orientation) * glm::translate(glm::mat4(1.0f), m_Position);
+		m_ViewMatrix = glm::inverse(m_ViewMatrix);
+	}
+
 	void EditorCamera::UpdateView()
 	{
 		// m_Yaw = m_Pitch = 0.0f; // Lock the camera's rotation
 		m_Position = CalculatePosition();
-
+		
 		glm::quat orientation = GetOrientation();
 		m_ViewMatrix = glm::translate(glm::mat4(1.0f), m_Position) * glm::toMat4(orientation);
 		// m_ViewMatrix = glm::toMat4(orientation) * glm::translate(glm::mat4(1.0f), -m_Position);
@@ -64,7 +81,7 @@ namespace Rndr
 		return speed;
 	}
 
-	void EditorCamera::OnUpdate(Timestep ts)
+	bool EditorCamera::OnUpdate(Timestep ts)
 	{
 		if (Input::IsKeyPressed(RNDR_KEY_LEFT_ALT))
 		{
@@ -78,9 +95,12 @@ namespace Rndr
 				MouseRotate(delta);
 			else if (Input::IsMouseButtonPressed(RNDR_MOUSE_BUTTON_RIGHT))
 				MouseZoom(delta.y);
+			UpdateView();
+			return true;
 		}
 
-		UpdateView();
+		// UpdateView();
+		return false;
 	}
 
 	void EditorCamera::OnEvent(Event& e)

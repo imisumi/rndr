@@ -18,7 +18,7 @@ namespace Rndr
 		EditorCamera() = default;
 		EditorCamera(float fov, float aspectRatio, float nearClip, float farClip);
 
-		void OnUpdate(Timestep ts);
+		bool OnUpdate(Timestep ts);
 		void OnEvent(Event& e);
 
 		inline float GetDistance() const { return m_Distance; }
@@ -42,6 +42,7 @@ namespace Rndr
 	private:
 		void UpdateProjection();
 		void UpdateView();
+		void UpdateView(glm::vec3 position);
 
 		bool OnMouseScroll(MouseScrolledEvent& e);
 
@@ -58,7 +59,7 @@ namespace Rndr
 		float m_FOV = 45.0f, m_AspectRatio = 1.778f, m_NearClip = 0.1f, m_FarClip = 1000.0f;
 
 		glm::mat4 m_ViewMatrix;
-		glm::vec3 m_Position = { 5.0f, 0.0f, 0.0f };
+		glm::vec3 m_Position = { 5.0f, 5.0f, 0.0f };
 		glm::vec3 m_FocalPoint = { 0.0f, 0.0f, 0.0f };
 
 		glm::vec2 m_InitialMousePosition = { 0.0f, 0.0f };

@@ -63,6 +63,7 @@ namespace Rndr
 
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithID(UUID uuid, const std::string& name = std::string());
+		Entity GetEntityWithID(UUID uuid);
 		void DestroyEntity(Entity entity);
 
 		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
@@ -80,11 +81,16 @@ namespace Rndr
 
 		void generateBVH();
 		void splitBVH(int parentIndex, int depth);
+		void splitBVH(int parentIndex, int depth, int meshIndex);
 		void generateAABB(int parentIndex);
+		void generateAABB(int parentIndex, int meshIndex);
 		void drawBVH(bvhNode node, int depth, int visableDepth);
 		Mesh m_Mesh;
 
 		std::vector<bvhNode> m_BVH;
+
+
+		const entt::registry& GetRegistry() const { return m_Registry; }
 
 		// std::vector<tempBVH> m_TempBVH;
 	private:

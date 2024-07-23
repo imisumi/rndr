@@ -161,6 +161,9 @@ namespace Rndr
 		CreateProgram(vertexShader, fragmentShader);
 	}
 
+
+
+
 	OpenGLShader::~OpenGLShader()
 	{
 		glDeleteProgram(m_RendererID);

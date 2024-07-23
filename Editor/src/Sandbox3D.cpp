@@ -26,7 +26,10 @@
 
 #include <OpenImageIO/imageio.h>
 
+
 #include <limits>
+#include <OpenColorIO/OpenColorIO.h>
+namespace OCIO = OCIO_NAMESPACE;
 
 namespace Rndr
 {
@@ -41,6 +44,7 @@ namespace Rndr
 	// 	glm::vec3 Max = glm::vec3(-INFINITY);
 	// 	int childIndex = 0;
 	// };
+
 
 	void Sandbox3D::OnAttach()
 	{
@@ -88,6 +92,38 @@ namespace Rndr
 		// exit(0);
 		// name.Mater
 
+		// test entity with child
+		{
+			auto parent = m_ActiveScene->CreateEntity("parent");
+			auto child = m_ActiveScene->CreateEntity("child");
+			auto child2 = m_ActiveScene->CreateEntity("child2");
+			auto child3 = m_ActiveScene->CreateEntity("child3");
+
+			auto parentID = parent.GetComponent<IDComponent>().ID;
+			auto childID = child.GetComponent<IDComponent>().ID;
+			auto child2ID = child2.GetComponent<IDComponent>().ID;
+			auto child3ID = child3.GetComponent<IDComponent>().ID;
+
+			// child.AddComponent<ParentComponent>(parentID);
+			// parent.AddComponent<ChildComponent>(childID);
+
+			// parent.GetComponent<ChildComponent>().Children.push_back(childID);
+			parent.GetComponent<ChildComponent>().AddChild(childID);
+			child.GetComponent<ParentComponent>().Parent = parentID;
+
+			parent.GetComponent<ChildComponent>().AddChild(child3ID);
+			child3.GetComponent<ParentComponent>().Parent = parentID;
+
+			child.GetComponent<ChildComponent>().AddChild(child2ID);
+			child2.GetComponent<ParentComponent>().Parent = childID;
+			// auto paretid = child.GetComponent<ParentComponent>().Parent;
+			// uint64_t id = paretid;
+			// RNDR_CORE_INFO("Parent ID: {0}", id);
+			// exit(0);
+
+
+
+		}
 
 		m_LineMaterial = LineMaterial::Create(Shader::Create("Editor/assets/shaders/LineShader.glsl"));
 		m_ActiveScene->SetLineMaterial(m_LineMaterial);
@@ -108,7 +144,7 @@ namespace Rndr
 
 		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 		// m_EditorCamera.SetPosition({ 0.0f, 0.0f, 2.0f });
-		m_ComputeShader = ComputeShader::Create("Editor/assets/shaders/ComputeShader.glsl");
+		m_ComputeShader = ComputeShader::Create("Editor/assets/shaders/raytracing/ComputeShader.glsl");
 
 		// m_TempComputeTextureID;
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_TempComputeTextureID);
@@ -127,6 +163,7 @@ namespace Rndr
 
 
 		const char* filename = "Editor/assets/hdri/autumn_field_puresky_4k.exr";
+		// const char* filename = "Editor/assets/hdri/empty_workshop_2k.exr";
 		std::unique_ptr<OIIO::ImageInput> inp = OIIO::ImageInput::open(filename);
 		if (!inp) {
 			RNDR_CORE_ASSERT(inp, "Could not open image");
@@ -247,11 +284,11 @@ namespace Rndr
 		// int count = m_ActiveScene->m_BVH.size();
 		// int triangleCount = m_ActiveScene->m_BVH[0].TriangleCount;
 		int index = 2;
-		int count = m_ActiveScene->m_BVH[index].TriangleCount;
-		int triIndex = m_ActiveScene->m_BVH[index].TriangleIndex;
+		// int count = m_ActiveScene->m_BVH[index].TriangleCount;
+		// int triIndex = m_ActiveScene->m_BVH[index].TriangleIndex;/
 		RNDR_CORE_INFO("BVH Index: {0}", index);
-		RNDR_CORE_INFO("BVH Count: {0}", count);
-		RNDR_CORE_INFO("Triangle Index: {0}", triIndex);
+		// RNDR_CORE_INFO("BVH Count: {0}", count);
+		// RNDR_CORE_INFO("Triangle Index: {0}", triIndex);
 		// RNDR_CORE_INFO("BVH Count: {0}", count);
 		// RNDR_CORE_INFO("Triangle Count: {0}", triangleCount);
 
@@ -262,8 +299,234 @@ namespace Rndr
 
 
 
+		// frameBufferSpec.Attachments = { FrameBufferTextureFormat::RGBA8 };
+
+
+
+
+
+		// const char* ocioVert = R"(
+		// 	#version 460 core
+		// 	out vec2 TexCoords;
+
+		// 	void main()
+		// 	{
+		// 		const vec2 pos[4] = vec2[4](
+		// 			vec2(-1.0, -1.0),
+		// 			vec2( 1.0, -1.0),
+		// 			vec2(-1.0,  1.0),
+		// 			vec2( 1.0,  1.0)
+		// 		);
+				
+		// 		TexCoords = (pos[gl_VertexID] + 1.0) / 2.0;
+		// 		gl_Position = vec4(pos[gl_VertexID], 0.0, 1.0);
+		// 		// gl_Position = vec4(1.0, 1.0, 0.0, 1.0);
+		// 	}
+		// )";
+
+		// const char* ocioFrag = R"(
+		// 	#version 460 core
+		// 	in vec2 TexCoords;
+		// 	out vec4 FragColor;
+
+		// 	uniform sampler2D u_Texture;
+
+		// 	uniform uint u_FrameCount;
+
+		// 	void main()
+		// 	{
+		// 		vec4 accumulatedBuffer = texture(u_Texture, TexCoords);
+		// 		vec4 averagedColor = accumulatedBuffer / float(u_FrameCount);
+
+
+		// 		vec3 color = averagedColor.rgb;
+
+		// 		FragColor = vec4(color, 1.0);
+		// 	}
+		// )";
+
+
+
+
+
+
+		// OCIO::ConstConfigRcPtr config = OCIO::Config::CreateFromFile("config.ocio");
+		std::string ocioAces;
+		{
+			OCIO::ConstConfigRcPtr config = OCIO::Config::CreateFromFile("ocio://default");
+			const char* display = config->getDefaultDisplay();
+			// const char* view = config->getDefaultView(display);
+			const char* view = "ACES 1.0 - SDR Video";
+			const char* look = config->getDisplayViewLooks(display, view);
+
+			OCIO::DisplayViewTransformRcPtr transform = OCIO::DisplayViewTransform::Create();
+			transform->setSrc(OCIO::ROLE_SCENE_LINEAR);
+			transform->setDisplay(display);
+			transform->setView(view);
+
+			auto vpt = OCIO::LegacyViewingPipeline::Create();
+			vpt->setDisplayViewTransform(transform);
+			vpt->setLooksOverrideEnabled(true);
+			vpt->setLooksOverride(look);
+
+			OCIO::ConstProcessorRcPtr processor = vpt->getProcessor(config, config->getCurrentContext());
+			OCIO::ConstGPUProcessorRcPtr gpu = processor->getDefaultGPUProcessor();
+
+			OCIO::GpuShaderDescRcPtr shaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
+			shaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_4_0);
+			shaderDesc->setFunctionName("OCIODisplay");
+			shaderDesc->setResourcePrefix("ocio_");
+
+			gpu->extractGpuShaderInfo(shaderDesc);
+			ocioAces = shaderDesc->getShaderText();
+		}
+
+
+		std::string ocioLinearToAces;
+		{
+			// OCIO::ConstConfigRcPtr config = OCIO::Config::CreateFromFile("ocio://default");
+			// OCIO::ConstConfigRcPtr config = OCIO::Config::CreateFromFile("config.ocio");
+			// auto processor = config->getProcessor("ACES2065-1", "Linear Rec.709 (sRGB)");
+			// auto gpu = processor->getDefaultGPUProcessor();
+			// auto desc = OCIO::GpuShaderDesc::CreateShaderDesc();
+			// desc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_4_0);
+			// // desc->setFunctionName("OCIODisplay");
+			// desc->setFunctionName("ocioLinearToAces");
+			// desc->setResourcePrefix("ocioLinearToAces_");
+			// gpu->extractGpuShaderInfo(desc);
+
+			// ocioLinearToAces = desc->getShaderText();
+
+
+
+			// OCIO::ConstConfigRcPtr config = OCIO::Config::CreateFromFile("ocio://default");
+			// const char* display = config->getDefaultDisplay();
+			// const char* view = config->getDefaultView(display);
+			// const char* look = config->getDisplayViewLooks(display, view);
+
+			// OCIO::DisplayViewTransformRcPtr transform = OCIO::DisplayViewTransform::Create();
+			// transform->setSrc("ACES 1.0 - SDR Video");
+			// transform->setDisplay(display);
+			// transform->setView(view);
+
+			// auto vpt = OCIO::LegacyViewingPipeline::Create();
+			// vpt->setDisplayViewTransform(transform);
+			// vpt->setLooksOverrideEnabled(true);
+			// vpt->setLooksOverride(look);
+
+			// OCIO::ConstProcessorRcPtr processor = vpt->getProcessor(config, config->getCurrentContext());
+			// OCIO::ConstGPUProcessorRcPtr gpu = processor->getDefaultGPUProcessor();
+
+			// OCIO::GpuShaderDescRcPtr shaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
+			// shaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_4_0);
+			// shaderDesc->setFunctionName("OCIODisplay");
+			// shaderDesc->setResourcePrefix("ocio_");
+
+			// gpu->extractGpuShaderInfo(shaderDesc);
+		}
+
+		
+
+
+		std::string ocioVert = R"(
+			#version 460 core
+			out vec2 TexCoords;
+
+			void main()
+			{
+				const vec2 pos[4] = vec2[4](
+					vec2(-1.0, -1.0),
+					vec2( 1.0, -1.0),
+					vec2(-1.0,  1.0),
+					vec2( 1.0,  1.0)
+				);
+				
+				TexCoords = (pos[gl_VertexID] + 1.0) / 2.0;
+				gl_Position = vec4(pos[gl_VertexID], 0.0, 1.0);
+			}
+		)";
+
+		std::string ocioFrag = R"(
+			#version 460 core
+			in vec2 TexCoords;
+			out vec4 FragColor;
+
+			uniform sampler2D u_Texture;
+
+			uniform uint u_FrameCount;
+
+			vec4 OCIODisplay(vec4 inPixel);
+
+			void main()
+			{
+				vec4 accumulatedBuffer = texture(u_Texture, TexCoords);
+				vec4 averagedColor = accumulatedBuffer / float(u_FrameCount);
+
+
+				averagedColor *= 0.8;
+				averagedColor = OCIODisplay(averagedColor);
+				vec3 color = averagedColor.rgb;
+
+				FragColor = vec4(color, 1.0);
+			}
+		)";
+
+		ocioFrag += ocioAces;
+		// ocioFrag += ocioLinearToAces;
+
+		// RNDR_CORE_INFO("OCIO Fragment Shader: {0}", ocioFrag);
+
+		m_AccumulateShader = Shader::Create("Editor/assets/shaders/accumulation/accumulate.glsl");
+		// m_AccumulateShader = Shader::Create("ocioShader", ocioVert.c_str(), ocioFrag.c_str());
+		// frameBufferSpec.Attachments = { FrameBufferTextureFormat::RGBA32F };
+		// FrameBufferTextureFormat::RGBA8
+		frameBufferSpec.Attachments = { FrameBufferTextureFormat::RGBA8 };
+		m_AccumulateFB = FrameBuffer::Create(frameBufferSpec);
+
+
+
+
+
+
+
+
+
+
+		// {
+		// 	OCIO::ConstConfigRcPtr config = OCIO::Config::CreateFromFile("ocio://default");
+
+		// 	// List all color spaces
+		// 	int numColorSpaces = config->getNumColorSpaces();
+		// 	for (int i = 0; i < numColorSpaces; ++i)
+		// 	{
+		// 		const char* colorSpaceName = config->getColorSpaceNameByIndex(i);
+		// 		// std::cout << colorSpaceName << std::endl;
+		// 		RNDR_CORE_INFO("Color Space: {0}", colorSpaceName);
+		// 	}
+		// 	exit(0);
+		// }
+
+
+
+
+
+		//? OCIO - OpenColorIO
+
 
 	}
+
+		// void onUpdate() {
+	// 	// Use the OCIO shader program to apply the color transformation
+	// 	glUseProgram(this->ocioProgram);
+
+	// 	// Bind the accumulated buffer texture
+	// 	glActiveTexture(GL_TEXTURE0);
+	// 	glBindTexture(GL_TEXTURE_2D, accumulatedBufferTextureID);
+	// 	glUniform1i(glGetUniformLocation(this->ocioProgram, "inputTexture"), 0);
+
+	// 	// Render a full-screen quad or appropriate geometry
+	// 	glDrawArrays(GL_TRIANGLES, 0, 6);
+	// }
 
 	void Sandbox3D::OnDetach()
 	{
@@ -272,14 +535,18 @@ namespace Rndr
 
 	void Sandbox3D::OnUpdate(Timestep ts)
 	{
+		// m_FrameCount = 1;
+
 		FrameBufferSpecification spec = m_FrameBuffer->GetSpecification();
 		if (m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && (spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
 		{
+			m_FrameCount = 1;
 			FrameBufferSpecification spec;
 			spec.Width = m_ViewportSize.x;
 			spec.Height = m_ViewportSize.y;
 			// m_FrameBuffer = FrameBuffer::Create(spec);
 			m_FrameBuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+			m_AccumulateFB->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			// m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
 			m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
@@ -298,7 +565,8 @@ namespace Rndr
 		if (m_ViewportFocused)
 		{
 			// m_CameraController.OnUpdate(ts);
-			m_EditorCamera.OnUpdate(ts);
+			if (m_EditorCamera.OnUpdate(ts))
+				m_FrameCount = 1;
 		}
 
 		Renderer2D::ResetStats();
@@ -362,6 +630,9 @@ namespace Rndr
 			m_ComputeShader->SetMat4("u_InvView", glm::inverse(m_EditorCamera.GetViewMatrix()));
 			m_ComputeShader->SetMat4("u_InvProj", glm::inverse(m_EditorCamera.GetProjection()));
 			m_ComputeShader->SetFloat3("u_CameraPos", m_EditorCamera.GetPosition());
+
+
+			m_ComputeShader->SetUnsignedInt("u_FrameCount", m_FrameCount);
 			// m_ComputeShader->SetUnsignedInt("u_MaxIndices", m_ActiveScene->m_Mesh.m_VerticesIndex.size());
 			// m_ComputeShader->SetUnsignedInt("u_ShowDepth", m_ActiveScene->GetBVHDepth());
 			glBindImageTexture(0, m_TempComputeTextureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
@@ -378,11 +649,87 @@ namespace Rndr
 			m_ComputeShader->Dispatch((m_ViewportSize.x + 7) / 8, (m_ViewportSize.y + 7) / 8, 1);
 			// glGetError();
 		}
+
+
+		{
+			m_AccumulateFB->Bind();
+			RenderCommand::SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1));
+			RenderCommand::Clear();
+			m_AccumulateShader->Bind();
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, m_TempComputeTextureID);
+
+			m_AccumulateShader->SetInt("u_Texture", 0);
+			m_AccumulateShader->SetUnsignedInt("u_FrameCount", m_FrameCount);
+
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			m_AccumulateShader->Unbind();
+			m_AccumulateFB->Unbind();
+		}
 		// m_TempComputeTextureID
 		// glBindTexture(GL_TEXTURE_2D, m_TempComputeTextureID);
 
 		// m_ComputeFrameBuffer->Unbind();
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+		// if (m_FrameCount == 10000)
+		// {
+		// 	std::vector<float> data;
+
+		// 	data.resize(m_ViewportSize.x * m_ViewportSize.y * 4);
+		// 	glGetTextureImage(m_TempComputeTextureID, 0, GL_RGBA, GL_FLOAT, data.size() * sizeof(float), data.data());
+
+
+
+		// 	using namespace OIIO;
+		// 	auto out = ImageOutput::create("output.exr");
+
+		// 	ImageSpec spec(m_ViewportSize.x, m_ViewportSize.y, 4, TypeDesc::FLOAT);
+		// 	out->open("output.exr", spec);
+		// 	out->write_image(TypeDesc::FLOAT, data.data());
+		// 	out->close();
+
+		// 	RNDR_CORE_INFO("Image saved successfully");
+		// 	exit(0);
+		// }
+
+
+
+		if (Input::IsKeyPressed(RNDR_KEY_LEFT_CONTROL) && Input::IsKeyPressed(RNDR_KEY_P))
+		{
+			// std::vector<float> data;
+
+			// data.resize(m_ViewportSize.x * m_ViewportSize.y * 4);
+			// glGetTextureImage(m_AccumulateFB->GetColorAttachmentRendererID(), 0, GL_RGBA, GL_FLOAT, data.size() * sizeof(float), data.data());
+
+			// using namespace OIIO;
+			// auto out = ImageOutput::create("output.exr");
+
+			// ImageSpec spec(m_ViewportSize.x, m_ViewportSize.y, 4, TypeDesc::FLOAT);
+			// out->open("output.exr", spec);
+			// out->write_image(TypeDesc::FLOAT, data.data());
+			// out->close();
+
+		}
+
+
+
+
+
+
+		m_FrameCount++;
 	}
 
 
@@ -474,6 +821,27 @@ namespace Rndr
 			ImGui::Text("Line Count: %d", stats.LineCount);
 
 
+			if (ImGui::Button("Refresh render view"))
+				m_FrameCount = 1;
+
+			ImGui::Text("Framecount %d", m_FrameCount);
+
+
+
+			ImGui::End();
+
+
+
+			ImGui::Begin("Entity list");
+			const auto& reg = m_ActiveScene->GetRegistry();
+			auto view = reg.view<TagComponent>();
+			// list all entit tags
+			for (auto entity : view)
+			{
+				Entity entt = { entity, m_ActiveScene.get() };
+				auto& tag = entt.GetComponent<TagComponent>().Tag;
+				ImGui::Text("%s", tag.c_str());
+			}
 
 			ImGui::End();
 		}
@@ -536,7 +904,8 @@ namespace Rndr
 
 				// Entity transform
 				auto& tc = selectedEntity.GetComponent<TransformComponent>();
-				glm::mat4 transform = tc.GetTransform();
+				glm::mat4 localTransform = tc.GetTransform();
+				glm::mat4 worldTransform = tc.GetWorldTransform();
 
 				// Snapping
 				bool snap = Input::IsKeyPressed(RNDR_KEY_LEFT_CONTROL);
@@ -547,19 +916,34 @@ namespace Rndr
 
 				float snapValues[3] = { snapValue, snapValue, snapValue };
 
+
+				glm::mat4 worldTransformCopy = worldTransform;
 				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
-					(ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
+					(ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(worldTransformCopy),
 					nullptr, snap ? snapValues : nullptr);
 
 				if (ImGuizmo::IsUsing())
 				{
-					glm::vec3 translation, rotation, scale;
-					Math::DecomposeTransform(transform, translation, rotation, scale);
+					// glm::vec3 translation, rotation, scale;
+					// Math::DecomposeTransform(worldTransform, translation, rotation, scale);
 
-					glm::vec3 deltaRotation = rotation - tc.Rotation;
-					tc.Translation = translation;
-					tc.Rotation += deltaRotation;
-					tc.Scale = scale;
+					// glm::vec3 deltaRotation = rotation - tc.Rotation;
+					// tc.Translation = translation;
+					// tc.Rotation += deltaRotation;
+					// tc.Scale = scale;
+					// m_SceneHierarchyPanel.UpdateWorldTransform(selectedEntity);
+
+
+					glm::vec3 worldTranslation, worldRotation, worldScale;
+					Math::DecomposeTransform(worldTransform, worldTranslation, worldRotation, worldScale);
+					glm::vec3 translation, rotation, scale;
+					Math::DecomposeTransform(worldTransformCopy, translation, rotation, scale);
+
+					tc.Translation = translation - worldTranslation + tc.Translation;
+					tc.Rotation = rotation - worldRotation + tc.Rotation;
+					tc.Scale = scale - worldScale + tc.Scale;
+
+					m_SceneHierarchyPanel.UpdateWorldTransform(selectedEntity);
 				}
 			}
 			ImGui::End();
@@ -568,6 +952,7 @@ namespace Rndr
 			{
 				ImGui::Begin("Render view");
 				uint64_t textureID = m_TempComputeTextureID;
+				textureID = m_AccumulateFB->GetColorAttachmentRendererID();
 				// uint64_t textureID = m_SkyTextureID;
 				ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 				ImGui::End();
@@ -616,6 +1001,7 @@ namespace Rndr
 
 	void Sandbox3D::OnEvent(Event& e)
 	{
+		m_FrameCount = 1;
 		m_EditorCamera.OnEvent(e);
 		//TODO: camera controller
 	
@@ -658,13 +1044,13 @@ namespace Rndr
 			case RNDR_KEY_Q:
 				m_GizmoType = -1;
 				break;
-			case RNDR_KEY_W:
+			case RNDR_KEY_E:
 				m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
 				break;
-			case RNDR_KEY_E:
+			case RNDR_KEY_R:
 				m_GizmoType = ImGuizmo::OPERATION::ROTATE;
 				break;
-			case RNDR_KEY_R:
+			case RNDR_KEY_T:
 				m_GizmoType = ImGuizmo::OPERATION::SCALE;
 				break;
 		}

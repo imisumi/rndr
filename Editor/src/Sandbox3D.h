@@ -31,6 +31,7 @@ namespace Rndr
 		virtual void OnImGuiRender() override;
 		virtual void OnEvent(Event& e) override;
 
+
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
 		bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
@@ -95,6 +96,13 @@ namespace Rndr
 		uint32_t m_SkyTextureID;
 		uint32_t m_SkyTextureWidth, m_SkyTextureHeight;
 
-		bool m_EnableCompute = true;
+		Ref<FrameBuffer> m_AccumulateFB;
+		Ref<Shader> m_AccumulateShader;
+
+		bool m_EnableCompute = false;
+		uint32_t m_FrameCount = 1;
+
+
+		uint32_t m_OCIOShader;
 	};
 }

@@ -10,6 +10,8 @@ namespace Rndr
 	{
 	public:
 		UUID();
+		UUID(uint64_t uuid)
+			: m_UUID(uuid) {}
 
 		operator uint64_t() const { return m_UUID; }
 	private:

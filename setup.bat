@@ -1,4 +1,8 @@
 @echo off
+
+rem Set the OCIO environment variable to use a specific config URI
+@REM set OCIO=ocio://default
+
 rem Create a new directory called "build"
 mkdir build
 

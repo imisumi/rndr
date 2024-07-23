@@ -40,12 +40,58 @@ namespace Rndr
 			: Tag(tag) {}
 	};
 
+	struct ChildComponent
+	{
+		std::vector<UUID> Children;
+
+		ChildComponent() = default;
+		ChildComponent(const ChildComponent&) = default;
+
+		void AddChild(UUID child)
+		{
+			Children.push_back(child);
+		}
+
+		void RemoveChild(UUID child)
+		{
+			auto it = std::find(Children.begin(), Children.end(), child);
+			if (it != Children.end())
+				Children.erase(it);
+		}
+
+		bool HasChild(UUID child)
+		{
+			auto it = std::find(Children.begin(), Children.end(), child);
+			return it != Children.end();
+		}
+
+		bool HasChildren()
+		{
+			return !Children.empty();
+		}
+	};
+
+	struct ParentComponent
+	{
+		UUID Parent = 0;
+
+		ParentComponent() = default;
+		ParentComponent(const ParentComponent&) = default;
+		ParentComponent(UUID parent)
+			: Parent(parent) {}
+	};
+
 	struct TransformComponent
 	{
 		// glm::mat4 Transform{ 1.0f };
 		glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f }; // in Radians
 		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
+
+		// glm::mat4 WorldTransform = glm::mat4(1.0f);
+		glm::vec3 WorldTranslation = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 WorldRotation = { 0.0f, 0.0f, 0.0f }; // in Radians
+		glm::vec3 WorldScale = { 1.0f, 1.0f, 1.0f };
 
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
@@ -63,6 +109,17 @@ namespace Rndr
 			glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
 
 			glm::mat4 scale = glm::scale(glm::mat4(1.0f), Scale);
+
+			return translation * rotation * scale;
+		}
+
+		glm::mat4 GetWorldTransform() const
+		{
+			glm::mat4 translation = glm::translate(glm::mat4(1.0f), WorldTranslation);
+
+			glm::mat4 rotation = glm::toMat4(glm::quat(WorldRotation));
+
+			glm::mat4 scale = glm::scale(glm::mat4(1.0f), WorldScale);
 
 			return translation * rotation * scale;
 		}
