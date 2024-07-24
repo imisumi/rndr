@@ -73,6 +73,23 @@ namespace Rndr {
 		}
 
 		ImGui::End();
+
+
+		ImGui::Begin("object bvh info");
+
+		if (m_SelectionContext && m_SelectionContext.HasComponent<MeshComponent>())
+		{
+			auto& mesh = m_SelectionContext.GetComponent<MeshComponent>();
+			ImGui::Text("BVH info");
+			int meshCount = mesh.Mesh->m_SubMeshes.size();
+			ImGui::Text("Mesh count: %d", meshCount);
+			int min  = 0;
+			int max = meshCount - 1;
+			static int selectedMesh = 0;
+			ImGui::SliderInt("Mesh", &selectedMesh, min, max);
+		}
+
+		ImGui::End();
 	}
 
 	void SceneHierarchyPanel::BeginDragDropSource(UUID id, const std::string& tag)
