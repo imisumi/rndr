@@ -122,6 +122,25 @@ namespace Rndr {
 		};
 		static_assert(sizeof(Index) == 3 * sizeof(uint32_t));
 
+		struct bvhNode
+		{
+
+			int ChildIndex = 0;
+			int TriangleIndex = 0;
+			int TriangleCount = 0;
+			int padding3;
+
+		
+			glm::vec3 Min = glm::vec3(INFINITY);
+			float padding1;
+
+			glm::vec3 Max = glm::vec4(-INFINITY);
+			float padding2;
+		
+
+		};
+		static_assert(sizeof(bvhNode) == 48, "bvh struct size should be 48 bytes.");
+
 		Mesh() = default;
 		Mesh(const std::string& filename);
 		~Mesh();

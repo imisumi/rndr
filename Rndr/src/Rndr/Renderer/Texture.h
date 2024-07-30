@@ -6,9 +6,11 @@
 
 #include <filesystem>
 
+#include "Rndr/Assets/Asset.h"
+
 namespace Rndr
 {
-	class Texture
+	class Texture : public Asset
 	{
 	public:
 		virtual ~Texture() = default;
@@ -29,5 +31,8 @@ namespace Rndr
 		static Ref<Texture2D> Create(uint32_t width, uint32_t height);
 		static Ref<Texture2D> Create(const std::string& path);
 		static Ref<Texture2D> Create(const std::filesystem::path& path);
+
+
+		virtual AssetType GetType() const override { return AssetType::Texture; }
 	};
 }

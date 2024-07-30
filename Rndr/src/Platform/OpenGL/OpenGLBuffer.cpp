@@ -275,7 +275,7 @@ namespace Rndr
 				case FrameBufferTextureFormat::RGBA32F: return GL_RGBA32F;
 			}
 
-			RNDR_CORE_ASSERT(false);
+			RNDR_CORE_ASSERT(false, "Unknown FrameBufferTextureFormat!");
 			return 0;
 		}
 
@@ -358,7 +358,7 @@ namespace Rndr
 
 		if (m_ColorAttachments.size() > 1)
 		{
-			RNDR_CORE_ASSERT(m_ColorAttachments.size() <= 4);
+			RNDR_CORE_ASSERT(m_ColorAttachments.size() <= 4, "Renderer supports only 4 color attachments!");
 			GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
 			glDrawBuffers(m_ColorAttachments.size(), buffers);
 		}
@@ -406,7 +406,7 @@ namespace Rndr
 
 	int OpenGLFrameBuffer::ReadPixel(uint32_t attachmentIndex, int x, int y)
 	{
-		RNDR_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size());
+		RNDR_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size(), "Attachment index out of range!");
 
 		glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
 		int pixelData;
@@ -416,11 +416,33 @@ namespace Rndr
 
 	void OpenGLFrameBuffer::ClearAttachment(uint32_t attachmentIndex, int value)
 	{
-		RNDR_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size());
+		RNDR_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size(), "Attachment index out of range!");
 
 		auto& spec = m_ColorAttachmentSpecifications[attachmentIndex];
 		glClearTexImage(m_ColorAttachments[attachmentIndex], 0, 
 			Utils::FrameBufferTextureFormatToGL(spec.TextureFormat), GL_INT, &value);
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
 
 }

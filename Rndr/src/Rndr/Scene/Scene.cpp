@@ -261,15 +261,16 @@ namespace Rndr
 
 		// m_Mesh = Mesh("Editor/assets/meshes/sphere.obj");
 		// m_Mesh = Mesh("Editor/assets/meshes/dragon.obj");
-		m_Mesh = Mesh("Editor/assets/meshes/dragon_with_plane.obj");
+		// m_Mesh = Mesh("Editor/assets/meshes/dragon_with_plane.obj");
+		m_Mesh = Mesh("Editor/assets/meshes/3cubes.fbx");
 		// m_Mesh = Mesh("Editor/assets/meshes/4_cubes.obj");
 		// m_Mesh = Mesh("Editor/assets/meshes/dragon_80k.obj");
 		// m_Mesh = Mesh("Editor/assets/meshes/dragon.fbx");
 		m_MeshMaterial = CreateRef<Material>();
 		m_MeshMaterial->SetShader(Shader::Create("Editor/assets/shaders/MeshShader.glsl"));
 
-
-
+		m_NullObject = Texture2D::Create(std::string("Editor/assets/icons/null_icon.png"));
+		m_MeshIcon = Texture2D::Create(std::string("Editor/assets/icons/mesh_icon.png"));
 		// glm::vec3 min = glm::vec3(1.0f) * INFINITY;
 		// glm::vec3 max = glm::vec3(1.0f) * -INFINITY;
 		// for (Mesh::Triangle tri : m_Mesh.m_Triangles)
@@ -631,6 +632,7 @@ namespace Rndr
 	template void Scene::OnComponentAdded<CubeComponent>(Entity entity, CubeComponent& component);
 	template void Scene::OnComponentAdded<DefaultMaterialComponent>(Entity entity, DefaultMaterialComponent& component);
 	template void Scene::OnComponentAdded<MeshComponent>(Entity entity, MeshComponent& component);
+	template void Scene::OnComponentAdded<NullComponent>(Entity entity, NullComponent& component);
 
 
 

@@ -30,9 +30,12 @@ namespace Rndr {
 		void DrawComponents(Entity entity);
 
 		void BeginDragDropSource(UUID id, const std::string& tag);
-		void BeginDragDropTarget(Entity entity);
+		bool BeginDragDropTarget(Entity entity);
 
 		void ReccursiveUpdateWorldTransform(Entity entity);
+
+
+		void RenderEntityIcon(Entity entity);
 	private:
 		Ref<Scene> m_Context;
 		Entity m_SelectionContext;

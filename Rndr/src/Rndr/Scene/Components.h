@@ -170,7 +170,10 @@ namespace Rndr
 		glm::vec4 Color = { 0.8f, 0.2f, 0.3f, 1.0f };
 	};
 
-
+	struct NullComponent
+	{
+		bool Null = true;
+	};
 
 
 	struct MeshComponent

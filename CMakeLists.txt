@@ -33,6 +33,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${FullOutputDir})
 # RNDR_ENABLE_ASSERTS
 set(RNDR_ENABLE_ASSERTS ON)
 
+add_compile_definitions(RNDR_ENABLE_ASSERTS)
 if(UNIX AND NOT APPLE)
 	add_compile_definitions(RNDR_PLATFORM_LINUX)
 elseif(WIN32)

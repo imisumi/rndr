@@ -8,6 +8,7 @@
 #include "Panels/SceneHierarchyPanel.h"
 #include "Panels/ContentBrowserPanel.h"
 #include "Panels/MaterialPanel.h"
+#include "Panels/AssetManagerPanel.h"
 
 
 #include "Rndr/Renderer/EditorCamera.h"
@@ -15,6 +16,10 @@
 #include "Rndr/Renderer/Mesh.h"
 
 #include "Rndr/Renderer/ComputeShader.h"
+
+
+
+#include "Rndr/Renderer/FrameBufferLibrary.h"
 
 namespace Rndr
 {
@@ -31,6 +36,11 @@ namespace Rndr
 		virtual void OnImGuiRender() override;
 		virtual void OnEvent(Event& e) override;
 
+		Ref<AssetManager> GetAssetManager() { return m_AssetManager; }
+
+
+		inline static Sandbox3D& Get() { return *s_Instance; }
+
 
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
@@ -45,6 +55,8 @@ namespace Rndr
 		void LoadMeshEntity(const std::filesystem::path& path);
 	private:
 		// ShaderLibrary m_ShaderLibrary;
+		static Sandbox3D* s_Instance;
+
 
 		Ref<Scene> m_ActiveScene;
 
@@ -53,7 +65,7 @@ namespace Rndr
 		Entity m_CameraEntity;
 		Entity m_HoveredEntity = { entt::null, nullptr };
 	
-		Ref<FrameBuffer> m_FrameBuffer;
+
 		Ref<FrameBuffer> m_ComputeFrameBuffer;
 
 		glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
@@ -67,13 +79,14 @@ namespace Rndr
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 		ContentBrowserPanel m_ContentBrowserPanel;
 		MaterialPanel m_MaterialPanel;
+		AssetManagerPanel m_AssetManagerPanel;
 
 		glm::vec4 M_TestColor = { 0.8f, 0.2f, 0.3f, 1.0f };
 
 		EditorCamera m_EditorCamera;
 
 
-		Ref<Texture2D> m_CubeIcon;
+		Ref<Texture2D> m_CubeIcon, m_NullIcon;
 
 		Ref<ComputeShader> m_ComputeShader;
 		uint32_t m_TempComputeTextureID;
@@ -88,8 +101,13 @@ namespace Rndr
 		Ref<LineMaterial> m_LineMaterial;
 
 
+		Ref<AssetManager> m_AssetManager = CreateRef<AssetManager>();
+
+
 		// MaterialLibrary m_MaterialLibrary;
 		Ref<MaterialLibrary> m_MaterialLibrary;
+
+		FrameBufferLibrary m_FrameBufferLibrary;
 
 
 		std::vector<float> m_SkyPixels;

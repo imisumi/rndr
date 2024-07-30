@@ -31,11 +31,16 @@
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE;
 
+
+
 namespace Rndr
 {
+	Sandbox3D* Sandbox3D::s_Instance = nullptr;
+
 	Sandbox3D::Sandbox3D()
-		: Layer("Sandbox3D") 
+		: Layer("Sandbox3D")
 	{
+		s_Instance = this;
 	}
 
 	// struct alignas(16) tempBVH
@@ -45,9 +50,11 @@ namespace Rndr
 	// 	int childIndex = 0;
 	// };
 
+	// Scene* s_SceneInstance = nullptr;
 
 	void Sandbox3D::OnAttach()
 	{
+		// s_Instance = this;
 		RNDR_CORE_TRACE("Sandbox3D::OnAttach");
 		FrameBufferSpecification frameBufferSpec;
 		frameBufferSpec.Attachments = { FrameBufferTextureFormat::RGBA8, 
@@ -55,7 +62,8 @@ namespace Rndr
 			FrameBufferTextureFormat::Depth };
 		frameBufferSpec.Width = 1280;
 		frameBufferSpec.Height = 720;
-		m_FrameBuffer = FrameBuffer::Create(frameBufferSpec);
+		m_FrameBufferLibrary.Add("EditorFrameBuffer", frameBufferSpec);
+		// m_FrameBuffer = FrameBuffer::Create(frameBufferSpec);
 
 		frameBufferSpec.Attachments = { FrameBufferTextureFormat::RGBA32F };
 		m_ComputeFrameBuffer = FrameBuffer::Create(frameBufferSpec);
@@ -75,8 +83,6 @@ namespace Rndr
 		// m_MaterialPanel(m_MaterialLibrary)
 		m_MaterialPanel.SetMaterialLibrary(m_MaterialLibrary);
 
-		m_CubeIcon = Texture2D::Create(std::string("Editor/assets/textures/cube_icon.png"));
-
 		m_ActiveScene = CreateRef<Scene>();
 
 
@@ -85,62 +91,24 @@ namespace Rndr
 		cube.AddComponent<DefaultMaterialComponent>(material);
 		auto name = cube.GetComponent<DefaultMaterialComponent>().Material->GetName();
 		RNDR_CORE_INFO("Material Name: {0}", name);
-		// name.SetColor(glm::vec4(0.8f, 0.2f, 0.3f, 1.0f));
-		// cube.GetComponent<DefaultMaterialComponent>().Material->SetColor(glm::vec4(0.8f, 1.0f, 0.3f, 1.0f));
-		// glm::vec4 color = cube.GetComponent<DefaultMaterialComponent>().Material->GetColor();
-		// RNDR_CORE_INFO("Material Color: {0}, {1}, {2}, {3}", color.r, color.g, color.b, color.a);
-		// exit(0);
-		// name.Mater
 
-		// test entity with child
-		{
-			auto parent = m_ActiveScene->CreateEntity("parent");
-			auto child = m_ActiveScene->CreateEntity("child");
-			auto child2 = m_ActiveScene->CreateEntity("child2");
-			auto child3 = m_ActiveScene->CreateEntity("child3");
-
-			auto parentID = parent.GetComponent<IDComponent>().ID;
-			auto childID = child.GetComponent<IDComponent>().ID;
-			auto child2ID = child2.GetComponent<IDComponent>().ID;
-			auto child3ID = child3.GetComponent<IDComponent>().ID;
-
-			// child.AddComponent<ParentComponent>(parentID);
-			// parent.AddComponent<ChildComponent>(childID);
-
-			// parent.GetComponent<ChildComponent>().Children.push_back(childID);
-			parent.GetComponent<ChildComponent>().AddChild(childID);
-			child.GetComponent<ParentComponent>().Parent = parentID;
-
-			parent.GetComponent<ChildComponent>().AddChild(child3ID);
-			child3.GetComponent<ParentComponent>().Parent = parentID;
-
-			child.GetComponent<ChildComponent>().AddChild(child2ID);
-			child2.GetComponent<ParentComponent>().Parent = childID;
-			// auto paretid = child.GetComponent<ParentComponent>().Parent;
-			// uint64_t id = paretid;
-			// RNDR_CORE_INFO("Parent ID: {0}", id);
-			// exit(0);
-
-
-
-		}
 
 		m_LineMaterial = LineMaterial::Create(Shader::Create("Editor/assets/shaders/LineShader.glsl"));
 		m_ActiveScene->SetLineMaterial(m_LineMaterial);
 
-		// auto square = m_ActiveScene->CreateEntity("Quad Entity");
-		// square.AddComponent<QuadComponent>(m_SquareColor);
-
-		// auto camera = m_ActiveScene->CreateEntity("Camera Entity");
-		// auto cam = camera.AddComponent<CameraComponent>().Primary = true;
-		// cam.Camera.SetViewportSize(1280, 720);
-
-
-		// auto tri = m_ActiveScene->CreateEntity("Triangle");
-		// tri.AddComponent<QuadComponent>(glm::vec4(0.8f, 0.2f, 0.3f, 1.0f));
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
-
+		m_AssetManagerPanel.SetAssetManager(m_AssetManager);
+		{
+			AssetHandle handle = m_AssetManager->ImportAsset("Editor/assets/icons/null_icon.png");
+			Ref<Texture2D> asset = m_AssetManager->GetAssetAs<Texture2D>(handle);
+			m_NullIcon = asset;
+		}
+		{
+			AssetHandle handle = m_AssetManager->ImportAsset("Editor/assets/textures/cube_icon.png");
+			Ref<Texture2D> asset = m_AssetManager->GetAssetAs<Texture2D>(handle);
+			m_CubeIcon = asset;
+		}
 
 		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 		// m_EditorCamera.SetPosition({ 0.0f, 0.0f, 2.0f });
@@ -515,19 +483,6 @@ namespace Rndr
 
 	}
 
-		// void onUpdate() {
-	// 	// Use the OCIO shader program to apply the color transformation
-	// 	glUseProgram(this->ocioProgram);
-
-	// 	// Bind the accumulated buffer texture
-	// 	glActiveTexture(GL_TEXTURE0);
-	// 	glBindTexture(GL_TEXTURE_2D, accumulatedBufferTextureID);
-	// 	glUniform1i(glGetUniformLocation(this->ocioProgram, "inputTexture"), 0);
-
-	// 	// Render a full-screen quad or appropriate geometry
-	// 	glDrawArrays(GL_TRIANGLES, 0, 6);
-	// }
-
 	void Sandbox3D::OnDetach()
 	{
 
@@ -537,7 +492,9 @@ namespace Rndr
 	{
 		// m_FrameCount = 1;
 
-		FrameBufferSpecification spec = m_FrameBuffer->GetSpecification();
+		Ref<FrameBuffer> fb = m_FrameBufferLibrary.Get("EditorFrameBuffer");
+		// FrameBufferSpecification spec = m_FrameBuffer->GetSpecification();
+		FrameBufferSpecification spec = fb->GetSpecification();
 		if (m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && (spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
 		{
 			m_FrameCount = 1;
@@ -545,7 +502,8 @@ namespace Rndr
 			spec.Width = m_ViewportSize.x;
 			spec.Height = m_ViewportSize.y;
 			// m_FrameBuffer = FrameBuffer::Create(spec);
-			m_FrameBuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+			// m_FrameBuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+			fb->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			m_AccumulateFB->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			// m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
@@ -570,11 +528,13 @@ namespace Rndr
 		}
 
 		Renderer2D::ResetStats();
-		m_FrameBuffer->Bind();
+		// m_FrameBuffer->Bind();
+		fb->Bind();
 		RenderCommand::SetClearColor(glm::vec4(0.2f, 0.2f, 0.2f, 1));
 		RenderCommand::Clear();
 
-		m_FrameBuffer->ClearAttachment(1, -1);
+		// m_FrameBuffer->ClearAttachment(1, -1);
+		fb->ClearAttachment(1, -1);
 
 		// m_ActiveScene->OnUpdateRuntime(ts);
 		LineRenderer::ResetStats();
@@ -598,7 +558,8 @@ namespace Rndr
 
 		if (mouseX >= 0 && mouseY >= 0 && mouseX < m_ViewportSize.x && mouseY < m_ViewportSize.y)
 		{
-			int pixelData = m_FrameBuffer->ReadPixel(1, mouseX, mouseY);
+			// int pixelData = m_FrameBuffer->ReadPixel(1, mouseX, mouseY);
+			int pixelData = fb->ReadPixel(1, mouseX, mouseY);
 			// RNDR_CORE_INFO("Pixel Data: {0}", pixelData);
 			// RNDR_CORE_WARN("MouseX: {0}, MouseY: {1}", mouseX, mouseY);
 
@@ -607,7 +568,8 @@ namespace Rndr
 			else
 				m_HoveredEntity = { entt::null, nullptr };
 		}
-		m_FrameBuffer->Unbind();
+		// m_FrameBuffer->Unbind();
+		fb->Unbind();
 
 		// Compute
 		// m_ComputeFrameBuffer->Bind();
@@ -765,6 +727,8 @@ namespace Rndr
 			m_SceneHierarchyPanel.OnImGuiRender();
 			m_ContentBrowserPanel.OnImGuiRender();
 			m_MaterialPanel.OnImGuiRender();
+
+			m_AssetManagerPanel.OnImGuiRender();
 		}
 		{
 			ImGui::Begin("Stats");
@@ -782,7 +746,9 @@ namespace Rndr
 
 			ImGui::Text("Viewport Size: %.0fx%.0f", m_ViewportSize.x, m_ViewportSize.y);
 
-			ImGui::Text("Framebuffer Size: %dx%d", m_FrameBuffer->GetWidth(), m_FrameBuffer->GetHeight());
+			// ImGui::Text("Framebuffer Size: %dx%d", m_FrameBuffer->GetWidth(), m_FrameBuffer->GetHeight());
+			Ref<FrameBuffer> fb = m_FrameBufferLibrary.Get("EditorFrameBuffer");
+			ImGui::Text("Framebuffer Size: %dx%d", fb->GetWidth(), fb->GetHeight());
 
 			ImGui::Separator();
 
@@ -857,7 +823,8 @@ namespace Rndr
 			ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 			m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 
-			uint64_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
+			// uint64_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
+			uint64_t textureID = m_FrameBufferLibrary.Get("EditorFrameBuffer")->GetColorAttachmentRendererID();
 			ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 			auto windowSize = ImGui::GetWindowSize();
@@ -968,9 +935,11 @@ namespace Rndr
 			ImGui::Begin("##New-Entity");
 			{
 				ImVec2 size = ImVec2(32.0f, 32.0f);                         // Size of the image we want to make visible
-				ImVec2 uv1 = ImVec2(0.0f, 0.0f);                            // UV coordinates for lower-left
-				ImVec2 uv0 = ImVec2(1.0f, 1.0f);                            // UV coordinates for upper-right
-				ImVec4 bg_col = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);             // Black background
+				// ImVec2 uv1 = ImVec2(0.0f, 0.0f);                            // UV coordinates for lower-left
+				// ImVec2 uv0 = ImVec2(1.0f, 1.0f);                            // UV coordinates for upper-right
+				ImVec2 uv1 = ImVec2(1.0f, 0.0f);                            // UV coordinates for lower-left
+				ImVec2 uv0 = ImVec2(0.0f, 1.0f);                            // UV coordinates for upper-right
+				ImVec4 bg_col = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);             // Black background
 				ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);           // No tint
 				// if (ImGui::ImageButton("##Cube", reinterpret_cast<void*>(m_CubeIcon->GetTextureID()), size, uv0, uv1, bg_col, tint_col))
 				if (ImGui::ImageButton("##Cube", (ImTextureID)(uint64_t)m_CubeIcon->GetTextureID(), size, uv0, uv1, bg_col, tint_col))
@@ -984,6 +953,13 @@ namespace Rndr
 					newMaterial->SetName("tempMaterial" + std::to_string(i++));
 					m_MaterialLibrary->Add(newMaterial->GetName(), newMaterial);
 					entity.AddComponent<DefaultMaterialComponent>(newMaterial);
+					m_SceneHierarchyPanel.SetSelectedEntity(entity);
+				}
+				if (ImGui::ImageButton("##NullEntity", (ImTextureID)(uint64_t)m_NullIcon->GetTextureID(), size, uv0, uv1, bg_col, tint_col))
+				{
+					static int count = 0;
+					auto entity = m_ActiveScene->CreateEntity("Null " + std::to_string(count++));
+					entity.AddComponent<NullComponent>();
 					m_SceneHierarchyPanel.SetSelectedEntity(entity);
 				}
 			}

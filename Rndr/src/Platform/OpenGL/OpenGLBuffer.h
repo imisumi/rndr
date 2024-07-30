@@ -2,6 +2,9 @@
 
 #include <Rndr/Renderer/Buffer.h>
 
+#include <iterator> // for std::iterator
+#include <unordered_map>
+
 namespace Rndr
 {
 	class OpenGLVertexBuffer : public VertexBuffer
@@ -55,7 +58,7 @@ namespace Rndr
 
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const override
 		{
-			RNDR_CORE_ASSERT(index < m_ColorAttachments.size());
+			RNDR_CORE_ASSERT(index < m_ColorAttachments.size(), "Index out of range!");
 			return m_ColorAttachments[index];
 		}
 		virtual uint32_t GetDepthAttachmentRendererID() const override { return m_DepthAttachment; }
@@ -86,4 +89,7 @@ namespace Rndr
 		std::vector<uint32_t> m_ColorAttachments;
 		uint32_t m_DepthAttachment = 0;
 	};
+
+
+
 }

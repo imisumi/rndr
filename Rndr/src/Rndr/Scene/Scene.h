@@ -26,6 +26,8 @@
 #include "Rndr/Renderer/Mesh.h"
 
 
+
+
 namespace Rndr
 {
 	class Entity;
@@ -104,6 +106,8 @@ namespace Rndr
 		// 	}
 		// }
 
+		Ref<Texture2D> m_NullObject, m_MeshIcon;
+
 	private:
 		entt::registry m_Registry;
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
@@ -116,6 +120,7 @@ namespace Rndr
 
 		std::vector<float> m_SkyPixels;
 
+	
 
 		// std::vector<BVHNodeV2> m_BVHNodes;
 

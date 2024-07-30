@@ -101,7 +101,7 @@ namespace Rndr {
 			ImGui::EndDragDropSource();
 		}
 	}
-	void SceneHierarchyPanel::BeginDragDropTarget(Entity entity)
+	bool SceneHierarchyPanel::BeginDragDropTarget(Entity entity)
 	{
 		if (ImGui::BeginDragDropTarget())
 		{
@@ -120,15 +120,49 @@ namespace Rndr {
 					}
 					entity.GetComponent<ChildComponent>().AddChild(droppedID);
 					droppedEntity.GetComponent<ParentComponent>().Parent = id;
+					return true;
 				}
 			}
 			ImGui::EndDragDropTarget();
+		}
+		return false;
+	}
+
+	void SceneHierarchyPanel::RenderEntityIcon(Entity entity)
+	{
+		ImVec2 uv0 = ImVec2(0.0f, 1.0f);
+		ImVec2 uv1 = ImVec2(1.0f, 0.0f);
+		if (entity.HasComponent<NullComponent>())
+		{
+			uint64_t img = m_Context->m_NullObject->GetTextureID();
+			ImVec2 cursorPos = ImGui::GetCursorPos();
+			ImGui::SetCursorPosY(cursorPos.y + 1.0f);
+			ImGui::Image((void*)img, ImVec2(16, 16), uv0, uv1);
+			ImGui::SetCursorPosY(cursorPos.y);
+
+		}
+		else if (entity.HasComponent<MeshComponent>())
+		{
+			uint64_t img = m_Context->m_MeshIcon->GetTextureID();
+			ImVec2 cursorPos = ImGui::GetCursorPos();
+			ImGui::SetCursorPosY(cursorPos.y + 1.0f);
+			ImGui::Image((void*)img, ImVec2(16, 16), uv0, uv1);
+			ImGui::SetCursorPosY(cursorPos.y);
+		}
+		else
+		{
+			uint64_t img = m_Context->m_MeshIcon->GetTextureID();
+			ImVec2 cursorPos = ImGui::GetCursorPos();
+			ImGui::SetCursorPosY(cursorPos.y + 1.0f);
+			ImGui::Image((void*)img, ImVec2(16, 16), uv0, uv1);
+			ImGui::SetCursorPosY(cursorPos.y);
 		}
 	}
 
 	void SceneHierarchyPanel::DrawChildEntityNode(Entity entity)
 	{
 		int childCount = entity.GetComponent<ChildComponent>().Children.size();
+		bool exitLoop = false;
 		if (childCount > 0)
 		{
 			// RNDR_CORE_INFO("Child count: {0}", childCount);
@@ -140,48 +174,41 @@ namespace Rndr {
 
 				ImGuiTreeNodeFlags childFlags = ((m_SelectionContext == child) ? ImGuiTreeNodeFlags_Selected : 0) | 
 					ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-				bool opened = ImGui::TreeNodeEx((void*)(uint64_t)childID, childFlags, "%s", childTag.c_str());
+				uint64_t img = m_Context->m_NullObject->GetTextureID();
+				// ImGui::Image((void*)img, ImVec2(16, 16));
+				// bool opened = ImGui::TreeNodeEx((void*)(uint64_t)childID, childFlags, "%s", childTag.c_str());
+				bool opened = ImGui::TreeNodeEx((void*)(uint64_t)childID, childFlags, "");
+				// if (opened)
+				// {
+				// 	ImGui::SameLine();
+				// 	RenderEntityIcon(child);
+				// }
+
+				if (ImGui::IsItemClicked())
+					m_SelectionContext = child;
 				bool entityDeleted = false;
+				// std::string id = std::to_string(childID);
+				// const char* idc = id.c_str();
 				if (ImGui::BeginPopupContextItem())
 				{
 					if (ImGui::MenuItem("Delete Entity"))
 						entityDeleted = true;
 					ImGui::EndPopup();
 				}
-				if (ImGui::IsItemClicked())
-					m_SelectionContext = child;
 
-				// Set the drag-and-drop source
-				// if (ImGui::BeginDragDropSource())
-				// {
-				// 	ImGui::SetDragDropPayload("ENTITY_DRAG_DROP", &childID, sizeof(UUID));
-				// 	ImGui::Text("%s", childTag.c_str());
-				// 	ImGui::EndDragDropSource();
-				// }
 				BeginDragDropSource(childID, childTag);
-				// Set the drag-and-drop target
-				// if (ImGui::BeginDragDropTarget())
-				// {
-				// 	if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_DRAG_DROP"))
-				// 	{
-				// 		UUID droppedID = *(const UUID*)payload->Data;
-				// 		if (droppedID != childID)
-				// 		{
-				// 			Entity droppedEntity = m_Context->GetEntityWithID(droppedID);
-				// 			UUID parentID = droppedEntity.GetComponent<ParentComponent>().Parent;
-				// 			if (parentID != 0)
-				// 			{
-				// 				Entity parent = m_Context->GetEntityWithID(parentID);
-				// 				parent.GetComponent<ChildComponent>().RemoveChild(droppedID);
-				// 			}
-				// 			child.GetComponent<ChildComponent>().AddChild(droppedID);
-				// 			droppedEntity.GetComponent<ParentComponent>().Parent = childID;
-							
-				// 		}
-				// 	}
-				// 	ImGui::EndDragDropTarget();
-				// }
-				BeginDragDropTarget(child);
+				if (BeginDragDropTarget(child))
+					exitLoop = true;
+				
+				ImGui::SameLine();
+				RenderEntityIcon(child);
+				ImGui::SameLine();
+				ImGui::Text("%s", childTag.c_str());
+				// ImGui::Text("Hello");
+				
+
+
+
 
 				if (opened)
 				{
@@ -194,6 +221,8 @@ namespace Rndr {
 					DeleteEntityNode(child);
 					break ;
 				}
+				if (exitLoop)
+					break;
 			}
 		}
 	}
@@ -210,39 +239,16 @@ namespace Rndr {
 			ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 
 		UUID entID = entity.GetComponent<IDComponent>().ID;
-		bool opened = ImGui::TreeNodeEx((void*)(uint64_t)entID, flags, "%s", tag.c_str());
+		// bool opened = ImGui::TreeNodeEx((void*)(uint64_t)entID, flags, "%s", tag.c_str());
+		bool opened = ImGui::TreeNodeEx((void*)(uint64_t)entID, flags, "");
+		// ImGui::SameLine();
+		// ImGui::Text("Hello");
 
-		// Set the drag-and-drop source
-		// if (ImGui::BeginDragDropSource())
-		// {
-		// 	ImGui::SetDragDropPayload("ENTITY_DRAG_DROP", &entID, sizeof(UUID));
-		// 	ImGui::Text("%s", tag.c_str());
-		// 	ImGui::EndDragDropSource();
-		// }
-		BeginDragDropSource(entID, tag);
-		// Set the drag-and-drop target
-		// if (ImGui::BeginDragDropTarget())
-		// {
-		// 	if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_DRAG_DROP"))
-		// 	{
-		// 		UUID droppedID = *(const UUID*)payload->Data;
-		// 		if (droppedID != entID)
-		// 		{
-		// 			Entity droppedEntity = m_Context->GetEntityWithID(droppedID);
-		// 			UUID parentID = droppedEntity.GetComponent<ParentComponent>().Parent;
-		// 			if (parentID != 0)
-		// 			{
-		// 				Entity parent = m_Context->GetEntityWithID(parentID);
-		// 				parent.GetComponent<ChildComponent>().RemoveChild(droppedID);
-		// 			}
-		// 			entity.GetComponent<ChildComponent>().AddChild(droppedID);
-		// 			droppedEntity.GetComponent<ParentComponent>().Parent = entID;
-		// 		}
-		// 	}
-		// 	ImGui::EndDragDropTarget();
-		// }
-		BeginDragDropTarget(entity);
+		if (ImGui::IsItemClicked())
+			m_SelectionContext = entity;
+
 		bool entityDeleted = false;
+		// const char* idc = std::to_string(entID).c_str();
 		if (ImGui::BeginPopupContextItem())
 		{
 			if (ImGui::MenuItem("Delete Entity"))
@@ -250,8 +256,19 @@ namespace Rndr {
 			ImGui::EndPopup();
 		}
 
-		if (ImGui::IsItemClicked())
-			m_SelectionContext = entity;
+
+		BeginDragDropSource(entID, tag);
+		BeginDragDropTarget(entity);
+
+
+		ImGui::SameLine();
+		RenderEntityIcon(entity);
+		ImGui::SameLine();
+		// ImGui::Text("Hello");
+		ImGui::Text("%s", tag.c_str());
+
+
+
 		if (opened)
 		{
 			DrawChildEntityNode(entity);
@@ -261,9 +278,6 @@ namespace Rndr {
 		if (entityDeleted)
 		{
 			DeleteEntityNode(entity);
-			// m_Context->DestroyEntity(entity);
-			// if (m_SelectionContext == entity)
-			// 	m_SelectionContext = { entt::null, nullptr };
 			return false;
 		}
 		return true;

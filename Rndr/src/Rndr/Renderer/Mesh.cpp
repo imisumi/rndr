@@ -333,6 +333,34 @@ namespace Rndr {
 		}
 	};
 
+
+	static void PrintAllNodes(aiNode* node, int depth = 0) {
+		if (!node) return;
+
+		// Print the current node name with indentation based on depth
+		std::string sp;
+		for (int i = 0; i < depth; ++i) {
+			// std::cout << "  "; // Indent two spaces per level
+			sp += "  ";
+		}
+		// std::cout << node->mName.C_Str() << std::endl;
+		std::string name = sp + node->mName.C_Str();
+		RNDR_CORE_INFO("{0}", name.c_str());
+
+		// Check the number of children and iterate through them
+		unsigned int numChildren = node->mNumChildren;
+		// std::cout << std::string(depth * 2, ' ') << "Children count: " << numChildren << std::endl;
+
+		for (unsigned int i = 0; i < numChildren; ++i) {
+			aiNode* childNode = node->mChildren[i];
+			if (childNode) {
+				PrintAllNodes(childNode, depth + 1);
+			} else {
+				// std::cout << std::string((depth + 1) * 2, ' ') << "Null child at index " << i << std::endl;
+			}
+		}
+	}
+
 	Mesh::Mesh(const std::string& filename)
 		: m_FilePath(filename)
 	{
@@ -371,7 +399,9 @@ namespace Rndr {
 
 		m_SubMeshes.reserve(scene->mNumMeshes);
 		int children = scene->mRootNode->mNumChildren;
-		RNDR_CORE_INFO("Children: {0}", children);
+		// RNDR_CORE_INFO("Children: {0}", children);
+		RNDR_CORE_INFO("Number of meshes: {0}", scene->mNumMeshes);
+		// PrintAllNodes(scene->mRootNode);
 		// exit(0);
 		for (int currentMesh = 0; currentMesh < scene->mNumMeshes; currentMesh++)
 		{

@@ -164,6 +164,8 @@ namespace Rndr
 
 
 
+
+
 	enum class FrameBufferTextureFormat
 	{
 		None = 0,
@@ -233,4 +235,5 @@ namespace Rndr
 
 		static Ref<FrameBuffer> Create(const FrameBufferSpecification& spec);
 	};
+
 }

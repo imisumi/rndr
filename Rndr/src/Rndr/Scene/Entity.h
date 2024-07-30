@@ -26,6 +26,15 @@ namespace Rndr
 			return component;
 		}
 
+		// template<typename T>
+		// T& AddComponent()
+		// {
+		// 	RNDR_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
+		// 	T& component = m_Scene->m_Registry.emplace<T>(m_EntityHandle, nullptr);
+		// 	m_Scene->OnComponentAdded<T>(*this, component);
+		// 	return component;
+		// }
+
 		template<typename T>
 		T& GetComponent()
 		{
