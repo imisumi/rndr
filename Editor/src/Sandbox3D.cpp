@@ -847,7 +847,10 @@ namespace Rndr
 					RNDR_CORE_INFO("Extension: {0}", extension);
 					// OpenScene(path);
 					if (extension == ".fbx" || extension == ".obj")
-						LoadMeshEntity(path);
+					{
+						// LoadMeshEntity(path);
+						Mesh::ImportMesh(path, m_ActiveScene);
+					}
 				}
 				ImGui::EndDragDropTarget();
 			}

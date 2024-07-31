@@ -300,7 +300,7 @@
 
 // }
 
-
+#include "Rndr/Scene/Entity.h"
 
 namespace Rndr {
 
@@ -511,6 +511,62 @@ namespace Rndr {
 	void Mesh::Render()
 	{
 
+	}
+
+
+
+
+
+
+
+
+
+
+	void Mesh::ImportMesh(const std::filesystem::path& path, Ref<Scene>& scene)
+	{
+		LogStream::Initialize();
+
+		RNDR_CORE_INFO("Loading mesh: {0}", path.string().c_str());
+
+		Assimp::Importer importer;
+
+		const aiScene* aiScene = importer.ReadFile(path.string(), ImportFlags);
+		if (!scene || !aiScene->HasMeshes())
+		{
+			RNDR_CORE_ERROR("Failed to load mesh file: {0}", path.string().c_str());
+		}
+
+		uint32_t numMeshes = aiScene->mNumMeshes;
+		RNDR_CORE_INFO("Number of meshes: {0}", numMeshes);
+		UUID parentEntityID = 0;
+		if (numMeshes > 1)
+		{
+			Entity entity = scene->CreateEntity();
+			entity.AddComponent<NullComponent>();
+			parentEntityID = entity.GetComponent<IDComponent>().ID;
+		}
+
+		for (uint32_t i = 0; i < numMeshes; i++)
+		{
+			aiMesh* mesh = aiScene->mMeshes[i];
+			RNDR_CORE_ASSERT(mesh->HasPositions(), "Meshes require positions.");
+			RNDR_CORE_ASSERT(mesh->HasNormals(), "Meshes require normals.");
+
+			const char* meshName = mesh->mName.C_Str();
+
+			Entity child = scene->CreateEntity(meshName);
+			child.GetComponent<ParentComponent>().Parent = parentEntityID;
+
+
+			if (numMeshes > 1)
+			{
+				Entity parent = scene->GetEntityWithID(parentEntityID);
+				parent.GetComponent<ChildComponent>().AddChild(child.GetComponent<IDComponent>().ID);
+
+			}
+
+			// parentEntity.GetComponent<ChildComponent>().AddChild(entity.GetComponent<IDComponent>().ID);
+		}
 	}
 
 }

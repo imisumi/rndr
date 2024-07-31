@@ -634,6 +634,9 @@ namespace Rndr
 	template void Scene::OnComponentAdded<MeshComponent>(Entity entity, MeshComponent& component);
 	template void Scene::OnComponentAdded<NullComponent>(Entity entity, NullComponent& component);
 
+	template void Scene::OnComponentAdded<ChildComponent>(Entity entity, ChildComponent& component);
+	template void Scene::OnComponentAdded<ParentComponent>(Entity entity, ParentComponent& component);
+
 
 
 

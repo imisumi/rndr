@@ -66,8 +66,15 @@
 
 #include "Rndr/Renderer/VertexArray.h"
 
+#include <filesystem>
+
+// #include "Rndr/Scene/Scene.h"
+
+
+
 namespace Rndr {
 
+	class Scene;
 	class Mesh
 	{
 	public:
@@ -150,6 +157,9 @@ namespace Rndr {
 		inline const std::string& GetFilePath() const { return m_FilePath; }
 
 		inline const Ref<VertexArray>& GetVertexArray() const { return m_VertexArray; }
+
+
+		static void ImportMesh(const std::filesystem::path& path, Ref<Scene>& scene);
 	// private: //TODO: make private
 		std::vector<Vertex> m_Vertices;
 		std::vector<Index> m_Indices;
