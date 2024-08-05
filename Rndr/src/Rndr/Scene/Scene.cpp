@@ -7,7 +7,6 @@
 #include "Entity.h"
 
 #include "Rndr/Renderer/Renderer2D.h"
-#include "Rndr/Renderer/Renderer3D.h"
 
 #include "Rndr/Renderer/LineRenderer.h"
 
@@ -506,16 +505,13 @@ namespace Rndr
 
 				m_Triangles.reserve(m_Triangles.size() + mesh.Mesh->m_Triangles.size());
 				m_Triangles.insert(m_Triangles.end(), mesh.Mesh->m_Triangles.begin(), mesh.Mesh->m_Triangles.end());
-				// for (int i = 0; i < mesh.Mesh->m_Triangles.size(); i++)
-				// {
-					// m_Triangles.push_back(mesh.Mesh->m_Triangles[i]);
-				// }
+
+				// m_BVHBuffer.reserve(m_BVHBuffer.size() + nodes.size());
+				// m_BVHBuffer.insert(m_BVHBuffer.end(), nodes.begin(), nodes.end());
 				m_BVHBuffer.reserve(m_BVHBuffer.size() + nodes.size());
-				m_BVHBuffer.insert(m_BVHBuffer.end(), nodes.begin(), nodes.end());
-				// for (int i = 0; i < nodes.size(); i++)
-				// {
-				// 	m_BVHBuffer.push_back(nodes[i]);
-				// }
+				m_BVHBuffer.insert(m_BVHBuffer.end(), 
+					std::make_move_iterator(nodes.begin()), 
+					std::make_move_iterator(nodes.end()));
 			}
 		}
 

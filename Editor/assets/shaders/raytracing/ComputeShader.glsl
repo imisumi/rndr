@@ -143,13 +143,6 @@ vec4 TraceRay(Ray ray, inout uint seed)
 			if (blasHit.hit && blasHit.distance < hitinfo.distance)
 				hitinfo = blasHit;
 		}
-		// if (!hitinfo.hit)
-		// {
-		// 	// vec4 sky = SampleSkybox(ray.dir);
-		// 	vec4 sky = vec4(simpleSky(ray.dir), 1.0);
-		// 	incomingLight += (sky.xyz * rayColor);
-		// 	break ;
-		// }
 		// hitinfo = RaySphere(ray, sphere, hitinfo);
 		// hitinfo = RaySphere(ray, sphere2, hitinfo);
 		if (!hitinfo.hit)

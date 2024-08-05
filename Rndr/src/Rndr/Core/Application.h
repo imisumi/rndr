@@ -14,7 +14,6 @@
 
 #include "Rndr/Renderer/Shader.h"
 
-#include "Rndr/Renderer/Buffer.h"
 
 #include "Rndr/Renderer/VertexArray.h"
 

@@ -1,6 +1,8 @@
 
 #include "FrameBufferLibrary.h"
 
+#include "Rndr/Core/Base.h"
+
 
 namespace Rndr
 {

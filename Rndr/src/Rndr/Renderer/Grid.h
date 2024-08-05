@@ -1,7 +1,5 @@
 
-
-
-#include <Rndr/Renderer/Buffer.h>
+#pragma once
 #include "Rndr/Renderer/Shader.h"
 
 #include <vector>

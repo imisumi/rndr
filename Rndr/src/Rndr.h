@@ -21,7 +21,6 @@
 #include "Rndr/Renderer/Renderer2D.h"
 #include "Rndr/Renderer/RenderCommand.h"
 
-#include "Rndr/Renderer/Buffer.h"
 #include "Rndr/Renderer/Shader.h"
 #include "Rndr/Renderer/Texture.h"
 #include "Rndr/Renderer/VertexArray.h"

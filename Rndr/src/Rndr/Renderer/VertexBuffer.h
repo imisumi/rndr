@@ -1,12 +1,10 @@
 #pragma once
 
-#include <cstdint>
+#include "Rndr/Core/Base.h"
+#include "Rndr/Core/Log.h"
 
 #include <vector>
 #include <string>
-
-#include "Rndr/Core/Log.h"
-
 
 namespace Rndr
 {
@@ -117,123 +115,24 @@ namespace Rndr
 	class VertexBuffer
 	{
 	public:
-		virtual ~VertexBuffer() {}
+		VertexBuffer(uint32_t size);
+		VertexBuffer(float* vertices, uint32_t size);
+		~VertexBuffer();
 
-		virtual void Bind() const = 0;
-		virtual void Unbind() const = 0;
+		void Bind() const;
+		void Unbind() const;
 
-		virtual void SetLayout(const BufferLayout& layout) = 0;
-		virtual const BufferLayout& GetLayout() const = 0;
+		void SetData(const void* data, uint32_t size);
 
-		virtual void SetData(const void* data, uint32_t size) = 0;
+		void SetLayout(const BufferLayout& layout) { m_Layout = layout; }
+		const BufferLayout& GetLayout() const { return m_Layout; }
 
 		static Ref<VertexBuffer> Create(uint32_t size);
 		static Ref<VertexBuffer> Create(float* vertices, uint32_t size);
-		// static Ref<VertexBuffer> Create(float* vertices, uint32_t size);
+
+
+		private:
+			uint32_t m_RendererID;
+			BufferLayout m_Layout;
 	};
-
-	class IndexBuffer
-	{
-	public:
-		virtual ~IndexBuffer() {}
-
-		virtual void Bind() const = 0;
-		virtual void Unbind() const = 0;
-
-		virtual uint32_t GetCount() const = 0;
-
-		static Ref<IndexBuffer> Create(uint32_t* indices, uint32_t count);
-	};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	enum class FrameBufferTextureFormat
-	{
-		None = 0,
-
-		// Color
-		RGBA8,
-		RGBA16F,
-		RGBA32F,
-		RED_INTEGER,
-
-		// Depth/stencil
-		DEPTH24STENCIL8,
-
-		// Defaults
-		Depth = DEPTH24STENCIL8
-	};
-
-	struct FrameBufferTextureSpecification
-	{
-		FrameBufferTextureSpecification() = default;
-		FrameBufferTextureSpecification(FrameBufferTextureFormat format)
-			: TextureFormat(format) {}
-
-		FrameBufferTextureFormat TextureFormat = FrameBufferTextureFormat::None;
-		// TODO: filtering/wrap
-	};
-
-	struct FrameBufferAttachmentSpecification
-	{
-		FrameBufferAttachmentSpecification() = default;
-		FrameBufferAttachmentSpecification(std::initializer_list<FrameBufferTextureSpecification> attachments)
-			: Attachments(attachments) {}
-
-		std::vector<FrameBufferTextureSpecification> Attachments;
-	};
-
-	struct FrameBufferSpecification
-	{
-		uint32_t Width = 0, Height = 0;
-		FrameBufferAttachmentSpecification Attachments;
-		uint32_t Samples = 1;
-
-		bool SwapChainTarget = false;
-	};
-
-	class FrameBuffer
-	{
-	public:
-		virtual ~FrameBuffer() {}
-
-		virtual const FrameBufferSpecification& GetSpecification() const = 0;
-
-		virtual void Bind() = 0;
-		virtual void Unbind() = 0;
-
-		virtual void Resize(uint32_t width, uint32_t height) = 0;
-		virtual int ReadPixel(uint32_t attachmentIndex, int x, int y) = 0;
-
-		virtual void ClearAttachment(uint32_t attachmentIndex, int value) = 0;
-
-		virtual uint32_t GetWidth() const = 0;
-		virtual uint32_t GetHeight() const = 0;
-
-		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const = 0;
-		virtual uint32_t GetDepthAttachmentRendererID() const = 0;
-
-
-		static Ref<FrameBuffer> Create(const FrameBufferSpecification& spec);
-	};
-
 }

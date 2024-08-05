@@ -1,7 +1,10 @@
 #pragma once
 
 #include <unordered_map>
-#include "Rndr/Renderer/Buffer.h"
+
+#include "FrameBuffer.h"
+
+#include <string>
 
 namespace Rndr
 {

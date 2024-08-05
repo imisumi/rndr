@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Log.h"
+
 #include <memory>
 
 #ifdef RNDR_DEBUG
