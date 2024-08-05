@@ -501,6 +501,7 @@ namespace Rndr
 				blas.TriangleOffset = m_Triangles.size();
 				blas.TriangleCount = mesh.Mesh->m_Triangles.size();
 				blas.m_Transform = transform.GetWorldTransform();
+				// blas.m_Transform = glm::inverse(blas.m_Transform);
 				m_BLASes.push_back(blas);
 
 				m_Triangles.reserve(m_Triangles.size() + mesh.Mesh->m_Triangles.size());

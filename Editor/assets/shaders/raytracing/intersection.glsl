@@ -29,7 +29,7 @@ HitInfo RayTriangle(Ray ray, Triangle tri)
     // Initialize hit info
     HitInfo hitInfo;
     // hitInfo.hit = abs(determinant) > EPSILON && dst >= 0 && u >= 0 && v >= 0 && w >= 0;
-	hitInfo.hit = determinant >= EPSILON && dst >= 0 && u >= 0 && v >= 0 && w >= 0;
+	hitInfo.hit = determinant >= 0 && dst >= 0 && u >= 0 && v >= 0 && w >= 0;
 
 	// hitInfo.hit = determinant >= EPSILON && dst >= 0 && u >= 0 && v >= 0 && w >= 0;  // Note the use of fabs
     hitInfo.position = ray.origin + ray.dir * dst;
@@ -129,9 +129,23 @@ float RayBoundingBoxDst(Ray ray, AABB aabb)
 	float tFar = min(min(t2.x, t2.y), t2.z);
 
 	bool hit = tFar >= tNear && tFar > 0;
-	// return hit ? tNear : INFINITY;
-	return hit ? tNear : -1.0;
+	float dst = hit ? tNear > 0 ? tNear : 0 : INFINITY;
+	return dst;
 };
+
+// float RayBoundingBoxDst(Ray ray, AABB aabb)
+// {
+// 	vec3 tMin = (aabb.Min - ray.origin) * ray.invDir;
+// 	vec3 tMax = (aabb.Max - ray.origin) * ray.invDir;
+// 	vec3 t1 = min(tMin, tMax);
+// 	vec3 t2 = max(tMin, tMax);
+// 	float tNear = max(max(t1.x, t1.y), t1.z);
+// 	float tFar = min(min(t2.x, t2.y), t2.z);
+
+// 	bool hit = tFar >= tNear && tFar >= 0;
+// 	return hit ? tNear : INFINITY;
+// 	// return hit ? tNear : -1.0;
+// };
 
 
 HitInfo RaySphere(Ray ray, Sphere sphere, HitInfo hitInfo)
@@ -147,7 +161,7 @@ HitInfo RaySphere(Ray ray, Sphere sphere, HitInfo hitInfo)
 	if (discriminant > 0.0)
 	{
 		float dist = (-b - sqrt(discriminant)) / (2.0 * a);
-		if (dist > 0.0 && dist < hitInfo.distance)
+		if (dist > EPSILON && dist < hitInfo.distance)
 		{
 			hitInfo.hit = true;
 			hitInfo.position = ray.origin + ray.dir * dist;
