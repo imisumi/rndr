@@ -70,11 +70,32 @@
 
 // #include "Rndr/Scene/Scene.h"
 
+#include "bvh.h"
+
+#include <tuple>
 
 
 namespace Rndr {
 
 	class Scene;
+	// struct bvhNode
+	// {
+
+	// 	int ChildIndex = 0;
+	// 	int TriangleIndex = 0;
+	// 	int TriangleCount = 0;
+	// 	int padding3;
+
+	
+	// 	glm::vec3 Min = glm::vec3(INFINITY);
+	// 	float padding1;
+
+	// 	glm::vec3 Max = glm::vec4(-INFINITY);
+	// 	float padding2;
+	
+
+	// };
+	// static_assert(sizeof(bvhNode) == 48, "bvh struct size should be 48 bytes.");
 	class Mesh
 	{
 	public:
@@ -160,6 +181,15 @@ namespace Rndr {
 
 
 		static void ImportMesh(const std::filesystem::path& path, Ref<Scene>& scene);
+
+
+		void CalculateAABB(int parentIndex);
+		void SplitBVH(int parentIndex, int depth);
+		void GenerateBVH();
+		// glm::vec3 CalcBestSplit(int parentIndex);
+		std::tuple<int, float, float> CalcBestSplit(int parentIndex);
+		float EvaluateSplit(int parentIndex, int splitAxis, int splitPos);
+
 	// private: //TODO: make private
 		std::vector<Vertex> m_Vertices;
 		std::vector<Index> m_Indices;
@@ -183,5 +213,9 @@ namespace Rndr {
 
 		std::vector<SubMesh> m_SubMeshes;
 		std::unordered_map<uint32_t, std::vector<Triangle>> m_TriangleCache;
+
+
+
+		std::vector<bvhNode> m_BVH;
 	};
 }

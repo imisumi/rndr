@@ -10,8 +10,15 @@ layout(std430, binding = 3) buffer bvhBuffer {
 } bvhData;
 
 
+layout(std430, binding = 4) buffer blasBuffer {
+	BLAS data[]; // send as glm::vec4 but becuase of memory alignment, I just use vec3
+} blasData;
+
+
 
 uniform int u_TriangleCount;
+
+uniform int u_BLASCount;
 
 uniform int u_ScreenWidth;
 uniform int u_ScreenHeight;

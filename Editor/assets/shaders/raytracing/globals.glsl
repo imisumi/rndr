@@ -3,12 +3,27 @@ const float PI = 3.14159265359;
 const float EPSILON = 1e-6;
 // const float EPSILON = 0.0;
 
-#define INFINITY (1.0 / 0.0)
+// #define INFINITY (1.0 / 0.0)
+#define INFINITY 1e20
 #define NEGATIVE_INFINITY (-1.0 / 0.0)
 
 
+struct BLAS
+{
+	int BufferIndex;
+	int TriangleOffset;
+	int TriangleCount;
+	mat4 Transform;
+};
 
-
+struct TLAS
+{
+	uint BLASIndex;
+	uint ChildIndex;
+	mat4 Transform;
+	vec3 Min;
+	vec3 Max;
+};
 
 
 
@@ -17,6 +32,12 @@ struct Triangle
 	vec3 posA, posB, posC;
 	vec3 normal;
 	// Material material;
+};
+
+struct AABB
+{
+	vec3 Min;
+	vec3 Max;
 };
 
 //TODO: compress this struct for better memory alignment

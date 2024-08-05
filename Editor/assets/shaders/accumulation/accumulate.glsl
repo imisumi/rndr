@@ -98,8 +98,10 @@ void main()
 
 	vec3 color = averagedColor.rgb;
 	// color = ACES(color);
-	color = ACESFitted(color);
-	color = pow(color, vec3(1.0 / 2.2));
+
+
+	// color = ACESFitted(color);
+	// color = pow(color, vec3(1.0 / 2.2));
 
 	// averagedColor = aces_film(averagedColor);
 	// vec3 color = averagedColor.rgb;

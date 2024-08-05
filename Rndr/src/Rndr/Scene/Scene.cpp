@@ -35,6 +35,36 @@ namespace Rndr
 		drawBVH(m_BVH[node.ChildIndex + 1], depth + 1, visableDepth);
 	}
 
+	// void Scene::drawBVHnew(Mesh::bvhNode node, int depth, int visableDepth)
+	// {
+	// 	if (depth > visableDepth)
+	// 		return;
+
+	// 	LineRenderer::DrawAABB(node.Min, node.Max, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f));
+
+	// 	if (node.ChildIndex == 0)
+	// 		return;
+	// 	drawBVHnew(node[])
+	// }
+	void Scene::drawBVHnew(std::vector<Mesh::bvhNode> bvh, int index, int depth, int visableDepth)
+	{
+		if (depth > visableDepth)
+			return;
+
+		// LineRenderer::DrawAABB(bvh[index].Min, bvh[index].Max, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f));
+		LineRenderer::DrawAABB(bvh[index].Min, bvh[index].Max, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+
+		if (bvh[index].ChildIndex == 0)
+			return;
+
+		drawBVHnew(bvh, bvh[index].ChildIndex, depth + 1, visableDepth);
+		drawBVHnew(bvh, bvh[index].ChildIndex + 1, depth + 1, visableDepth);
+
+		// if (bvh[depth] == 0)
+			// return;
+		// drawBVHnew(node[])
+	}
+
 
 	const int maxDepth = 10;
 	
@@ -353,9 +383,152 @@ namespace Rndr
 		m_Registry.destroy(entity);
 	}
 
+	// void Scene::RenderBLAS()
+	// {
+	// 	// int BLASCount = m_BLASes.size();
+	// 	// RNDR_CORE_INFO("BLAS Count: {0}", BLASCount);
+	// 	// LineRenderer::BeginScene(camera, m_LineMaterial, 1.0f);
+	// 	for (int i = 0; i < m_BLASes.size(); i++)
+	// 	{
+	// 		glm::vec3 min = m_BLASes[i].m_Transform * glm::vec4(m_BVHBuffer[m_BLASes[i].m_IndexOffset].Min, 1.0f);
+	// 		glm::vec3 max = m_BLASes[i].m_Transform * glm::vec4(m_BVHBuffer[m_BLASes[i].m_IndexOffset].Max, 1.0f);
+	// 		glm::vec3 originalMin = m_BVHBuffer[m_BLASes[i].m_IndexOffset].Min;
+	// 		glm::vec3 originalMax = m_BVHBuffer[m_BLASes[i].m_IndexOffset].Max;
+	// 		min = glm::min(min, originalMin);
+	// 		max = glm::max(max, originalMax);
+
+	// 		// Mesh::bvhNode node = m_BVHBuffer[m_BLASes[i].m_IndexOffset];
+	// 		// glm::vec3 min = node.Min 
+	// 		// glm::vec3 max = node.Max;
+	// 		LineRenderer::DrawAABB(min, max, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+
+	// 	}
+	// 	// LineRenderer::EndScene();
+	// }
+	void Scene::RenderBLAS()
+	{
+		for (int i = 0; i < m_BLASes.size(); i++)
+		{
+			const auto& node = m_BVHBuffer[m_BLASes[i].m_IndexOffset];
+
+			// Get original min and max points
+			glm::vec3 min = node.Min;
+			glm::vec3 max = node.Max;
+
+			// Define the 8 corners of the AABB
+			std::vector<glm::vec3> corners = {
+				{min.x, min.y, min.z},
+				{max.x, min.y, min.z},
+				{min.x, max.y, min.z},
+				{max.x, max.y, min.z},
+				{min.x, min.y, max.z},
+				{max.x, min.y, max.z},
+				{min.x, max.y, max.z},
+				{max.x, max.y, max.z},
+			};
+
+			// Initialize new min and max for transformed AABB
+			glm::vec3 transformedMin = glm::vec3(std::numeric_limits<float>::infinity());
+			glm::vec3 transformedMax = glm::vec3(-std::numeric_limits<float>::infinity());
+
+			// Transform each corner and update the new min and max
+			for (auto& corner : corners)
+			{
+				//? With a rotated object, the AABB will be larger than the object itself,
+				//? if you want a perfect with need to loop over all triangles with the current transform
+				glm::vec3 transformedCorner = glm::vec3(m_BLASes[i].m_Transform * glm::vec4(corner, 1.0f));
+				transformedMin = glm::min(transformedMin, transformedCorner);
+				transformedMax = glm::max(transformedMax, transformedCorner);
+			}
+
+			// Draw the updated AABB
+			LineRenderer::DrawAABB(transformedMin, transformedMax, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+		}
+	}
+
+	void Scene::RenderTLAS()
+	{
+		glm::vec3 min = m_TLAS[0].Min;
+		glm::vec3 max = m_TLAS[0].Max;
+
+		LineRenderer::DrawAABB(min, max, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+	}
+
+	void Scene::GenerateTLAS()
+	{
+		m_TLAS.clear();
+
+		int BLASCount = m_BLASes.size();
+		// auto group = m_Registry.group<MeshComponent>(entt::get<TransformComponent>);
+		glm::vec3 min = glm::vec3(std::numeric_limits<float>::infinity());
+		glm::vec3 max = glm::vec3(-std::numeric_limits<float>::infinity());
+		for (int i = 0; i < m_BLASes.size(); i++)
+		{
+			glm::vec4 tempMin = m_BLASes[i].m_Transform * glm::vec4(m_BVHBuffer[m_BLASes[i].m_IndexOffset].Min, 1.0f);
+			glm::vec4 tempMax = m_BLASes[i].m_Transform * glm::vec4(m_BVHBuffer[m_BLASes[i].m_IndexOffset].Max, 1.0f);
+			glm::vec3 blasMin = glm::vec3(tempMin);
+			glm::vec3 blasMax = glm::vec3(tempMax);
+			// TLAS tlas;
+			// tlas.m_Transform = m_BLASes[i].m_Transform;
+			// min = glm::min(min, m_BLASes[i].m_Transform * glm::vec4(m_BVHBuffer[m_BLASes[i].m_IndexOffset].Min, 1.0f));
+			// max = glm::max(max, m_BLASes[i].m_Transform * glm::vec4(m_BVHBuffer[m_BLASes[i].m_IndexOffset].Max, 1.0f));
+			min = glm::min(min, blasMin);
+			max = glm::max(max, blasMax);
+		}
+		TLAS tlas;
+		tlas.Min = min;
+		tlas.Max = max;
+		m_TLAS.push_back(tlas);
+	}
+
 	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
 	{
+		// populate the bvhbuffer //TODO dont do this every frame
+		{
+			m_BVHBuffer.clear();
+			m_BLASes.clear();
+			m_Triangles.clear();
+			auto group = m_Registry.group<MeshComponent>(entt::get<TransformComponent>);
+			for (auto entity : group)
+			{
+				auto [transform, mesh] = group.get<TransformComponent, MeshComponent>(entity);
+				// auto node = mesh.Mesh->m_BVH[0];
+				// Mesh::bvhNode node = mesh.Mesh->m_BVH[0];
+
+				auto nodes = mesh.Mesh->m_BVH;
+				BLAS blas;
+				blas.m_IndexOffset = m_BVHBuffer.size();
+				blas.TriangleOffset = m_Triangles.size();
+				blas.TriangleCount = mesh.Mesh->m_Triangles.size();
+				blas.m_Transform = transform.GetWorldTransform();
+				m_BLASes.push_back(blas);
+
+				m_Triangles.reserve(m_Triangles.size() + mesh.Mesh->m_Triangles.size());
+				m_Triangles.insert(m_Triangles.end(), mesh.Mesh->m_Triangles.begin(), mesh.Mesh->m_Triangles.end());
+				// for (int i = 0; i < mesh.Mesh->m_Triangles.size(); i++)
+				// {
+					// m_Triangles.push_back(mesh.Mesh->m_Triangles[i]);
+				// }
+				m_BVHBuffer.reserve(m_BVHBuffer.size() + nodes.size());
+				m_BVHBuffer.insert(m_BVHBuffer.end(), nodes.begin(), nodes.end());
+				// for (int i = 0; i < nodes.size(); i++)
+				// {
+				// 	m_BVHBuffer.push_back(nodes[i]);
+				// }
+			}
+		}
+
+		// generate TLAS
+		GenerateTLAS();
+
+
+
+
 		LineRenderer::BeginScene(camera, m_LineMaterial, 1.0f);
+
+		RenderBLAS();
+		// RenderTLAS();
+
 		// drawBVH( m_BVHTree.ChildA.get());
 		// drawBVH( m_BVHTree.ChildB.get());
 
@@ -368,6 +541,22 @@ namespace Rndr
 			// drawBVH(&m_BVHTree, 0, m_BVHDepth);
 			// drawBVHV2(m_BVHNodes[0], 0, m_BVHDepth);
 			// drawBVHV2temp(m_TempBVH[0], 0, m_BVHDepth);
+
+
+
+
+
+
+			// auto group = m_Registry.group<MeshComponent>(entt::get<TransformComponent>);
+			// for (auto entity : group)
+			// {
+			// 	auto [transform, mesh] = group.get<TransformComponent, MeshComponent>(entity);
+			// 	// auto node = mesh.Mesh->m_BVH[0];
+			// 	// Mesh::bvhNode node = mesh.Mesh->m_BVH[0];
+			// 	auto nodes = mesh.Mesh->m_BVH;
+			// 	drawBVHnew(nodes, 0, 0, m_BVHDepth);
+			// 	// exit(0);
+			// }
 		}
 		// drawBVHV2(m_BVHNodes[m_BVHNodes[0].ChildIndex], m_BVHDepth);
 		// drawBVHV2(m_BVHNodes[m_BVHNodes[0].ChildIndex + 1], m_BVHDepth);

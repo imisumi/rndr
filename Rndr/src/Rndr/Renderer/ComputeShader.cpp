@@ -76,7 +76,35 @@ namespace Rndr
 			int length;
 			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
 			char* message = (char*)alloca(length * sizeof(char));
+		
 			glGetShaderInfoLog(id, length, &length, message);
+			// extract the number between the () in the message
+			std::string msg(message);
+			std::string number = msg.substr(msg.find("(") + 1, msg.find(")") - msg.find("(") - 1);
+			int targetLine = std::stoi(number);
+			std::string::size_type start = 0, end;
+			int lineNumber = 0;
+			while (lineNumber < targetLine) {
+				end = source.find('\n', start);
+				if (end == std::string::npos) {
+					// If no more newlines and not reached target, break
+					if (++lineNumber < targetLine) {
+						// std::cout << "The string contains fewer than 10 lines." << std::endl;
+						// RNDR_CORE_ERROR("The string contains fewer than 10 lines.");
+					}
+					break;
+				}
+				++lineNumber;
+				if (lineNumber == targetLine) {
+					// std::cout << "The 10th line is: " << source.substr(start, end - start) << std::endl;
+					RNDR_CORE_ERROR("{0}", source.substr(start, end - start));
+					break;
+				}
+				start = end + 1; // Move start to the next line
+			}
+			// print line number from source
+
+			// RNDR_CORE_ERROR("Failed to compile compute shader! Line: {0}", number);
 			RNDR_CORE_ERROR("Failed to compile compute shader!");
 			RNDR_CORE_ERROR("{0}", message);
 			glDeleteShader(id);

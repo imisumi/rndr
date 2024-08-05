@@ -180,6 +180,9 @@ namespace Rndr
 	{
 		Ref<Rndr::Mesh> Mesh = CreateRef<Rndr::Mesh>();
 		Ref<Rndr::Material> Material = CreateRef<Rndr::Material>();
+
+		glm::vec3 Min = glm::vec3(FLT_MAX);
+		glm::vec3 Max = glm::vec3(-FLT_MAX);
 	};
 
 }

@@ -117,10 +117,13 @@ namespace Rndr
 		Ref<FrameBuffer> m_AccumulateFB;
 		Ref<Shader> m_AccumulateShader;
 
-		bool m_EnableCompute = false;
+		bool m_EnableCompute = true;
 		uint32_t m_FrameCount = 1;
 
 
 		uint32_t m_OCIOShader;
+
+
+		uint32_t m_blasID;
 	};
 }

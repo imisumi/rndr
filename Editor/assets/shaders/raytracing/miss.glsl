@@ -37,3 +37,10 @@ vec4 SampleSkybox(vec3 direction)
 	return sky;
 	// return texture(skyBox, uv);
 }
+
+vec3 simpleSky(vec3 normal)
+{
+	vec3 unitDirection = normalize(normal);
+	float t = 0.5 * (unitDirection.y + 1.0);
+	return mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
+}

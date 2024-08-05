@@ -225,10 +225,10 @@ namespace Rndr
 		// m_ActiveScene->m_Mesh.m_Triangles[1].V2 = glm::vec3(0.0f, 0.0f, 10.0f);
 		// m_ActiveScene->m_Mesh.m_Triangles[1].V3 = glm::vec3(10.0f, 0.0f, -10.0f);
 
-		glCreateBuffers(1, &m_TriangleBuffer);
-		glNamedBufferData(m_TriangleBuffer, 
-			m_ActiveScene->m_Mesh.m_Triangles.size() * sizeof(Mesh::Triangle), 
-			m_ActiveScene->m_Mesh.m_Triangles.data(), GL_STATIC_DRAW);
+		// glCreateBuffers(1, &m_TriangleBuffer);
+		// glNamedBufferData(m_TriangleBuffer, 
+		// 	m_ActiveScene->m_Mesh.m_Triangles.size() * sizeof(Mesh::Triangle), 
+		// 	m_ActiveScene->m_Mesh.m_Triangles.data(), GL_STATIC_DRAW);
 
 		int size = m_ActiveScene->m_Mesh.m_Triangles.size() * sizeof(Mesh::Triangle);
 		int sizeMB = size / 1024 / 1024;
@@ -248,18 +248,6 @@ namespace Rndr
 			m_ActiveScene->m_BVH.size() * sizeof(bvhNode), 
 			m_ActiveScene->m_BVH.data(), GL_STATIC_DRAW);
 		
-
-		// int count = m_ActiveScene->m_BVH.size();
-		// int triangleCount = m_ActiveScene->m_BVH[0].TriangleCount;
-		int index = 2;
-		// int count = m_ActiveScene->m_BVH[index].TriangleCount;
-		// int triIndex = m_ActiveScene->m_BVH[index].TriangleIndex;/
-		RNDR_CORE_INFO("BVH Index: {0}", index);
-		// RNDR_CORE_INFO("BVH Count: {0}", count);
-		// RNDR_CORE_INFO("Triangle Index: {0}", triIndex);
-		// RNDR_CORE_INFO("BVH Count: {0}", count);
-		// RNDR_CORE_INFO("Triangle Count: {0}", triangleCount);
-
 
 
 		// m_ActiveScene->SetSkyTexture(m_SkyTextureID);
@@ -481,6 +469,11 @@ namespace Rndr
 		//? OCIO - OpenColorIO
 
 
+
+
+		glCreateBuffers(1, &m_blasID);
+		glCreateBuffers(1, &m_TriangleBuffer);
+		glCreateBuffers(1, &m_bvhSSBO);
 	}
 
 	void Sandbox3D::OnDetach()
@@ -600,11 +593,34 @@ namespace Rndr
 			glBindImageTexture(0, m_TempComputeTextureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 			glBindImageTexture(1, m_SkyTextureID, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
 
-			m_ComputeShader->SetInt("u_TriangleCount", m_ActiveScene->m_Mesh.m_Triangles.size());
+
+			auto bvhBuffer = m_ActiveScene->m_BVHBuffer;
+			// glCreateBuffers(1, &m_bvhSSBO);
+			glNamedBufferData(m_bvhSSBO, 
+				bvhBuffer.size() * sizeof(Mesh::bvhNode), 
+				bvhBuffer.data(), GL_DYNAMIC_DRAW);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_bvhSSBO);
+
+
+			// glCreateBuffers(1, &m_TriangleBuffer);
+			glNamedBufferData(m_TriangleBuffer, 
+				m_ActiveScene->m_Triangles.size() * sizeof(Mesh::Triangle), 
+				m_ActiveScene->m_Triangles.data(), GL_DYNAMIC_DRAW);
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_TriangleBuffer);
 
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_BVHBuffer);
+			m_ComputeShader->SetInt("u_TriangleCount", m_ActiveScene->m_Triangles.size());
+			m_ComputeShader->SetInt("u_BVHCount", m_ActiveScene->m_BVH.size());
+			m_ComputeShader->SetInt("u_BLASCount", m_ActiveScene->m_BLASes.size());
 
+
+			// uint32_t blasID;
+			// glCreateBuffers(1, &blasID);
+			glNamedBufferData(m_blasID, 
+				m_ActiveScene->m_BLASes.size() * sizeof(BLAS), 
+				m_ActiveScene->m_BLASes.data(), GL_DYNAMIC_DRAW);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_blasID);
+
+			// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_BVHBuffer);
 			// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_PositionsSSBO);
 			// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_IndexSSBO);
 			// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_bvhSSBO);

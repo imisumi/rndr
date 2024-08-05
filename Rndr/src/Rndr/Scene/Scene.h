@@ -32,24 +32,24 @@ namespace Rndr
 {
 	class Entity;
 
-	struct bvhNode
-	{
+	// struct bvhNode
+	// {
 
-		int ChildIndex = 0;
-		int TriangleIndex = 0;
-		int TriangleCount = 0;
-		int padding3;
+	// 	int ChildIndex = 0;
+	// 	int TriangleIndex = 0;
+	// 	int TriangleCount = 0;
+	// 	int padding3;
 
 	
-		glm::vec3 Min = glm::vec3(INFINITY);
-		float padding1;
+	// 	glm::vec3 Min = glm::vec3(INFINITY);
+	// 	float padding1;
 
-		glm::vec3 Max = glm::vec4(-INFINITY);
-		float padding2;
+	// 	glm::vec3 Max = glm::vec4(-INFINITY);
+	// 	float padding2;
 	
 
-	};
-	static_assert(sizeof(bvhNode) == 48, "bvh struct size should be 48 bytes.");
+	// };
+	// static_assert(sizeof(bvhNode) == 48, "bvh struct size should be 48 bytes.");
 
 	class Scene
 	{
@@ -87,14 +87,30 @@ namespace Rndr
 		void generateAABB(int parentIndex);
 		void generateAABB(int parentIndex, int meshIndex);
 		void drawBVH(bvhNode node, int depth, int visableDepth);
+
+		void drawBVHnew(std::vector<Mesh::bvhNode> bvh, int index, int depth, int visableDepth);
 		Mesh m_Mesh;
 
 		std::vector<bvhNode> m_BVH;
 
 
+		void RenderBLAS();
+		void RenderTLAS();
+
+		void GenerateTLAS();
+
+
 		const entt::registry& GetRegistry() const { return m_Registry; }
 
 		// std::vector<tempBVH> m_TempBVH;
+
+
+		std::vector<Mesh::bvhNode> m_BVHBuffer;
+		std::vector<BLAS> m_BLASes;
+		std::vector<TLAS> m_TLAS;
+
+		std::vector<Mesh::Triangle> m_Triangles;
+
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
@@ -108,6 +124,8 @@ namespace Rndr
 
 		Ref<Texture2D> m_NullObject, m_MeshIcon;
 
+
+
 	private:
 		entt::registry m_Registry;
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
@@ -119,6 +137,13 @@ namespace Rndr
 		Ref<Material> m_MeshMaterial;
 
 		std::vector<float> m_SkyPixels;
+
+
+
+		// std::vector<Mesh::bvhNode> m_BVHBuffer;
+		// std::vector<BLAS> m_BLASes;
+		// std::vector<TLAS> m_TLAS;
+
 
 	
 
