@@ -111,6 +111,11 @@ namespace Rndr
 
 		std::vector<Mesh::Triangle> m_Triangles;
 
+
+		static void MarkDirty() { s_isDirty = true; }
+		static void ResetDirty() { s_isDirty = false; }
+		static bool IsDirty() { return s_isDirty; }
+
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
@@ -124,7 +129,7 @@ namespace Rndr
 
 		Ref<Texture2D> m_NullObject, m_MeshIcon;
 
-
+		
 
 	private:
 		entt::registry m_Registry;
@@ -157,5 +162,8 @@ namespace Rndr
 		friend class Entity;
 		friend class SceneSerializer;
 		friend class SceneHierarchyPanel;
+
+
+		static bool s_isDirty;
 	};
 }

@@ -4,8 +4,7 @@
 
 #include "LineRenderer.h"
 
-#include "Rndr/Renderer/VertexArray.h"
-#include "Rndr/Renderer/VertexArray.h"
+#include "Rndr/Renderer/opengl/VertexArray.h"
 
 #include "Rndr/Renderer/RenderCommand.h"
 

@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-#include "FrameBuffer.h"
+#include "opengl/FrameBuffer.h"
 
 #include <string>
 

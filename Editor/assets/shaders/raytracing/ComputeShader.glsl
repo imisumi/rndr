@@ -49,13 +49,12 @@ HitInfo BLASIntersection(Ray ray, BLAS blas)
 	hitInfo.hit = false;
 	hitInfo.distance = INFINITY;
 
-	mat4 invTransform = inverse(blas.Transform);
-
-
-	ray.origin = vec3(invTransform * vec4(ray.origin, 1.0));
-	ray.dir = vec3(invTransform * vec4(ray.dir, 0.0));
-	ray.dir = normalize(ray.dir);
-	ray.invDir = 1.0 / ray.dir;
+	//TODO: works kinda, but with multiple object incorect depth testing
+	// mat4 invTransform = inverse(blas.Transform);
+	// ray.origin = vec3(invTransform * vec4(ray.origin, 1.0));
+	// ray.dir = vec3(invTransform * vec4(ray.dir, 0.0));
+	// ray.dir = normalize(ray.dir);
+	// ray.invDir = 1.0 / ray.dir;
 
 	while (stackIndex > 0)
 	{
@@ -68,12 +67,18 @@ HitInfo BLASIntersection(Ray ray, BLAS blas)
 				for (int i = triOffset; i < triOffset + triCount; i++)
 				{
 					Triangle tri = triBuffer.data[i];
+					tri.posA = vec3(blas.Transform * vec4(tri.posA, 1.0));
+					tri.posB = vec3(blas.Transform * vec4(tri.posB, 1.0));
+					tri.posC = vec3(blas.Transform * vec4(tri.posC, 1.0));
 					HitInfo triHit = RayTriangle(ray, tri);
 					if (triHit.hit && triHit.distance < hitInfo.distance)
 					{
 						hitInfo = triHit;
-						hitInfo.position = vec3(blas.Transform * vec4(hitInfo.position, 1.0));
-						hitInfo.normal = vec3(blas.Transform * vec4(hitInfo.normal, 0.0));
+						// hitInfo.position = vec3(blas.Transform * vec4(hitInfo.position, 1.0));
+						// hitInfo.normal = vec3(blas.Transform * vec4(hitInfo.normal, 0.0));
+						// hitInfo.position = vec3(invTransform * vec4(hitInfo.position, 1.0));
+						// hitInfo.normal = vec3(invTransform * vec4(hitInfo.normal, 0.0));
+
 						//TODO; uv coords as well
 					}
 				}
@@ -85,6 +90,9 @@ HitInfo BLASIntersection(Ray ray, BLAS blas)
 
 				AABB leftAABB = AABB(bvhData.data[leftIndex].Min, bvhData.data[leftIndex].Max);
 				AABB rightAABB = AABB(bvhData.data[rightIndex].Min, bvhData.data[rightIndex].Max);
+
+				leftAABB = RotateAABB(leftAABB, blas.Transform);
+				rightAABB = RotateAABB(rightAABB, blas.Transform);
 
 				float leftDst = RayBoundingBoxDst(ray, leftAABB);
 				float rightDst = RayBoundingBoxDst(ray, rightAABB);

@@ -118,6 +118,7 @@ namespace Rndr
 
 	ComputeShader::ComputeShader()
 	{
+		m_StorageBufferSlots.fill(m_MaxStorageBuffers);
 	}
 	
 	ComputeShader::~ComputeShader()
@@ -127,6 +128,7 @@ namespace Rndr
 
 	ComputeShader::ComputeShader(const std::string& filename)
 	{
+		m_StorageBufferSlots.fill(m_MaxStorageBuffers);
 		// std::string source = ReadFile(filename);
 		std::string source = loadAndProcessFile(filename);
 
@@ -194,14 +196,17 @@ namespace Rndr
 
 
 
-	uint32_t ComputeShader::GetUniformLocation(const std::string& name)
+	int32_t ComputeShader::GetUniformLocation(const std::string& name)
 	{
 		if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
 			return m_UniformLocationCache[name];
 
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		if (location == -1)
+		{
 			RNDR_CORE_WARN("Warning: uniform '{0}' doesn't exist!", name);
+			// return -1;
+		}
 			// std::cerr << "Warning: uniform '" << name << "' doesn't exist!" << std::endl;
 
 		m_UniformLocationCache[name] = location;
@@ -276,5 +281,35 @@ namespace Rndr
 		GLint location = GetUniformLocation(name);
 		if (location != -1)
 			glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+	}
+
+
+
+
+	std::tuple<uint32_t, bool> ComputeShader::GetBufferID(uint32_t slot)
+	{
+
+		if (slot >= m_MaxStorageBuffers)
+		{
+			RNDR_CORE_ERROR("Storage buffer slot out of range!");
+			return { 0, false };
+		}
+		if (m_StorageBufferSlots[slot] != m_MaxStorageBuffers)
+			return { m_StorageBufferSlots[slot], true };
+
+		uint32_t bufferID;
+		glCreateBuffers(1, &bufferID);
+		m_StorageBufferSlots[slot] = bufferID;
+		return { bufferID, true };
+	}
+
+	void ComputeShader::SetStorageBuffer(uint32_t slot, GLsizeiptr size, const void* data, GLenum usage)
+	{
+		auto [bufferID, exists] = GetBufferID(slot);
+		if (exists)
+		{
+			glNamedBufferData(bufferID, size, data, usage);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, bufferID);
+		}
 	}
 }

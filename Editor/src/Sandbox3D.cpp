@@ -484,6 +484,10 @@ namespace Rndr
 	void Sandbox3D::OnUpdate(Timestep ts)
 	{
 		// m_FrameCount = 1;
+		if (Scene::IsDirty())
+		{
+			m_FrameCount = 1;
+		}
 
 		Ref<FrameBuffer> fb = m_FrameBufferLibrary.Get("EditorFrameBuffer");
 		// FrameBufferSpecification spec = m_FrameBuffer->GetSpecification();
@@ -593,39 +597,34 @@ namespace Rndr
 			glBindImageTexture(0, m_TempComputeTextureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 			glBindImageTexture(1, m_SkyTextureID, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
 
-
-			auto bvhBuffer = m_ActiveScene->m_BVHBuffer;
-			// glCreateBuffers(1, &m_bvhSSBO);
-			glNamedBufferData(m_bvhSSBO, 
-				bvhBuffer.size() * sizeof(Mesh::bvhNode), 
-				bvhBuffer.data(), GL_DYNAMIC_DRAW);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_bvhSSBO);
-
-
-			// glCreateBuffers(1, &m_TriangleBuffer);
-			glNamedBufferData(m_TriangleBuffer, 
-				m_ActiveScene->m_Triangles.size() * sizeof(Mesh::Triangle), 
-				m_ActiveScene->m_Triangles.data(), GL_DYNAMIC_DRAW);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_TriangleBuffer);
-
 			m_ComputeShader->SetInt("u_TriangleCount", m_ActiveScene->m_Triangles.size());
 			m_ComputeShader->SetInt("u_BVHCount", m_ActiveScene->m_BVH.size());
 			m_ComputeShader->SetInt("u_BLASCount", m_ActiveScene->m_BLASes.size());
 
+			auto bvhBuffer = m_ActiveScene->m_BVHBuffer;
 
-			// uint32_t blasID;
-			// glCreateBuffers(1, &blasID);
-			glNamedBufferData(m_blasID, 
-				m_ActiveScene->m_BLASes.size() * sizeof(BLAS), 
-				m_ActiveScene->m_BLASes.data(), GL_DYNAMIC_DRAW);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_blasID);
 
-			// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_BVHBuffer);
-			// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_PositionsSSBO);
-			// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_IndexSSBO);
-			// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_bvhSSBO);
+			if (m_FrameCount == 1)
+			{
+			//TODO: implement dirty flag and abstract in compute shader class
+
+			m_ComputeShader->SetStorageBuffer(2,
+				m_ActiveScene->m_Triangles.size() * sizeof(Mesh::Triangle),
+				m_ActiveScene->m_Triangles.data(),
+				GL_DYNAMIC_DRAW);
+
+			m_ComputeShader->SetStorageBuffer(3,
+				bvhBuffer.size() * sizeof(bvhNode),
+				bvhBuffer.data(),
+				GL_DYNAMIC_DRAW);
+
+			m_ComputeShader->SetStorageBuffer(4,
+				m_ActiveScene->m_BLASes.size() * sizeof(BLAS),
+				m_ActiveScene->m_BLASes.data(),
+				GL_DYNAMIC_DRAW);
+			}
+
 			m_ComputeShader->Dispatch((m_ViewportSize.x + 7) / 8, (m_ViewportSize.y + 7) / 8, 1);
-			// glGetError();
 		}
 
 
@@ -708,6 +707,7 @@ namespace Rndr
 
 
 		m_FrameCount++;
+		// Scene::ResetDirty();
 	}
 
 
@@ -804,7 +804,10 @@ namespace Rndr
 
 
 			if (ImGui::Button("Refresh render view"))
-				m_FrameCount = 1;
+			{
+				// m_FrameCount = 1;
+				Scene::MarkDirty();
+			}
 
 			ImGui::Text("Framecount %d", m_FrameCount);
 
@@ -996,7 +999,7 @@ namespace Rndr
 
 	void Sandbox3D::OnEvent(Event& e)
 	{
-		m_FrameCount = 1;
+		// m_FrameCount = 1;
 		m_EditorCamera.OnEvent(e);
 		//TODO: camera controller
 	

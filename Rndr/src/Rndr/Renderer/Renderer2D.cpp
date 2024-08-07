@@ -1,7 +1,7 @@
 
 #include "Rndr/Renderer/Renderer2D.h"
 
-#include "Rndr/Renderer/VertexArray.h"
+#include "Rndr/Renderer/opengl/VertexArray.h"
 #include "Rndr/Renderer/Shader.h"
 #include "Rndr/Renderer/RenderCommand.h"
 

@@ -21,6 +21,8 @@
 
 namespace Rndr
 {
+	bool Scene::s_isDirty = false;
+
 	void Scene::drawBVH(bvhNode node, int depth, int visableDepth)
 	{
 		if (depth > visableDepth)

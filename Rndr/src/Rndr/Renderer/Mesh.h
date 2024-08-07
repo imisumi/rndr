@@ -64,7 +64,7 @@
 
 
 
-#include "Rndr/Renderer/VertexArray.h"
+#include "Rndr/Renderer/opengl/VertexArray.h"
 
 #include <filesystem>
 

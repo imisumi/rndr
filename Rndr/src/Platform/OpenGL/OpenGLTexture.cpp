@@ -29,8 +29,8 @@ namespace Rndr
 	{
 		std::string pathString = path.string();
 		std::filesystem::path current_path = std::filesystem::current_path();
-		RNDR_CORE_INFO("Current path: {0}", current_path.string());
-		RNDR_CORE_INFO("Loading texture from path: {0}", pathString);
+		// RNDR_CORE_INFO("Current path: {0}", current_path.string());
+		// RNDR_CORE_INFO("Loading texture from path: {0}", pathString);
 		auto inp = OIIO::ImageInput::open(pathString);
 		if (!inp)
 		{
@@ -49,8 +49,8 @@ namespace Rndr
 
 		inp->read_image(OIIO::TypeDesc::UINT8, pixels.get());
 		inp->close();
-		RNDR_CORE_INFO("Number of channels: {0}", m_nChannels);
-		RNDR_CORE_INFO("Image width: {0}, height: {1}", m_Width, m_Height);
+		// RNDR_CORE_INFO("Number of channels: {0}", m_nChannels);
+		// RNDR_CORE_INFO("Image width: {0}, height: {1}", m_Width, m_Height);
 
 		flipVertically(pixels.get(), m_Width, m_Height, m_nChannels);
 
@@ -83,8 +83,8 @@ namespace Rndr
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
 	{
 		std::filesystem::path current_path = std::filesystem::current_path();
-		RNDR_CORE_INFO("Current path: {0}", current_path.string());
-		RNDR_CORE_INFO("Loading texture from path: {0}", path);
+		// RNDR_CORE_INFO("Current path: {0}", current_path.string());
+		// RNDR_CORE_INFO("Loading texture from path: {0}", path);
 		auto inp = OIIO::ImageInput::open(path);
 		if (!inp)
 		{
@@ -103,8 +103,8 @@ namespace Rndr
 
 		inp->read_image(OIIO::TypeDesc::UINT8, pixels.get());
 		inp->close();
-		RNDR_CORE_INFO("Number of channels: {0}", m_nChannels);
-		RNDR_CORE_INFO("Image width: {0}, height: {1}", m_Width, m_Height);
+		// RNDR_CORE_INFO("Number of channels: {0}", m_nChannels);
+		// RNDR_CORE_INFO("Image width: {0}, height: {1}", m_Width, m_Height);
 
 		flipVertically(pixels.get(), m_Width, m_Height, m_nChannels);
 

@@ -120,6 +120,7 @@
 		"numeric": "cpp",
 		"numbers": "cpp",
 		"*.inc": "cpp",
-		"stdfloat": "cpp"
+		"stdfloat": "cpp",
+		"*.ipp": "cpp"
 	}
 }

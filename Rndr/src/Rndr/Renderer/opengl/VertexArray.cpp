@@ -1,6 +1,6 @@
 #include "VertexArray.h"
 
-#include "Renderer.h"
+// #include "Renderer.h"
 
 #include "Rndr/Core/Log.h"
 

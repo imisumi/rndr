@@ -7,6 +7,11 @@
 
 #include <unordered_map>
 
+#include <glad/glad.h>
+
+#include <array>
+#include <tuple>
+
 namespace Rndr
 {
 	class ComputeShader
@@ -28,7 +33,7 @@ namespace Rndr
 
 
 
-		uint32_t GetUniformLocation(const std::string& name);
+		int32_t GetUniformLocation(const std::string& name);
 
 		void SetBool(const std::string& name, bool value);
 
@@ -45,8 +50,18 @@ namespace Rndr
 		void SetMat3(const std::string& name, const glm::mat3& value);
 		void SetMat4(const std::string& name, const glm::mat4& value);
 
+
+
+
+
+		//? Storage Buffer
+		std::tuple<uint32_t, bool> GetBufferID(uint32_t slot);
+		void SetStorageBuffer(uint32_t slot, GLsizeiptr size, const void* data, GLenum usage);
 	public:
 		uint32_t m_RendererID = 0;
 		std::unordered_map<std::string, int32_t> m_UniformLocationCache;
+
+		static constexpr size_t m_MaxStorageBuffers = 16;
+		std::array<uint32_t, m_MaxStorageBuffers> m_StorageBufferSlots;
 	};
 }
