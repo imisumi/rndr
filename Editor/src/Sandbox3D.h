@@ -15,7 +15,7 @@
 
 #include "Rndr/Renderer/Mesh.h"
 
-#include "Rndr/Renderer/ComputeShader.h"
+#include "Rndr/Renderer/opengl/ComputeShader.h"
 
 
 
@@ -90,9 +90,6 @@ namespace Rndr
 
 		Ref<ComputeShader> m_ComputeShader;
 		uint32_t m_TempComputeTextureID;
-		uint32_t m_PositionsSSBO;
-		uint32_t m_IndexSSBO;
-		uint32_t m_bvhSSBO;
 
 		uint32_t m_TriangleBuffer;
 		uint32_t m_BVHBuffer;

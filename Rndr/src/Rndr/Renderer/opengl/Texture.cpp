@@ -1,16 +1,16 @@
-#include "OpenGLTexture.h"
+#include "Texture.h"
 
-#include "Rndr/Core/Log.h"
+
+#include "Rndr/Renderer/Renderer.h"
+// #include "Platform/OpenGL/OpenGLTexture.h"
+
 
 #include <glad/glad.h>
-
 #include <OpenImageIO/imageio.h>
 
-#include <iostream>
-#include <filesystem>
 namespace Rndr
 {
-	void flipVertically(unsigned char* data, int width, int height, int channels) {
+	static void flipVertically(unsigned char* data, int width, int height, int channels) {
 		int rowSize = width * channels;
 		std::vector<unsigned char> tempRow(rowSize);
 
@@ -25,7 +25,27 @@ namespace Rndr
 		}
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(const std::filesystem::path& path)
+	Ref<Texture2D> Texture2D::Create()
+	{
+		return CreateRef<Texture2D>();
+	}
+
+	Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height)
+	{
+		return CreateRef<Texture2D>(width, height);
+	}
+
+	Ref<Texture2D> Texture2D::Create(const std::string& path)
+	{
+		return CreateRef<Texture2D>(path);
+	}
+
+	Ref<Texture2D> Texture2D::Create(const std::filesystem::path& path)
+	{
+		return CreateRef<Texture2D>(path);
+	}
+
+	Texture2D::Texture2D(const std::filesystem::path& path)
 	{
 		std::string pathString = path.string();
 		std::filesystem::path current_path = std::filesystem::current_path();
@@ -80,7 +100,7 @@ namespace Rndr
 		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, pixels.get());
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
+	Texture2D::Texture2D(const std::string& path)
 	{
 		std::filesystem::path current_path = std::filesystem::current_path();
 		// RNDR_CORE_INFO("Current path: {0}", current_path.string());
@@ -134,7 +154,7 @@ namespace Rndr
 		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, pixels.get());
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height)
+	Texture2D::Texture2D(uint32_t width, uint32_t height)
 		: m_Width(width), m_Height(height)
 	{
 
@@ -151,19 +171,19 @@ namespace Rndr
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 
-	void OpenGLTexture2D::SetData(void* data, uint32_t size)
+	void Texture2D::SetData(void* data, uint32_t size)
 	{
 		uint32_t bpp = 4;
 		RNDR_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
 		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 
-	OpenGLTexture2D::~OpenGLTexture2D()
+	Texture2D::~Texture2D()
 	{
 		glDeleteTextures(1, &m_RendererID);
 	}
 
-	void OpenGLTexture2D::Bind(uint32_t slot) const
+	void Texture2D::Bind(uint32_t slot) const
 	{
 		glBindTextureUnit(slot, m_RendererID);
 	}

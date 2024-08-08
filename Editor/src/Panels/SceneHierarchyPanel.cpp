@@ -12,7 +12,7 @@
 #include <cstring>
 
 
-#include "Rndr/Renderer/Texture.h"
+#include "Rndr/Renderer/opengl/Texture.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>

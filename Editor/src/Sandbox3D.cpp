@@ -467,13 +467,6 @@ namespace Rndr
 
 
 		//? OCIO - OpenColorIO
-
-
-
-
-		glCreateBuffers(1, &m_blasID);
-		glCreateBuffers(1, &m_TriangleBuffer);
-		glCreateBuffers(1, &m_bvhSSBO);
 	}
 
 	void Sandbox3D::OnDetach()
@@ -490,26 +483,19 @@ namespace Rndr
 		}
 
 		Ref<FrameBuffer> fb = m_FrameBufferLibrary.Get("EditorFrameBuffer");
-		// FrameBufferSpecification spec = m_FrameBuffer->GetSpecification();
 		FrameBufferSpecification spec = fb->GetSpecification();
 		if (m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && (spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
 		{
 			m_FrameCount = 1;
-			FrameBufferSpecification spec;
-			spec.Width = m_ViewportSize.x;
-			spec.Height = m_ViewportSize.y;
-			// m_FrameBuffer = FrameBuffer::Create(spec);
-			// m_FrameBuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			fb->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			m_AccumulateFB->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			// m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
 			m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
 
 
 			glDeleteTextures(1, &m_TempComputeTextureID);
 			glCreateTextures(GL_TEXTURE_2D, 1, &m_TempComputeTextureID);
-			glTextureStorage2D(m_TempComputeTextureID, 1, GL_RGBA32F, spec.Width, spec.Height);
+			glTextureStorage2D(m_TempComputeTextureID, 1, GL_RGBA32F, m_ViewportSize.x, m_ViewportSize.y);
 			glTextureParameteri(m_TempComputeTextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTextureParameteri(m_TempComputeTextureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTextureParameteri(m_TempComputeTextureID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

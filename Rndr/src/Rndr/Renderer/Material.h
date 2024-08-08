@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Rndr/Core/Base.h"
-#include "Rndr/Renderer/Shader.h"
-#include "Rndr/Renderer/Texture.h"
+#include "Rndr/Renderer/opengl/Shader.h"
+#include "Rndr/Renderer/opengl/Texture.h"
 
 
 #include <glm/glm.hpp>

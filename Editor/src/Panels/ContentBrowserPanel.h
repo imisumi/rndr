@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include "Rndr/Renderer/Texture.h"
+#include "Rndr/Renderer/opengl/Texture.h"
 
 namespace Rndr
 {

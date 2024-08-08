@@ -2,7 +2,7 @@
 
 #include "Rndr/Renderer/OrthographicCamera.h"
 
-#include "Rndr/Renderer/Texture.h"
+#include "Rndr/Renderer/opengl/Texture.h"
 
 #include "Rndr/Renderer/Camera.h"
 

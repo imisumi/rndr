@@ -3,7 +3,7 @@
 #include "Rndr/Renderer/RenderCommand.h"
 
 #include "Rndr/Renderer/OrthographicCamera.h"
-#include "Rndr/Renderer/Shader.h"
+#include "Rndr/Renderer/opengl/Shader.h"
 
 namespace Rndr {
 
